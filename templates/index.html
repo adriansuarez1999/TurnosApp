@@ -84,6 +84,7 @@
       padding: 0.5rem;
       background: var(--color-secondary);
       border-radius: var(--radius-sm);
+      border: none;
     }
     .nav__hamburger span {
       display: block;
@@ -450,6 +451,7 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 1.25rem;
+      list-style: none;
     }
 
     /* Card */
@@ -526,6 +528,51 @@
       color: var(--color-primary);
       border-color: var(--color-accent);
     }
+    /* ─── CRUD: botones editar/eliminar en cards ─── */
+    .crud-acciones {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+      width: 100%;
+    }
+    .btn-editar, .btn-eliminar {
+      flex: 1;
+      padding: 0.4rem 0;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-editar {
+      background: rgba(197,157,95,0.2);
+      color: var(--color-accent);
+      border: 1px solid rgba(197,157,95,0.4);
+    }
+    .btn-eliminar {
+      background: rgba(220,53,69,0.15);
+      color: #ff6b7a;
+      border: 1px solid rgba(220,53,69,0.35);
+    }
+    .btn-editar:hover   { opacity: 0.8; }
+    .btn-eliminar:hover { opacity: 0.8; }
+
+    /* ─── Botón + Agregar barbería ─────────────────── */
+    .btn-nueva-barberia {
+      display: none;
+      margin: 1rem auto 0 auto;
+      padding: 0.6rem 1.4rem;
+      background: var(--color-accent);
+      color: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-nueva-barberia:hover { opacity: 0.85; }
 
     /* ═══════════════════════════════════════════════════════════
         FOOTER
@@ -790,7 +837,28 @@
     }
 
     /* ─── Navbar: estado LOGUEADO ────────────────────────────── */
-    /* Se muestra el nombre del usuario y botón salir */
+    .input-wrapper { position: relative; }
+    .input-wrapper input { width: 100%; padding-right: 2.8rem; }
+    .btn-ojo {
+      position: absolute; right: 0.75rem; top: 50%;
+      transform: translateY(-50%); background: none; border: none;
+      color: rgba(255,255,255,0.35); cursor: pointer; padding: 0.25rem;
+      display: flex; align-items: center; transition: color var(--transition);
+    }
+    .btn-ojo:hover { color: var(--color-accent); }
+    .form-grupo input.valido   { border-color: #5cb85c; }
+    .form-grupo input.invalido { border-color: #ff6b7a; }
+    .form-grupo .hint { font-size: 0.75rem; margin-top: 0.25rem; min-height: 1rem; }
+    .form-grupo .hint.ok    { color: #5cb85c; }
+    .form-grupo .hint.error { color: #ff6b7a; }
+    .caps-aviso { display: none; font-size: 0.75rem; color: #f0c040; margin-top: 0.25rem; }
+    .caps-aviso.visible { display: block; }
+    .login__extras { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; font-size: 0.8125rem; }
+    .login__recordar { display: flex; align-items: center; gap: 0.4rem; color: rgba(255,255,255,0.55); cursor: pointer; user-select: none; }
+    .login__recordar input[type="checkbox"] { accent-color: var(--color-accent); width: 15px; height: 15px; cursor: pointer; }
+    .login__olvide { color: var(--color-accent); cursor: pointer; text-decoration: underline; background: none; border: none; font-size: 0.8125rem; font-family: var(--font-body); padding: 0; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 0.5rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     .nav__logueado {
       display: none;
       align-items: center;
@@ -834,18 +902,13 @@
 </head>
 <body>
 
-  <!--  ╔══════════════════════════════════════════
-        ║  HEADER
-        ╚══════════════════════════════════════════ -->
   <header class="site-header" role="banner">
     <nav class="nav container" aria-label="Navegación principal">
 
-      <!-- Hamburger (mobile) -->
       <button class="nav__hamburger" aria-label="Abrir menú" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
 
-      <!-- Logo -->
       <a href="#" class="nav__logo" aria-label="BarberApp — Inicio">
         <div class="nav__logo-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -859,17 +922,15 @@
         <span class="nav__logo-text">Barber<span>App</span></span>
       </a>
 
-      <!-- Nav links (desktop) -->
       <ul class="nav__links" role="list">
-        <li><a href="#">Reservar turno</a></li>
+        <li><a href="#" id="nav-reservar">Reservar turno</a></li>
         <li><a href="#" id="nav-barberias">Barberías</a></li>
-        <li><a href="#">Mis turnos</a></li>
-        <li><a href="#">Promociones</a></li>
+        <li><a href="#" id="nav-misturnos">Mis turnos</a></li>
+        <li><a href="#" id="nav-promociones">Promociones</a></li>
       </ul>
 
       <div class="nav__spacer" aria-hidden="true"></div>
 
-      <!-- User avatar (mobile) -->
       <div class="nav__user">
         <div class="nav__avatar" aria-label="Perfil de usuario" role="img">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -880,13 +941,11 @@
         <span class="nav__user-label">Usuario</span>
       </div>
 
-      <!-- Auth buttons (desktop) -->
       <div class="nav__auth" role="group" aria-label="Acciones de cuenta">
         <button class="btn-outline" id="btn-crear-cuenta">Crear cuenta</button>
         <button class="btn-accent"  id="btn-acceder">Acceder</button>
       </div>
 
-      <!-- Estado logueado (se muestra al iniciar sesión) -->
       <div class="nav__logueado" id="nav-logueado">
         <p class="nav__bienvenida">Hola, <span id="nav-nombre-usuario"></span></p>
         <button class="btn-salir" id="btn-salir">Salir</button>
@@ -897,13 +956,9 @@
 
   <main id="main-content">
 
-    <!--  ╔══════════════════════════════════════════
-          ║  HERO
-          ╚══════════════════════════════════════════ -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="container hero__inner">
 
-        <!-- Content -->
         <div class="hero__content">
           <span class="hero__eyebrow">Plataforma de turnos</span>
           <h1 class="hero__title" id="hero-title">
@@ -911,15 +966,13 @@
             barberías de <em>tu zona</em>
           </h1>
 
-          <!-- Quick actions -->
           <div class="hero__actions" role="group" aria-label="Acciones rápidas">
             <button class="pill pill--primary" id="pill-reservar">✂ Reserva turno</button>
             <button class="pill" id="pill-barberias">📍 Barbería cercana</button>
-            <button class="pill" id="pill-mis-turnos">📅 Mis turnos</button>
+            <button class="pill" id="pill-misturnos">📅 Mis turnos</button>
             <button class="pill" id="pill-promociones">🏷 Promociones</button>
           </div>
 
-          <!-- Search -->
           <div class="hero__search" role="search">
             <label for="search-input" class="sr-only">Buscar barberías</label>
             <input
@@ -932,7 +985,6 @@
           </div>
         </div>
 
-        <!-- Hero image placeholder (desktop) -->
         <div class="hero__image" aria-hidden="true">
           <div class="hero__image-frame">
             <div class="hero__image-label">Vista previa</div>
@@ -942,9 +994,6 @@
       </div>
     </section>
 
-    <!-- ╔══════════════════════════════════════════
-         ║  OWNER CTA
-         ╚══════════════════════════════════════════ -->
     <section class="owner-cta" aria-label="Sección para dueños de barberías">
       <div class="container owner-cta__inner">
         <div class="owner-cta__scissors" aria-hidden="true">✂️</div>
@@ -952,84 +1001,27 @@
           <strong>¿Sos dueño de una barbería?</strong>
           <p>Sumá tu negocio y empezá a recibir reservas online hoy mismo.</p>
         </div>
-        <button class="btn-cta">Registrate</button>
+        <button class="btn-cta" id="btn-registrate-dueno">Registrate</button>
       </div>
     </section>
 
-    <!-- ╔══════════════════════════════════════════
-         ║  BARBERSHOP LISTING
-         ╚══════════════════════════════════════════ -->
     <section class="listing" aria-labelledby="listing-title">
       <div class="container">
 
         <header class="listing__header">
           <h2 id="listing-title">Encontrá tu mejor opción</h2>
-          <p>Las mejores barberías cerca tuyo, listas para reservar</p>
+          <button class="btn-nueva-barberia" id="btn-nueva-barberia"> 
+            + Agregar barbería
+          </button>
         </header>
 
-        <ul class="listing__grid" role="list" aria-label="Listado de barberías">
-
-          <!-- Card 1 -->
-          <li class="barber-card">
-            <div class="barber-card__logo" aria-label="Logo de barbería">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 3v12"/><path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M15 6l-9 9"/><path d="M18 15l-3-3"/>
-              </svg>
-            </div>
-            <p class="barber-card__name">La Navaja de Oro</p>
-            <button class="btn-card" aria-label="Ver turnos de La Navaja de Oro">Ver turnos</button>
-          </li>
-
-          <!-- Card 2 -->
-          <li class="barber-card">
-            <div class="barber-card__logo" aria-label="Logo de barbería">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 3v12"/><path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M15 6l-9 9"/><path d="M18 15l-3-3"/>
-              </svg>
-            </div>
-            <p class="barber-card__name">Estilo Clásico</p>
-            <button class="btn-card" aria-label="Ver turnos de Estilo Clásico">Ver turnos</button>
-          </li>
-
-          <!-- Card 3 -->
-          <li class="barber-card">
-            <div class="barber-card__logo" aria-label="Logo de barbería">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 3v12"/><path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M15 6l-9 9"/><path d="M18 15l-3-3"/>
-              </svg>
-            </div>
-            <p class="barber-card__name">El Barbero del Sur</p>
-            <button class="btn-card" aria-label="Ver turnos de El Barbero del Sur">Ver turnos</button>
-          </li>
-
-          <!-- Card 4 -->
-          <li class="barber-card">
-            <div class="barber-card__logo" aria-label="Logo de barbería">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 3v12"/><path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M15 6l-9 9"/><path d="M18 15l-3-3"/>
-              </svg>
-            </div>
-            <p class="barber-card__name">Tijeras & Talento</p>
-            <button class="btn-card" aria-label="Ver turnos de Tijeras y Talento">Ver turnos</button>
-          </li>
-
-        </ul>
+        <ul class="listing__grid" id="contenedor-barberias" role="list" aria-label="Listado de barberías"></ul>
+        
       </div>
     </section>
 
   </main>
 
-  <!-- ╔══════════════════════════════════════════
-       ║  FOOTER
-       ╚══════════════════════════════════════════ -->
   <footer class="site-footer" role="contentinfo">
     <div class="container footer__inner">
       <p class="footer__brand">Barber<span>App</span></p>
@@ -1038,9 +1030,6 @@
     </div>
   </footer>
 
-  <!-- ╔══════════════════════════════════════════
-       ║  MODAL — LOGIN (Acceder)
-       ╚══════════════════════════════════════════ -->
   <div class="modal-overlay" id="modal-login" role="dialog" aria-modal="true" aria-labelledby="titulo-login">
     <div class="modal">
       <button class="modal__cerrar" id="cerrar-login" aria-label="Cerrar">✕</button>
@@ -1060,16 +1049,28 @@
 
       <div class="form-grupo">
         <label for="login-password">Contraseña</label>
-        <input type="password" id="login-password" placeholder="Tu contraseña" autocomplete="current-password" />
+        <div class="input-wrapper">
+          <input type="password" id="login-password" placeholder="Tu contraseña" autocomplete="current-password" />
+          <button type="button" class="btn-ojo" id="ojo-login" aria-label="Ver contraseña">
+            <svg id="ojo-login-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <span class="caps-aviso" id="caps-login">⚠️ Caps Lock activado</span>
       </div>
 
+      <div class="login__extras">
+        <label class="login__recordar">
+          <input type="checkbox" id="login-recordar" />
+          Recordarme
+        </label>
+        <button type="button" class="login__olvide" id="btn-olvide">¿Olvidaste tu contraseña?</button>
+      </div>
       <button class="modal__btn-enviar" id="btn-login-enviar">Ingresar</button>
     </div>
   </div>
 
-  <!-- ╔══════════════════════════════════════════
-       ║  MODAL — REGISTRO (Crear cuenta)
-       ╚══════════════════════════════════════════ -->
   <div class="modal-overlay" id="modal-registro" role="dialog" aria-modal="true" aria-labelledby="titulo-registro">
     <div class="modal">
       <button class="modal__cerrar" id="cerrar-registro" aria-label="Cerrar">✕</button>
@@ -1105,203 +1106,431 @@
 
       <div class="form-grupo">
         <label for="reg-password">Contraseña</label>
-        <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+        <div class="input-wrapper">
+          <input type="password" id="reg-password" placeholder="Tu contraseña" autocomplete="current-password" />
+          <button type="button" class="btn-ojo" id="ojo-registro" aria-label="Ver contraseña">
+            <svg id="ojo-registro-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <span class="caps-aviso" id="caps-registro">⚠️ Caps Lock activado</span>
       </div>
 
       <button class="modal__btn-enviar" id="btn-registro-enviar">Crear mi cuenta</button>
     </div>
   </div>
 
-  <!-- ╔══════════════════════════════════════════
-       ║  JAVASCRIPT
-       ╚══════════════════════════════════════════ -->
-  <script>
-    /* ─────────────────────────────────────────────────────────────
-       CONFIGURACIÓN
-       Cuando el backend de Django esté listo, solo cambiás estas URLs
-       y el resto del código funciona igual.
-    ───────────────────────────────────────────────────────────── */
-    const API = {
-      login:    '/api/login/',     // ← URL Django
-      registro: '/api/registro/',  // ← URL Django
-    };
+  <div class="modal-overlay" id="modal-crud-barberia" role="dialog" aria-modal="true">
+    <div class="modal">
+      <button class="modal__cerrar" id="cerrar-crud-barberia" aria-label="Cerrar">✕</button>
 
-    // Modo simulado: true = sin backend (para desarrollo)
-    //                false = conecta con Django real
+      <h2 class="modal__titulo" id="crud-barberia-titulo">Nueva barbería</h2>
+      <p class="modal__subtitulo" id="crud-barberia-subtitulo">Completá los datos del negocio</p>
+
+      <div class="modal__alerta" id="alerta-crud-barberia"></div>
+
+      <div class="form-grupo">
+        <label for="crud-nombre">Nombre de la barbería</label>
+        <input type="text" id="crud-nombre" placeholder="Ej: La Navaja de Oro" />
+      </div>
+
+      <div class="form-grupo">
+        <label for="crud-direccion">Dirección</label>
+        <input type="text" id="crud-direccion" placeholder="Ej: Av. San Martín 123" />
+      </div>
+
+      <div class="form-fila">
+        <div class="form-grupo">
+          <label for="crud-apertura">Horario apertura</label>
+          <input type="time" id="crud-apertura" />
+        </div>
+        <div class="form-grupo">
+          <label for="crud-cierre">Horario cierre</label>
+          <input type="time" id="crud-cierre" />
+        </div>
+      </div>
+
+      <div class="form-grupo">
+        <label for="crud-celular">Teléfono</label>
+        <input type="tel" id="crud-celular" placeholder="Ej: 3644 123456" />
+      </div>
+
+      <div class="form-grupo">
+        <label for="crud-descripcion">Descripción</label>
+        <input type="text" id="crud-descripcion" placeholder="Ej: Especialistas en cortes modernos" />
+      </div>
+
+      <button class="modal__btn-enviar" id="btn-crud-guardar">Guardar</button>
+    </div>
+  </div>
+
+  <script>
+    /* ══════════════════════════════════════════
+      CONFIGURACIÓN Y DATOS
+    ══════════════════════════════════════════ */
+    const API = {
+      login:    '/api/login/',
+      registro: '/api/registro/',
+      barberias: '/api/barberias/'
+    };
     const MODO_SIMULADO = false;
 
-    /* ─────────────────────────────────────────────────────────────
-       REFERENCIAS A ELEMENTOS DEL DOM
-    ───────────────────────────────────────────────────────────── */
-    const modalLogin    = document.getElementById('modal-login');
-    const modalRegistro = document.getElementById('modal-registro');
-    const navAuth       = document.querySelector('.nav__auth');
-    const navLogueado   = document.getElementById('nav-logueado');
-    const navNombre     = document.getElementById('nav-nombre-usuario');
+    const usuariosSimulados = [
+      { email: 'juan@gmail.com',  password: '123456', nombre: 'Juan',    apellido: 'Ramirez' },
+      { email: 'julio@gmail.com', password: '123456', nombre: 'Julio',   apellido: 'Ramirez' },
+      { email: 'juan@test2.com',  password: '321',    nombre: 'Alberto', apellido: 'Roca'    },
+    ];
 
-    /* ─────────────────────────────────────────────────────────────
-       ABRIR / CERRAR MODALES
-    ───────────────────────────────────────────────────────────── */
-    function abrirModal(modal) {
-      modal.classList.add('activo');
-      document.body.style.overflow = 'hidden'; // evita scroll de fondo
+    // Datos iniciales de barberías pasados a estructura dinámica JS
+    let barberias = [
+      { id: 1, nombre: 'La Navaja de Oro', direccion: 'Av. Corrientes 1500', apertura: '09:00', cierre: '20:00', celular: '1123456789', descripcion: 'Estilo clásico y tradicional.' },
+      { id: 2, nombre: 'Estilo Clásico', direccion: 'Calle Florida 400', apertura: '10:00', cierre: '21:00', celular: '1198765432', descripcion: 'Atención premium.' },
+      { id: 3, nombre: 'El Barbero del Sur', direccion: 'Av. Belgrano 2500', apertura: '09:00', cierre: '19:00', celular: '1134567890', descripcion: 'Los mejores degradados.' },
+      { id: 4, nombre: 'Tijeras & Talento', direccion: 'Av. Santa Fe 3200', apertura: '08:00', cierre: '18:00', celular: '1145678901', descripcion: 'Cortes modernos y barba.' }
+    ];
+
+    /* ══════════════════════════════════════════
+      REFERENCIAS AL DOM
+    ══════════════════════════════════════════ */
+    const modalLogin        = document.getElementById('modal-login');
+    const modalRegistro     = document.getElementById('modal-registro');
+    const modalCrud         = document.getElementById('modal-crud-barberia');
+    const navAuth           = document.querySelector('.nav__auth');
+    const navLogueado       = document.getElementById('nav-logueado');
+    const navNombre         = document.getElementById('nav-nombre-usuario');
+    const contenedorGrid    = document.getElementById('contenedor-barberias');
+
+    /* ══════════════════════════════════════════
+      FUNCIONES DE RENDEREADO DINÁMICO (CRUD)
+    ══════════════════════════════════════════ */
+    function renderizarBarberias() {
+      contenedorGrid.innerHTML = '';
+      
+      if (barberias.length === 0) {
+        contenedorGrid.innerHTML = '<p class="sin-resultados">No hay barberías disponibles en este momento.</p>';
+        return;
+      }
+
+      const puedeVerControles = esAdminODueno();
+
+      barberias.forEach(barberia => {
+        const li = document.createElement('li');
+        li.className = 'barber-card';
+        li.dataset.id = barberia.id;
+        li.innerHTML = `
+          <div class="barber-card__logo" aria-label="Logo de ${barberia.nombre}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3v12"/><path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+              <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+              <path d="M15 6l-9 9"/><path d="M18 15l-3-3"/>
+            </svg>
+          </div>
+          <p class="barber-card__name">${barberia.nombre}</p>
+          <button class="btn-card" aria-label="Ver turnos de ${barberia.nombre}">Ver turnos</button>
+          <div class="crud-acciones" style="display: ${puedeVerControles ? 'flex' : 'none'}">
+            <button class="btn-editar" data-id="${barberia.id}">✏️ Editar</button>
+            <button class="btn-eliminar" data-id="${barberia.id}">🗑️ Eliminar</button>
+          </div>
+        `;
+        contenedorGrid.appendChild(li);
+      });
+
+      // Reasignar eventos a los botones recién creados
+      asignarEventosCards();
     }
 
+    function asignarEventosCards() {
+      // 1. Botón Editar
+      document.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.onclick = () => {
+          modoEdicion = true;
+          idEditando  = parseInt(btn.dataset.id);
+          const negocio = barberias.find(b => b.id === idEditando);
+          
+          if (!negocio) return;
+
+          document.getElementById('crud-barberia-titulo').textContent    = 'Editar barbería';
+          document.getElementById('crud-barberia-subtitulo').textContent = 'Modificá los datos del negocio';
+          document.getElementById('btn-crud-guardar').textContent        = 'Guardar cambios';
+          
+          // Cargar datos completos en el formulario
+          document.getElementById('crud-nombre').value      = negocio.nombre;
+          document.getElementById('crud-direccion').value   = negocio.direccion;
+          document.getElementById('crud-apertura').value    = negocio.apertura;
+          document.getElementById('crud-cierre').value      = negocio.cierre;
+          document.getElementById('crud-celular').value     = negocio.celular;
+          document.getElementById('crud-descripcion').value = negocio.descripcion;
+          
+          abrirModal(modalCrud);
+        };
+      });
+
+      // 2. Botón Eliminar
+      document.querySelectorAll('.btn-eliminar').forEach(btn => {
+        btn.onclick = async () => {
+          const id = parseInt(btn.dataset.id);
+          const negocio = barberias.find(b => b.id === id);
+          if (!negocio) return;
+
+          if (!confirm(`¿Seguro que querés eliminar "${negocio.nombre}"?`)) return;
+
+          if (MODO_SIMULADO) {
+            await new Promise(r => setTimeout(r, 400));
+            barberias = barberias.filter(b => b.id !== id);
+            renderizarBarberias();
+            alert('✅ Barbería eliminada con éxito.');
+          } else {
+            // 🔌 Backend Django futuro
+            // try {
+            //   const resp = await fetch(`${API.barberias}${id}/`, { method: 'DELETE' });
+            //   if(resp.ok) { barberias = barberias.filter(b => b.id !== id); renderizarBarberias(); }
+            // } catch(e) { alert('Error al conectar con el servidor.'); }
+          }
+        };
+      });
+
+      // 3. Botón Ver Turnos (Con validación de sesión para reservar)
+      document.querySelectorAll('.btn-card').forEach(boton => {
+        boton.onclick = async (e) => {
+          const cardPadre = e.target.closest('.barber-card');
+          const nombreBarberia = cardPadre.querySelector('.barber-card__name').textContent;
+          
+          const textoOriginal = boton.textContent;
+          boton.disabled = true;
+          boton.innerHTML = '<span class="spinner" style="border-top-color: var(--color-accent); width:12px; height:12px; margin-right:4px;"></span> Cargando...';
+
+          // Simulamos la espera del servidor Django
+          await new Promise(r => setTimeout(r, 1000));
+
+          boton.disabled = false;
+          boton.textContent = textoOriginal;
+
+          // Datos simulados de turnos
+          const diasDisponibles = ["Hoy", "Mañana", "Lunes", "Martes"];
+          const diaAleatorio = diasDisponibles[Math.floor(Math.random() * diasDisponibles.length)];
+          
+          // Mostramos la agenda y preguntamos si quiere reservar
+          const mensajeAgenda = `📅 Agenda de: "${nombreBarberia}"\n\nTurnos disponibles para ${diaAleatorio}:\n1) 10:00 hs\n2) 11:30 hs\n3) 15:00 hs\n4) 17:30 hs\n\n¿Querés seleccionar uno de estos turnos para reservar?`;
+          
+          if (confirm(mensajeAgenda)) {
+            // Verificamos si hay un usuario logueado usando tu función existente
+            const usuarioLogueado = esAdminODueno(); 
+
+            if (!usuarioLogueado) {
+              // Si NO está logueado, avisamos y abrimos el modal de Login
+              alert('🔑 Para confirmar tu reserva, primero tienes que iniciar sesión o crear una cuenta.');
+              abrirModal(modalLogin); 
+            } else {
+              // Si SÍ está logueado, confirma la reserva
+              alert(`🎉 ¡Reserva confirmada con éxito en "${nombreBarberia}" para ${diaAleatorio}!\nTe enviamos un comprobante.`);
+            }
+          }
+        };
+      });
+    }
+
+    /* ══════════════════════════════════════════
+      FUNCIONES DE MODAL
+    ══════════════════════════════════════════ */
+    function abrirModal(modal) {
+      modal.classList.add('activo');
+      document.body.style.overflow = 'hidden';
+    }
     function cerrarModal(modal) {
       modal.classList.remove('activo');
       document.body.style.overflow = '';
       limpiarAlerta(modal);
+      modal.querySelectorAll('input').forEach(i => i.value = '');
     }
-
-    // Cerrar si se hace click fuera de la caja
-    [modalLogin, modalRegistro].forEach(m => {
-      m.addEventListener('click', e => {
-        if (e.target === m) cerrarModal(m);
-      });
-    });
-
-    // Cerrar con tecla Escape
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        cerrarModal(modalLogin);
-        cerrarModal(modalRegistro);
-      }
-    });
-
-    // Botones que abren modales
-    document.getElementById('btn-acceder')
-      .addEventListener('click', () => abrirModal(modalLogin));
-
-    document.getElementById('btn-crear-cuenta')
-      .addEventListener('click', () => abrirModal(modalRegistro));
-
-    // Botones de cerrar (X)
-    document.getElementById('cerrar-login')
-      .addEventListener('click', () => cerrarModal(modalLogin));
-
-    document.getElementById('cerrar-registro')
-      .addEventListener('click', () => cerrarModal(modalRegistro));
-
-    // Links "¿Ya tenés cuenta?" / "Registrate acá"
-    document.getElementById('ir-a-registro').addEventListener('click', () => {
-      cerrarModal(modalLogin);
-      abrirModal(modalRegistro);
-    });
-    document.getElementById('ir-a-login').addEventListener('click', () => {
-      cerrarModal(modalRegistro);
-      abrirModal(modalLogin);
-    });
-
-    /* ─────────────────────────────────────────────────────────────
-       ALERTAS (mensajes de error / éxito dentro del modal)
-    ───────────────────────────────────────────────────────────── */
     function mostrarAlerta(modal, mensaje, tipo = 'error') {
-      const alerta = modal.querySelector('.modal__alerta');
-      alerta.textContent = mensaje;
-      alerta.className = 'modal__alerta ' + tipo;
+      const a = modal.querySelector('.modal__alerta');
+      if (!a) return;
+      a.textContent = mensaje;
+      a.className   = 'modal__alerta ' + tipo;
     }
-
     function limpiarAlerta(modal) {
-      const alerta = modal.querySelector('.modal__alerta');
-      alerta.textContent = '';
-      alerta.className = 'modal__alerta';
+      const a = modal.querySelector('.modal__alerta');
+      if (!a) return;
+      a.textContent = '';
+      a.className   = 'modal__alerta';
     }
 
-    /* ─────────────────────────────────────────────────────────────
-       ACTUALIZAR NAVBAR (cuando el usuario inicia sesión)
-    ───────────────────────────────────────────────────────────── */
+    /* ─── Cerrar modal al hacer click afuera o Escape ─── */
+    [modalLogin, modalRegistro, modalCrud].forEach(m => {
+      if (!m) return;
+      m.addEventListener('click', e => { if (e.target === m) cerrarModal(m); });
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') [modalLogin, modalRegistro, modalCrud].forEach(m => { if (m) cerrarModal(m); });
+    });
+
+    /* ══════════════════════════════════════════
+      NAVBAR E INTERFAZ USUARIO
+    ══════════════════════════════════════════ */
+    function esAdminODueno() {
+      return !!(localStorage.getItem('barberapp_usuario') || sessionStorage.getItem('barberapp_usuario'));
+    }
+
+    function mostrarControlesCRUD() {
+      const puede = esAdminODueno();
+      document.getElementById('btn-nueva-barberia').style.display = puede ? 'inline-block' : 'none';
+      renderizarBarberias(); // Vuelve a dibujar mostrando u ocultando botones internos
+    }
+
     function mostrarUsuarioLogueado(nombre) {
-      navNombre.textContent = nombre;
-      navAuth.style.display = 'none';
+      navNombre.textContent    = nombre;
+      navAuth.style.display    = 'none';
       navLogueado.style.display = 'flex';
+      mostrarControlesCRUD();
     }
-
     function mostrarNavSinSesion() {
-      navAuth.style.display = 'flex';
+      navAuth.style.display    = 'flex';
       navLogueado.style.display = 'none';
     }
 
+    document.getElementById('btn-acceder').addEventListener('click', () => abrirModal(modalLogin));
+    document.getElementById('btn-crear-cuenta').addEventListener('click', () => abrirModal(modalRegistro));
+    document.getElementById('cerrar-login').addEventListener('click', () => cerrarModal(modalLogin));
+    document.getElementById('cerrar-registro').addEventListener('click', () => cerrarModal(modalRegistro));
+    document.getElementById('ir-a-registro').addEventListener('click', () => { cerrarModal(modalLogin); abrirModal(modalRegistro); });
+    document.getElementById('ir-a-login').addEventListener('click', () => { cerrarModal(modalRegistro); abrirModal(modalLogin); });
+    
     document.getElementById('btn-salir').addEventListener('click', () => {
+      localStorage.removeItem('barberapp_usuario');
       sessionStorage.removeItem('barberapp_usuario');
       mostrarNavSinSesion();
+      mostrarControlesCRUD();
     });
 
-    /* ─────────────────────────────────────────────────────────────
-       LOGIN
-    ───────────────────────────────────────────────────────────── */
-    document.getElementById('btn-login-enviar').addEventListener('click', async () => {
-      const email    = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-      const btn      = document.getElementById('btn-login-enviar');
+    /* ─── Rutas de scroll y avisos simples ─── */
+    function scrollABarberias() {
+      document.querySelector('.listing').scrollIntoView({ behavior: 'smooth' });
+    }
+    function verPromociones() {
+      alert('Próximamente: promociones disponibles.\nSe conectará con Django cuando esté listo.');
+    }
+    function verMisTurnos() {
+      const usuario = localStorage.getItem('barberapp_usuario') || sessionStorage.getItem('barberapp_usuario');
+      if (!usuario) { abrirModal(modalLogin); return; }
+      alert('Hola ' + usuario + ', acá irán tus turnos cuando Django esté listo.');
+    }
 
-      // Validación básica
-      if (!email || !password) {
-        mostrarAlerta(modalLogin, '⚠️ Completá todos los campos.');
+    document.getElementById('nav-reservar').addEventListener('click', scrollABarberias);
+    document.getElementById('nav-barberias').addEventListener('click', scrollABarberias);
+    document.getElementById('nav-misturnos').addEventListener('click', verMisTurnos);
+    document.getElementById('nav-promociones').addEventListener('click', verPromociones);
+    document.getElementById('pill-reservar').addEventListener('click', scrollABarberias);
+    document.getElementById('pill-barberias').addEventListener('click', scrollABarberias);
+    document.getElementById('pill-misturnos').addEventListener('click', verMisTurnos);
+    document.getElementById('pill-promociones').addEventListener('click', verPromociones);
+    document.getElementById('btn-registrate-dueno').addEventListener('click', () => abrirModal(modalRegistro));
+
+    /* ─── Ver/Ocultar password ─── */
+    function toggleOjo(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icono = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icono.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        input.type = 'password';
+        icono.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+    document.getElementById('ojo-login').addEventListener('click', () => toggleOjo('login-password', 'ojo-login-icon'));
+    document.getElementById('ojo-registro').addEventListener('click', () => toggleOjo('reg-password', 'ojo-registro-icon'));
+
+    /* ─── Validaciones ─── */
+    document.getElementById('login-password').addEventListener('keyup', e => {
+      document.getElementById('caps-login').classList.toggle('visible', e.getModifierState('CapsLock'));
+    });
+    document.getElementById('login-email').addEventListener('input', () => {
+      const input = document.getElementById('login-email');
+      const val   = input.value.trim();
+      limpiarAlerta(modalLogin);
+      if (!val) { input.className = ''; return; }
+      const ok = val.includes('@') && val.includes('.');
+      input.classList.toggle('valido',   ok);
+      input.classList.toggle('invalido', !ok);
+    });
+    document.getElementById('login-password').addEventListener('input', () => limpiarAlerta(modalLogin));
+    // 1. Botón ¿Olvidaste tu contraseña? (Simulación de Recuperación Completa)
+    document.getElementById('btn-olvide').addEventListener('click', async () => {
+      const emailUsuario = prompt("Ingresá el correo electrónico asociado a tu cuenta para recuperar la contraseña:", document.getElementById('login-email').value);
+      
+      if (emailUsuario === null) return; 
+      
+      if (!emailUsuario.trim() || !emailUsuario.includes('@')) {
+        alert('⚠️ Por favor, ingresá un correo electrónico válido.');
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = 'Ingresando...';
+      cerrarModal(modalLogin); 
+      
+      const cargando = document.createElement('div');
+      cargando.style.position = 'fixed';
+      cargando.style.inset = '0';
+      cargando.style.background = 'rgba(0,0,0,0.8)';
+      cargando.style.color = 'var(--color-accent)';
+      cargando.style.display = 'flex';
+      cargando.style.justifyContent = 'center';
+      cargando.style.alignItems = 'center';
+      cargando.style.zIndex = '9999';
+      cargando.style.fontFamily = 'var(--font-body)';
+      cargando.innerHTML = `<div><span class="spinner"></span> Procesando solicitud de recuperación para ${emailUsuario}...</div>`;
+      document.body.appendChild(cargando);
+
+      await new Promise(r => setTimeout(r, 2000));
+      cargando.remove();
+
+      alert(`📩 ¡Correo enviado con éxito a ${emailUsuario}!\n\nRevisá tu bandeja de entrada para restablecer tu contraseña.`);
+    });
+
+    /* ══════════════════════════════════════════
+      AUTENTICACIÓN (LOGIN / REGISTRO)
+    ══════════════════════════════════════════ */
+    document.getElementById('btn-login-enviar').addEventListener('click', async () => {
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const recordar = document.getElementById('login-recordar').checked;
+      const btn      = document.getElementById('btn-login-enviar');
+
+      if (!email || !password) { mostrarAlerta(modalLogin, '⚠️ Completá todos los campos.'); return; }
+      if (!email.includes('@')) { mostrarAlerta(modalLogin, '⚠️ Email no válido.'); return; }
+
+      btn.disabled    = true;
+      btn.innerHTML   = '<span class="spinner"></span>Ingresando...';
       limpiarAlerta(modalLogin);
 
       try {
         let datos;
-
         if (MODO_SIMULADO) {
-          /* ── SIMULACIÓN (sin Django) ─────────────────────────
-             Usuarios de prueba basados en la base de datos real:
-             juan@gmail.com    / 123456
-             julio@gmail.com   / 123456
-             juan@test2.com    / 321
-          ────────────────────────────────────────────────────── */
-          await new Promise(r => setTimeout(r, 700)); // simula demora de red
-
-          const usuariosSimulados = [
-            { email: 'juan@gmail.com',  password: '123456', nombre: 'Juan',   apellido: 'Ramirez' },
-            { email: 'julio@gmail.com', password: '123456', nombre: 'Julio',  apellido: 'Ramirez' },
-            { email: 'juan@test2.com',  password: '321',    nombre: 'Alberto',apellido: 'Roca'    },
-          ];
-
-          const usuario = usuariosSimulados.find(
-            u => u.email === email && u.password === password
-          );
-
+          await new Promise(r => setTimeout(r, 700));
+          const usuario = usuariosSimulados.find(u => u.email === email && u.password === password);
           datos = usuario
             ? { ok: true,  nombre: usuario.nombre }
             : { ok: false, error: 'Email o contraseña incorrectos.' };
-
         } else {
-          /* ── REAL (con Django corriendo) ─────────────────────
-             Esta parte se activa cuando ponés MODO_SIMULADO = false
-          ────────────────────────────────────────────────────── */
-          const respuesta = await fetch(API.login, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-          datos = await respuesta.json();
+          const resp = await fetch(API.login, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+          datos = await resp.json();
         }
-
         if (datos.ok) {
-          sessionStorage.setItem('barberapp_usuario', datos.nombre);
+          const storage = recordar ? localStorage : sessionStorage;
+          storage.setItem('barberapp_usuario', datos.nombre);
           cerrarModal(modalLogin);
           mostrarUsuarioLogueado(datos.nombre);
         } else {
           mostrarAlerta(modalLogin, '❌ ' + datos.error);
         }
-
       } catch (err) {
         mostrarAlerta(modalLogin, '⚠️ No se pudo conectar con el servidor.');
-        console.error(err);
       } finally {
-        btn.disabled = false;
+        btn.disabled    = false;
         btn.textContent = 'Ingresar';
       }
     });
 
-    /* ─────────────────────────────────────────────────────────────
-       REGISTRO
-    ───────────────────────────────────────────────────────────── */
     document.getElementById('btn-registro-enviar').addEventListener('click', async () => {
       const nombre   = document.getElementById('reg-nombre').value.trim();
       const apellido = document.getElementById('reg-apellido').value.trim();
@@ -1310,146 +1539,151 @@
       const password = document.getElementById('reg-password').value;
       const btn      = document.getElementById('btn-registro-enviar');
 
-      // Validaciones
-      if (!nombre || !apellido || !email || !password) {
-        mostrarAlerta(modalRegistro, '⚠️ Completá los campos obligatorios.');
-        return;
-      }
-      if (password.length < 6) {
-        mostrarAlerta(modalRegistro, '⚠️ La contraseña debe tener al menos 6 caracteres.');
-        return;
-      }
-      if (!email.includes('@')) {
-        mostrarAlerta(modalRegistro, '⚠️ Ingresá un email válido.');
-        return;
-      }
+      if (!nombre || !apellido || !email || !password) { mostrarAlerta(modalRegistro, '⚠️ Completá los campos obligatorios.'); return; }
+      if (password.length < 6) { mostrarAlerta(modalRegistro, '⚠️ La contraseña debe tener al menos 6 caracteres.'); return; }
+      if (!email.includes('@')) { mostrarAlerta(modalRegistro, '⚠️ Ingresá un email válido.'); return; }
 
-      btn.disabled = true;
+      btn.disabled    = true;
       btn.textContent = 'Creando cuenta...';
       limpiarAlerta(modalRegistro);
 
       try {
         let datos;
-
         if (MODO_SIMULADO) {
-          /* ── SIMULACIÓN ──────────────────────────────────────── */
           await new Promise(r => setTimeout(r, 800));
+          usuariosSimulados.push({ email, password, nombre, apellido });
           datos = { ok: true, nombre };
-
         } else {
-          /* ── REAL (con Django) ───────────────────────────────── */
-          const respuesta = await fetch(API.registro, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, apellido, email, telefono, password }),
-          });
-          datos = await respuesta.json();
+          const resp = await fetch(API.registro, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre, apellido, email, telefono, password }) });
+          datos = await resp.json();
         }
-
         if (datos.ok) {
           mostrarAlerta(modalRegistro, '✅ ¡Cuenta creada! Iniciá sesión.', 'exito');
-          // Espera 1.5s y pasa al login
-          setTimeout(() => {
-            cerrarModal(modalRegistro);
-            abrirModal(modalLogin);
-            document.getElementById('login-email').value = email;
-          }, 1500);
+          setTimeout(() => { cerrarModal(modalRegistro); abrirModal(modalLogin); document.getElementById('login-email').value = email; }, 1500);
         } else {
           mostrarAlerta(modalRegistro, '❌ ' + (datos.error || 'Error al crear la cuenta.'));
         }
-
       } catch (err) {
         mostrarAlerta(modalRegistro, '⚠️ No se pudo conectar con el servidor.');
-        console.error(err);
       } finally {
-        btn.disabled = false;
+        btn.disabled    = false;
         btn.textContent = 'Crear mi cuenta';
       }
     });
 
-    /* ─────────────────────────────────────────────────────────────
-       RESTAURAR SESIÓN (si el usuario ya había ingresado)
-    ───────────────────────────────────────────────────────────── */
-    /* ─────────────────────────────────────────────────────────────
-       BUSCADOR
-       Filtra las cards de barberías según lo que escribe el usuario.
-       Cuando Django esté listo: reemplazás la lógica local por fetch()
-    ───────────────────────────────────────────────────────────── */
+    /* ══════════════════════════════════════════
+      BUSCADOR INTERNO
+    ══════════════════════════════════════════ */
     function ejecutarBusqueda() {
       const texto = document.getElementById('search-input').value.trim().toLowerCase();
       const cards = document.querySelectorAll('.barber-card');
-
-      // Quitamos mensaje anterior de "sin resultados" si existe
-      const prev = document.querySelector('.sin-resultados');
+      const prev  = document.querySelector('.sin-resultados');
       if (prev) prev.remove();
 
-      if (!texto) {
-        // Si está vacío → mostramos todo sin resaltado
-        cards.forEach(c => {
-          c.classList.remove('oculta', 'resaltada');
-        });
-        return;
-      }
+      if (!texto) { cards.forEach(c => c.classList.remove('oculta', 'resaltada')); return; }
 
-      let hayResultados = false;
-
+      let hay = false;
       cards.forEach(card => {
         const nombre = card.querySelector('.barber-card__name').textContent.toLowerCase();
-
         if (nombre.includes(texto)) {
-          card.classList.remove('oculta');
-          card.classList.add('resaltada');
-          hayResultados = true;
+          card.classList.remove('oculta'); card.classList.add('resaltada'); hay = true;
         } else {
-          card.classList.add('oculta');
-          card.classList.remove('resaltada');
+          card.classList.add('oculta'); card.classList.remove('resaltada');
         }
       });
 
-      // Si no hay nada que coincida, mostramos mensaje
-      if (!hayResultados) {
-        const grid = document.querySelector('.listing__grid');
-        const msg = document.createElement('p');
-        msg.className = 'sin-resultados';
+      if (!hay) {
+        const msg  = document.createElement('p');
+        msg.className   = 'sin-resultados';
         msg.textContent = 'No se encontraron barberías con "' + texto + '"';
-        grid.appendChild(msg);
+        contenedorGrid.appendChild(msg);
+      }
+    }
+
+    document.getElementById('btn-buscar').addEventListener('click', ejecutarBusqueda);
+    document.getElementById('search-input').addEventListener('keydown', e => { if (e.key === 'Enter') ejecutarBusqueda(); });
+    document.getElementById('search-input').addEventListener('input', e => { if (!e.target.value) ejecutarBusqueda(); });
+
+    /* ══════════════════════════════════════════
+      LÓGICA OPERATIVA DEL CRUD (MODAL FORM)
+    ══════════════════════════════════════════ */
+    let modoEdicion = false;
+    let idEditando  = null;
+
+    // Abrir Formulario para Nueva Barbería
+    document.getElementById('btn-nueva-barberia').addEventListener('click', () => {
+      modoEdicion = false; 
+      idEditando = null;
+      document.getElementById('crud-barberia-titulo').textContent    = 'Nueva barbería';
+      document.getElementById('crud-barberia-subtitulo').textContent = 'Completá los datos del negocio';
+      document.getElementById('btn-crud-guardar').textContent        = 'Agregar barbería';
+      
+      ['crud-nombre','crud-direccion','crud-apertura','crud-cierre','crud-celular','crud-descripcion']
+        .forEach(id => document.getElementById(id).value = '');
+      abrirModal(modalCrud);
+    });
+
+    // Guardar los datos en el Formulario (Crea o Edita)
+    document.getElementById('btn-crud-guardar').addEventListener('click', async () => {
+      const nombre      = document.getElementById('crud-nombre').value.trim();
+      const direccion   = document.getElementById('crud-direccion').value.trim();
+      const apertura    = document.getElementById('crud-apertura').value;
+      const cierre      = document.getElementById('crud-cierre').value;
+      const celular     = document.getElementById('crud-celular').value.trim();
+      const descripcion = document.getElementById('crud-descripcion').value.trim();
+      const btn         = document.getElementById('btn-crud-guardar');
+
+      if (!nombre || !direccion) { mostrarAlerta(modalCrud, '⚠️ Nombre y dirección son obligatorios.'); return; }
+
+      btn.disabled = true; 
+      btn.textContent = 'Guardando...';
+
+      if (MODO_SIMULADO) {
+        await new Promise(r => setTimeout(r, 600));
+
+        if (modoEdicion) {
+          // Lógica de Modificación
+          barberias = barberias.map(b => {
+            if (b.id === idEditando) {
+              return { ...b, nombre, direccion, apertura, cierre, celular, descripcion };
+            }
+            return b;
+          });
+        } else {
+          // Lógica de Alta
+          const nuevoId = barberias.length > 0 ? Math.max(...barberias.map(b => b.id)) + 1 : 1;
+          barberias.push({ id: nuevoId, nombre, direccion, apertura, cierre, celular, descripcion });
+        }
+
+        cerrarModal(modalCrud);
+        renderizarBarberias();
+        alert(modoEdicion ? '✅ Modificaciones guardadas.' : '✅ Barbería registrada.');
+      } else {
+        // 🔌 Backend Django
+        // try {
+        //   const url = modoEdicion ? `${API.barberias}${idEditando}/` : API.barberias;
+        //   const method = modoEdicion ? 'PUT' : 'POST';
+        //   const resp = await fetch(url, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({nombre, direccion, apertura, cierre, celular, descripcion}) });
+        //   if(resp.ok) { ... cerrar y actualizar ... }
+        // } catch(e) { mostrarAlerta(modalCrud, 'Error del servidor'); }
       }
 
-      // 🔌 Cuando Django esté listo, reemplazás todo lo de arriba por:
-      // const respuesta = await fetch(API.buscar + '?q=' + encodeURIComponent(texto));
-      // const datos = await respuesta.json();
-      // → y renderizás los datos que devuelva
-    }
-
-    // Click en botón Buscar
-    // ─── PILL: RESERVAR TURNO ──────────────────────────────
-document.getElementById('pill-reservar').addEventListener('click', () => {
-  // Hace scroll suave hasta la sección de barberías
-  document.querySelector('.listing').scrollIntoView({ behavior: 'smooth' });
-});
-    document.getElementById('btn-buscar').addEventListener('click', ejecutarBusqueda);
-
-    // También funciona apretando Enter desde el input
-    document.getElementById('search-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') ejecutarBusqueda();
+      btn.disabled = false;
+      btn.textContent = modoEdicion ? 'Guardar cambios' : 'Agregar barbería';
     });
 
-    // Si borra todo el texto → muestra todo de nuevo
-    document.getElementById('search-input').addEventListener('input', e => {
-      if (e.target.value === '') ejecutarBusqueda();
-    });
+    document.getElementById('cerrar-crud-barberia').addEventListener('click', () => cerrarModal(modalCrud));
 
-    // ─── BARBERÍAS ─────────────────────────────────────────
-function irABarberias() {
-  document.querySelector('.listing').scrollIntoView({ behavior: 'smooth' });
-}
-document.getElementById('nav-barberias').addEventListener('click', irABarberias);
-document.getElementById('pill-barberias').addEventListener('click', irABarberias);
-const usuarioGuardado = sessionStorage.getItem('barberapp_usuario');
+    /* ══════════════════════════════════════════
+      INICIALIZACIÓN DE LA APLICACIÓN
+      ══════════════════════════════════════════ */
+    const usuarioGuardado = localStorage.getItem('barberapp_usuario') || sessionStorage.getItem('barberapp_usuario');
     if (usuarioGuardado) {
       mostrarUsuarioLogueado(usuarioGuardado);
+    } else {
+      mostrarNavSinSesion();
+      mostrarControlesCRUD();
     }
   </script>
-
 </body>
 </html>

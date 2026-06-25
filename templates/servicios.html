@@ -1,0 +1,299 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicios — BarberApp</title>
+  <link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- BARRA DE NAVEGACIÓN -->
+  <nav class="navbar">
+    <div class="logo">
+      <span class="logo-icono"><i class="ti ti-scissors"></i></span>
+      <span class="logo-texto">BarberApp</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#">Reservar turno</a></li>
+      <li><a href="#">Barberías</a></li>
+      <li><a href="#">Mis turnos</a></li>
+      <li><a href="#" class="activo">Servicios</a></li>
+      <li><a href="#">Promociones</a></li>
+    </ul>
+    <div class="nav-botones">
+      <button class="btn btn-borde">Usuario</button>
+      <button class="btn btn-dorado">Acceder</button>
+    </div>
+  </nav>
+
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="contenido">
+
+    <!-- Título y botón nuevo -->
+    <div class="encabezado">
+      <div>
+        <h1 class="titulo">Gestión de <span class="dorado">servicios</span></h1>
+        <p class="subtitulo">Administrá los servicios de tu barbería</p>
+      </div>
+      <button class="btn btn-dorado" onclick="abrirModalCrear()">
+        <i class="ti ti-plus"></i> Nuevo servicio
+      </button>
+    </div>
+
+    <!-- LISTA DE SERVICIOS -->
+    <div class="grilla" id="grilla-servicios">
+
+      <!-- Tarjeta de ejemplo 1 -->
+      <div class="tarjeta">
+        <div class="tarjeta-cabeza">
+          <span class="tarjeta-nombre">Corte clásico</span>
+          <span class="tarjeta-precio">$1200</span>
+        </div>
+        <p class="tarjeta-desc">Corte de cabello con tijera y máquina.</p>
+        <div class="barber-data">
+          <img src="{% static 'imagenes/alien.jpg' %}" alt="">
+          <h5 class="nombre-barbero">Yancel Niklas</h5>
+          <button class="btn-icono" onclick="abrirModalBarbero(1, 'Yancel Niklas')">Editar</button>
+        </div>
+        <div class="tarjeta-pie">
+          <span class="tarjeta-id">ID #1</span>
+          <div class="tarjeta-acciones">
+            <button class="btn-icono btn-editar" title="Editar"
+              onclick="abrirModalEditar(1, 'Corte clásico', 1200, 'Corte de cabello con tijera y máquina.', 'Yancel Niklas')">
+              <i class="ti ti-edit"></i>
+            </button>
+            <button class="btn-icono btn-eliminar" title="Eliminar"
+              onclick="abrirModalEliminar(1, 'Corte clásico')">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de ejemplo 2 -->
+      <div class="tarjeta">
+        <div class="tarjeta-cabeza">
+          <span class="tarjeta-nombre">Arreglo de barba</span>
+          <span class="tarjeta-precio">$800</span>
+        </div>
+        <p class="tarjeta-desc">Perfilado y arreglo completo de barba.</p>
+        <div class="barber-data">
+          <img src="{% static 'imagenes/alien.jpg' %}" alt="">
+          <h5 class="nombre-barbero">Yancel Niklas</h5>
+          <button class="btn-icono" onclick="abrirModalBarbero(2, 'Yancel Niklas')">Editar</button>
+        </div>
+        <div class="tarjeta-pie">
+          <span class="tarjeta-id">ID #2</span>
+          <div class="tarjeta-acciones">
+            <button class="btn-icono btn-editar" title="Editar"
+              onclick="abrirModalEditar(2, 'Arreglo de barba', 800, 'Perfilado y arreglo completo de barba.', 'Yancel Niklas')">
+              <i class="ti ti-edit"></i>
+            </button>
+            <button class="btn-icono btn-eliminar" title="Eliminar"
+              onclick="abrirModalEliminar(2, 'Arreglo de barba')">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de ejemplo 3 -->
+      <div class="tarjeta">
+        <div class="tarjeta-cabeza">
+          <span class="tarjeta-nombre">Combo corte + barba</span>
+          <span class="tarjeta-precio">$1800</span>
+        </div>
+        <p class="tarjeta-desc">Servicio completo de corte y barba.</p>
+        <div class="barber-data">
+          <img src="{% static 'imagenes/alien.jpg' %}" alt="">
+          <h5 class="nombre-barbero">Yancel Niklas</h5>
+          <button class="btn-icono" onclick="abrirModalBarbero(3, 'Yancel Niklas')">Editar</button>
+        </div>
+        <div class="tarjeta-pie">
+          <span class="tarjeta-id">ID #3</span>
+          <div class="tarjeta-acciones">
+            <button class="btn-icono btn-editar" title="Editar"
+              onclick="abrirModalEditar(3, 'Combo corte + barba', 1800, 'Servicio completo de corte y barba.', 'Yancel Niklas')">
+              <i class="ti ti-edit"></i>
+            </button>
+            <button class="btn-icono btn-eliminar" title="Eliminar"
+              onclick="abrirModalEliminar(3, 'Combo corte + barba')">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- MODAL: CREAR / EDITAR SERVICIO -->
+  <div class="fondo-modal" id="modal-form">
+    <div class="modal">
+
+      <div class="modal-cabeza">
+        <h2 id="modal-titulo">Nuevo servicio</h2>
+        <button onclick="cerrarModal('modal-form')" class="btn-cerrar">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+      <div class="campo">
+        <label for="f-nombre">Nombre del servicio *</label>
+        <input type="text" id="f-nombre" name="nombre" maxlength="45" placeholder="Ej: Corte clásico">
+      </div>
+
+      <div class="campo">
+        <label for="f-precio">Precio ($) *</label>
+        <input type="number" id="f-precio" name="precio" min="0" placeholder="1200">
+      </div>
+
+      <div class="campo">
+        <label for="f-descripcion">Descripción (opcional)</label>
+        <input type="text" id="f-descripcion" name="descripcion" maxlength="100" placeholder="Descripción breve...">
+      </div>
+
+      <div class="campo">
+        <label for="f-barbero">Nombre del barbero *</label>
+        <input type="text" id="f-barbero" name="nombre_barbero" maxlength="45" placeholder="Ej: Juan Pérez">
+      </div>
+
+      <div class="campo">
+        <label for="f-foto">Foto del barbero</label>
+        <input type="file" id="f-foto" name="foto_barbero" accept="image/*" class="input-file">
+        <span class="campo-ayuda">Formatos aceptados: JPG, PNG, WEBP</span>
+      </div>
+
+      <div class="modal-botones">
+        <button class="btn btn-borde" onclick="cerrarModal('modal-form')">Cancelar</button>
+        <button class="btn btn-dorado">Guardar</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- MODAL: CONFIRMAR ELIMINAR -->
+  <div class="fondo-modal" id="modal-eliminar">
+    <div class="modal modal-chico">
+
+      <h2 class="del-titulo">¿Eliminar servicio?</h2>
+      <p class="del-texto">
+        Vas a eliminar <strong id="del-nombre"></strong>. Esta acción no se puede deshacer.
+      </p>
+
+      <div class="modal-botones">
+        <button class="btn btn-borde" onclick="cerrarModal('modal-eliminar')">Cancelar</button>
+        <button class="btn btn-rojo">Eliminar</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- MODAL: EDITAR BARBERO -->
+  <div class="fondo-modal" id="modal-barbero">
+    <div class="modal">
+
+      <div class="modal-cabeza">
+        <h2>Editar barbero</h2>
+        <button onclick="cerrarModal('modal-barbero')" class="btn-cerrar">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+      <div class="campo">
+        <label for="b-nombre">Nombre del barbero *</label>
+        <input type="text" id="b-nombre" name="nombre_barbero" maxlength="45" placeholder="Ej: Juan Pérez">
+      </div>
+
+      <div class="campo">
+        <label for="b-foto">Foto del barbero</label>
+        <input type="file" id="b-foto" name="foto_barbero" accept="image/*" class="input-file">
+        <span class="campo-ayuda">Formatos aceptados: JPG, PNG, WEBP</span>
+      </div>
+
+      <div class="modal-botones">
+        <button class="btn btn-borde" onclick="cerrarModal('modal-barbero')">Cancelar</button>
+        <button class="btn btn-dorado">Guardar</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <script>
+
+    /* ---- ABRIR Y CERRAR MODALES ---- */
+
+    function abrirModal(id) {
+      document.getElementById(id).classList.add("abierto");
+    }
+
+    function cerrarModal(id) {
+      document.getElementById(id).classList.remove("abierto");
+    }
+
+    /* Cerrar si se hace click en el fondo oscuro */
+    document.querySelectorAll(".fondo-modal").forEach(function(fondo) {
+      fondo.addEventListener("click", function(e) {
+        if (e.target === fondo) {
+          fondo.classList.remove("abierto");
+        }
+      });
+    });
+
+
+    /* ---- MODAL CREAR ---- */
+
+    function abrirModalCrear() {
+      document.getElementById("modal-titulo").textContent = "Nuevo servicio";
+      document.getElementById("f-nombre").value      = "";
+      document.getElementById("f-precio").value      = "";
+      document.getElementById("f-descripcion").value = "";
+      document.getElementById("f-barbero").value     = "";
+      document.getElementById("f-foto").value        = "";
+      abrirModal("modal-form");
+    }
+
+
+    /* ---- MODAL EDITAR ---- */
+
+    function abrirModalEditar(id, nombre, precio, descripcion, barbero) {
+      document.getElementById("modal-titulo").textContent = "Editar servicio";
+      document.getElementById("f-nombre").value      = nombre;
+      document.getElementById("f-precio").value      = precio;
+      document.getElementById("f-descripcion").value = descripcion;
+      document.getElementById("f-barbero").value     = barbero;
+      document.getElementById("f-foto").value        = "";
+      abrirModal("modal-form");
+    }
+
+
+    /* ---- MODAL ELIMINAR ---- */
+
+    function abrirModalEliminar(id, nombre) {
+      document.getElementById("del-nombre").textContent = '"' + nombre + '"';
+      abrirModal("modal-eliminar");
+    }
+
+
+    /* ---- MODAL BARBERO ---- */
+
+    function abrirModalBarbero(id, nombreBarbero) {
+      document.getElementById("b-nombre").value = nombreBarbero;
+      document.getElementById("b-foto").value   = "";
+      abrirModal("modal-barbero");
+    }
+
+  </script>
+
+</body>
+</html>
