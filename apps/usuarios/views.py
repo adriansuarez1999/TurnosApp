@@ -1,9 +1,11 @@
+from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import Usuario, Servicio
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
+import json
 
 
 def home(request):
@@ -29,7 +31,7 @@ def login(request):
             data = json.loads(request.body)
 
             user = Usuario.objects.get(
-                email=data['correo'],
+                email=data['email'],
                 password=data['password']
             )
 
@@ -59,7 +61,7 @@ def registro(request):
         try:
             data = json.loads(request.body)
 
-            if Usuario.objects.filter(email=data['correo']).exists():
+            if Usuario.objects.filter(email=data['email']).exists():
                 return JsonResponse({
                     'ok': False,
                     'error': 'El email ya esta registrado.'
@@ -68,9 +70,12 @@ def registro(request):
             Usuario.objects.create(
                 nombre=data['nombre'],
                 apellido=data['apellido'],
-                email=data['correo'],
+                email=data['email'],
                 telefono=data.get('telefono', ''),
-                password=data['password']
+                password=data['password'],
+                rol='cliente',
+                estado='activo',
+                fecha_registro=datetime.now(),
             )
 
             return JsonResponse({
@@ -164,3 +169,8 @@ def servicio_detalle(request, id):
             return JsonResponse({'ok': False, 'error': str(e)})
 
     return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+
+
+# ══════════════════════════════════════════
+# Agregar barbería
+# ══════════════════════════════════════════
