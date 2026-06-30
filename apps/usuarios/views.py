@@ -171,6 +171,4 @@ def servicio_detalle(request, id):
     return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
 
 
-# ══════════════════════════════════════════
-# Agregar barbería
-# ══════════════════════════════════════════
+
