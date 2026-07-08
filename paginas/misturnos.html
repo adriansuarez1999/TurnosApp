@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis turnos — BarberApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <nav class="nav container" aria-label="Navegación principal">
+      <a href="../index.html" class="nav__logo" aria-label="BarberApp — Inicio">
+        <div class="nav__logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3v12"/>
+            <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M15 6l-9 9"/>
+            <path d="M18 15l-3-3"/>
+          </svg>
+        </div>
+        <span class="nav__logo-text">Barber<span>App</span></span>
+      </a>
+      <div class="nav__spacer" aria-hidden="true"></div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section class="misturnos">
+      <div class="container">
+
+        <a href="../index.html" class="volver" style="color: rgba(17,17,17,0.5);">← Volver al inicio</a>
+
+        <header class="listing__header" style="margin-top:1rem;">
+          <h2>Mis turnos</h2>
+          <p>Revisá tus próximos turnos y tu historial</p>
+        </header>
+
+        <div class="misturnos__seccion">
+          <h2>Próximos turnos</h2>
+          <ul class="turnos-lista" id="lista-proximos" role="list"></ul>
+        </div>
+
+        <div class="misturnos__seccion">
+          <h2>Turnos pasados</h2>
+          <ul class="turnos-lista" id="lista-pasados" role="list"></ul>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer__inner">
+      <p class="footer__brand">Barber<span>App</span></p>
+      <div class="footer__divider" aria-hidden="true"></div>
+      <p class="footer__copy">© 2026 BarberApp — Todos los derechos reservados</p>
+    </div>
+  </footer>
+
+  <!-- ╔══════════════════════════════════════════
+       ║  MODAL — CONFIRMAR CANCELACIÓN
+       ╚══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-cancelar" role="dialog" aria-modal="true" aria-labelledby="titulo-cancelar">
+    <div class="modal">
+      <button class="modal__cerrar" id="cerrar-modal-cancelar" aria-label="Cerrar">✕</button>
+      <h2 class="modal__titulo" id="titulo-cancelar">¿Cancelar turno?</h2>
+      <p class="modal__subtitulo">Esta acción no se puede deshacer.</p>
+      <div class="modal__botones-confirmacion">
+        <button class="modal__btn-enviar btn-secundario" id="btn-cancelar-no">No, volver</button>
+        <button class="modal__btn-enviar" id="btn-cancelar-si">Sí, cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/mock-data.js"></script>
+  <script src="../js/turnos-utils.js"></script>
+  <script src="../js/misturnos.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalle de barbería — BarberApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <nav class="nav container" aria-label="Navegación principal">
+      <a href="../index.html" class="nav__logo" aria-label="BarberApp — Inicio">
+        <div class="nav__logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3v12"/>
+            <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M15 6l-9 9"/>
+            <path d="M18 15l-3-3"/>
+          </svg>
+        </div>
+        <span class="nav__logo-text">Barber<span>App</span></span>
+      </a>
+      <div class="nav__spacer" aria-hidden="true"></div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <div id="detalle-contenido">
+
+      <!--  ╔══════════════════════════════════════════
+            ║  HERO DE LA BARBERÍA
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-hero">
+        <div class="container">
+          <a href="../index.html" class="volver">← Volver al listado</a>
+
+          <div class="detalle-hero__inner">
+            <div class="detalle-hero__foto" id="detalle-foto"></div>
+            <div>
+              <h1 class="detalle-hero__nombre" id="detalle-nombre">Cargando...</h1>
+              <p class="detalle-hero__zona" id="detalle-zona"></p>
+              <p class="detalle-hero__desc" id="detalle-descripcion"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!--  ╔══════════════════════════════════════════
+            ║  SERVICIOS
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-section">
+        <div class="container">
+          <h2>Servicios y precios</h2>
+          <ul class="servicios-lista" id="lista-servicios" role="list"></ul>
+        </div>
+      </section>
+
+      <!--  ╔══════════════════════════════════════════
+            ║  BARBEROS
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-section">
+        <div class="container">
+          <h2>Nuestros barberos</h2>
+          <ul class="barberos-lista" id="lista-barberos" role="list"></ul>
+        </div>
+      </section>
+
+      <!--  ╔══════════════════════════════════════════
+            ║  CTA RESERVAR
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-cta">
+        <div class="container">
+          <button class="btn-primario" id="btn-reservar-turno">Reservar turno</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer__inner">
+      <p class="footer__brand">Barber<span>App</span></p>
+      <div class="footer__divider" aria-hidden="true"></div>
+      <p class="footer__copy">© 2026 BarberApp — Todos los derechos reservados</p>
+    </div>
+  </footer>
+
+  <script src="../js/mock-data.js"></script>
+  <script src="../js/turnos-utils.js"></script>
+  <script src="../js/detalle.js"></script>
+</body>
+</html>

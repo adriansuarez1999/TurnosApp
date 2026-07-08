@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BarberApp — Reservá tu turno</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!--  ╔══════════════════════════════════════════
+        ║  HEADER
+        ╚══════════════════════════════════════════ -->
+  <header class="site-header" role="banner">
+    <nav class="nav container" aria-label="Navegación principal">
+
+      <button class="nav__hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <a href="#" class="nav__logo" aria-label="BarberApp — Inicio">
+        <div class="nav__logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3v12"/>
+            <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M15 6l-9 9"/>
+            <path d="M18 15l-3-3"/>
+          </svg>
+        </div>
+        <span class="nav__logo-text">Barber<span>App</span></span>
+      </a>
+
+      <ul class="nav__links" role="list">
+        <li><a href="#">Reservar turno</a></li>
+        <li><a href="#" id="nav-barberias">Barberías</a></li>
+        <li><a href="paginas/misturnos.html">Mis turnos</a></li>
+        <li><a href="#">Promociones</a></li>
+      </ul>
+
+      <div class="nav__spacer" aria-hidden="true"></div>
+
+      <div class="nav__user">
+        <div class="nav__avatar" aria-label="Perfil de usuario" role="img">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <span class="nav__user-label">Usuario</span>
+      </div>
+
+      <div class="nav__auth" role="group" aria-label="Acciones de cuenta">
+        <button class="btn-outline" id="btn-crear-cuenta">Crear cuenta</button>
+        <button class="btn-accent"  id="btn-acceder">Acceder</button>
+      </div>
+
+      <div class="nav__logueado" id="nav-logueado">
+        <p class="nav__bienvenida">Hola, <span id="nav-nombre-usuario"></span></p>
+        <button class="btn-salir" id="btn-salir">Salir</button>
+      </div>
+
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <!--  ╔══════════════════════════════════════════
+          ║  HERO
+          ╚══════════════════════════════════════════ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__inner">
+
+        <div class="hero__content">
+          <span class="hero__eyebrow">Plataforma de turnos</span>
+          <h1 class="hero__title" id="hero-title">
+            Descubrí las mejores<br>
+            barberías de <em>tu zona</em>
+          </h1>
+
+          <div class="hero__actions" role="group" aria-label="Acciones rápidas">
+            <button class="pill pill--primary" id="pill-reservar">✂ Reserva turno</button>
+            <button class="pill" id="pill-barberias">📍 Barbería cercana</button>
+            <button class="pill" id="pill-mis-turnos">📅 Mis turnos</button>
+            <button class="pill" id="pill-promociones">🏷 Promociones</button>
+          </div>
+
+          <div class="hero__search" role="search">
+            <label for="search-input" class="sr-only">Buscar barberías</label>
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Buscar barbería, zona o servicio..."
+              aria-label="Buscar barbería"
+            />
+            <button type="submit" id="btn-buscar" aria-label="Buscar">Buscar</button>
+          </div>
+        </div>
+
+        <div class="hero__image" aria-hidden="true">
+          <div class="hero__image-frame">
+            <div class="hero__image-label">Vista previa</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════════
+         ║  OWNER CTA
+         ╚══════════════════════════════════════════ -->
+    <section class="owner-cta" aria-label="Sección para dueños de barberías">
+      <div class="container owner-cta__inner">
+        <div class="owner-cta__scissors" aria-hidden="true">✂️</div>
+        <div class="owner-cta__text">
+          <strong>¿Sos dueño de una barbería?</strong>
+          <p>Sumá tu negocio y empezá a recibir reservas online hoy mismo.</p>
+        </div>
+        <button class="btn-cta">Registrate</button>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════════
+         ║  BARBERSHOP LISTING
+         ╚══════════════════════════════════════════ -->
+    <section class="listing" aria-labelledby="listing-title">
+      <div class="container">
+
+        <header class="listing__header">
+          <h2 id="listing-title">Encontrá tu mejor opción</h2>
+          <p>Las mejores barberías cerca tuyo, listas para reservar</p>
+        </header>
+
+        <ul
+            class="listing__grid"
+            id="listado-barberias"
+            role="list"
+            aria-label="Listado de barberías">
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ╔══════════════════════════════════════════
+       ║  FOOTER
+       ╚══════════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer__inner">
+      <p class="footer__brand">Barber<span>App</span></p>
+      <div class="footer__divider" aria-hidden="true"></div>
+      <p class="footer__copy">© 2026 BarberApp — Todos los derechos reservados</p>
+    </div>
+  </footer>
+
+  <!-- ╔══════════════════════════════════════════
+       ║  MODAL — LOGIN (Acceder)
+       ╚══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-login" role="dialog" aria-modal="true" aria-labelledby="titulo-login">
+    <div class="modal">
+      <button class="modal__cerrar" id="cerrar-login" aria-label="Cerrar">✕</button>
+
+      <h2 class="modal__titulo" id="titulo-login">Bienvenido</h2>
+      <p class="modal__subtitulo">
+        ¿No tenés cuenta?
+        <a id="ir-a-registro">Registrate acá</a>
+      </p>
+
+      <div class="modal__alerta" id="alerta-login"></div>
+
+      <div class="form-grupo">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email" />
+      </div>
+
+      <div class="form-grupo">
+        <label for="login-password">Contraseña</label>
+        <input type="password" id="login-password" placeholder="Tu contraseña" autocomplete="current-password" />
+      </div>
+
+      <button class="modal__btn-enviar" id="btn-login-enviar">Ingresar</button>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════════
+       ║  MODAL — REGISTRO (Crear cuenta)
+       ╚══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-registro" role="dialog" aria-modal="true" aria-labelledby="titulo-registro">
+    <div class="modal">
+      <button class="modal__cerrar" id="cerrar-registro" aria-label="Cerrar">✕</button>
+
+      <h2 class="modal__titulo" id="titulo-registro">Crear cuenta</h2>
+      <p class="modal__subtitulo">
+        ¿Ya tenés cuenta?
+        <a id="ir-a-login">Iniciá sesión</a>
+      </p>
+
+      <div class="modal__alerta" id="alerta-registro"></div>
+
+      <div class="form-fila">
+        <div class="form-grupo">
+          <label for="reg-nombre">Nombre</label>
+          <input type="text" id="reg-nombre" placeholder="Juan" />
+        </div>
+        <div class="form-grupo">
+          <label for="reg-apellido">Apellido</label>
+          <input type="text" id="reg-apellido" placeholder="Pérez" />
+        </div>
+      </div>
+
+      <div class="form-grupo">
+        <label for="reg-email">Email</label>
+        <input type="email" id="reg-email" placeholder="tu@email.com" autocomplete="email" />
+      </div>
+
+      <div class="form-grupo">
+        <label for="reg-telefono">
+            Teléfono
+            <small class="texto-opcional">(opcional)</small>
+        </label>
+        <input type="tel" id="reg-telefono" placeholder="3644 123456">
+      </div>
+
+      <div class="form-grupo">
+        <label for="reg-password">Contraseña</label>
+        <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+      </div>
+
+      <button class="modal__btn-enviar" id="btn-registro-enviar">Crear mi cuenta</button>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════════
+       ║  JAVASCRIPT
+       ╚══════════════════════════════════════════ -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/turnos-utils.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/barberias.js"></script>
+</body>
+</html>
