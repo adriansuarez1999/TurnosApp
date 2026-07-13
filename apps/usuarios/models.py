@@ -148,26 +148,6 @@ class Suscripcion(models.Model):
         db_table = 'suscripcion'
 
 
-class Turno(models.Model):
-    id_turno = models.AutoField(primary_key=True)
-    id_cliente = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='id_cliente')
-    id_barbero = models.ForeignKey(Barbero, models.DO_NOTHING, db_column='id_barbero')
-    id_servicio = models.ForeignKey(Servicio, models.DO_NOTHING, db_column='id_servicio')
-    fecha = models.DateField()
-    hora_inicio = models.TimeField()
-    hora_fin = models.TimeField()
-    estado = models.CharField(max_length=10)
-    monto_total = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha_reserva = models.DateTimeField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
-    created_by = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='created_by', related_name='turno_created_by_set', blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'turno'
-
-
 class Usuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)

@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
 from .models import Usuario, Servicio
 from django.contrib import admin
@@ -24,16 +25,20 @@ urlpatterns = [
 # AUTENTICACION
 # ══════════════════════════════════════════
 
+# LOGIN
 @csrf_exempt
 def login(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
 
-            user = Usuario.objects.get(
-                email=data['email'],
-                password=data['password']
-            )
+            user = Usuario.objects.get(email=data['email'])
+
+            if not check_password(data['password'], user.password):
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'Credenciales incorrectas'
+                })
 
             return JsonResponse({
                 'ok': True,
@@ -43,7 +48,7 @@ def login(request):
         except Usuario.DoesNotExist:
             return JsonResponse({
                 'ok': False,
-                'error': 'Email o contrasena incorrectos.'
+                'error': 'Credenciales incorrectas'
             })
 
         except Exception as e:
@@ -52,9 +57,12 @@ def login(request):
                 'error': str(e)
             })
 
-    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+    return JsonResponse({
+        'ok': False,
+        'error': 'Método no permitido'
+    })
 
-
+# REGISTRO
 @csrf_exempt
 def registro(request):
     if request.method == 'POST':
@@ -64,7 +72,7 @@ def registro(request):
             if Usuario.objects.filter(email=data['email']).exists():
                 return JsonResponse({
                     'ok': False,
-                    'error': 'El email ya esta registrado.'
+                    'error': 'El email ya está registrado'
                 })
 
             Usuario.objects.create(
@@ -72,10 +80,10 @@ def registro(request):
                 apellido=data['apellido'],
                 email=data['email'],
                 telefono=data.get('telefono', ''),
-                password=data['password'],
+                password=make_password(data['password']),
                 rol='cliente',
                 estado='activo',
-                fecha_registro=datetime.now(),
+                fecha_registro=datetime.now()
             )
 
             return JsonResponse({
@@ -89,7 +97,10 @@ def registro(request):
                 'error': str(e)
             })
 
-    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+    return JsonResponse({
+        'ok': False,
+        'error': 'Método no permitido'
+    })
 
 
 # ══════════════════════════════════════════
