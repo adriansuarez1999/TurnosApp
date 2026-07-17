@@ -9,5 +9,4 @@ urlpatterns = [
     # Servicios
     path('servicios/', views.servicios),
     path('servicios/<int:id>/', views.servicio_detalle),
-    path('turnos/', include('apps.turnos.urls')),
 ]
