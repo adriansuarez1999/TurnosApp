@@ -12,14 +12,6 @@ import json
 def home(request):
     return render(request, 'index.html')
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    path('', home),
-
-    path('api/', include('apps.usuarios.urls')),
-]
-
 
 # ══════════════════════════════════════════
 # AUTENTICACION
@@ -42,6 +34,7 @@ def login(request):
 
             return JsonResponse({
                 'ok': True,
+                'id_usuario': user.id_usuario,
                 'nombre': user.nombre
             })
 

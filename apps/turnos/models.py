@@ -1,12 +1,11 @@
 from django.db import models
-from apps.usuarios.models import Usuario, Barbero, Servicio
 
 # Create your models here.
 class Turno(models.Model):
     id_turno = models.AutoField(primary_key=True)
-    id_cliente = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='id_cliente')
-    id_barbero = models.ForeignKey(Barbero, models.DO_NOTHING, db_column='id_barbero')
-    id_servicio = models.ForeignKey(Servicio, models.DO_NOTHING, db_column='id_servicio')
+    id_cliente = models.ForeignKey('usuarios.Usuario', models.DO_NOTHING, db_column='id_cliente')
+    id_barbero = models.ForeignKey('usuarios.Barbero', models.DO_NOTHING, db_column='id_barbero')
+    id_servicio = models.ForeignKey('usuarios.Servicio', models.DO_NOTHING, db_column='id_servicio')
     fecha = models.DateField()
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
@@ -23,7 +22,7 @@ class Turno(models.Model):
     fecha_reserva = models.DateTimeField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    created_by = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='created_by', related_name='turno_created_by_set', blank=True, null=True)
+    created_by = models.ForeignKey('usuarios.Usuario', models.DO_NOTHING, db_column='created_by', related_name='turno_created_by_set', blank=True, null=True)
 
     class Meta:
         managed = False

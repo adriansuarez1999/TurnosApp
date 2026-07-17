@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class BarberiasConfig(AppConfig):
-    name = 'barberias'
+    name = 'apps.barberias'

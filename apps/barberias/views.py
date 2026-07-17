@@ -1,5 +1,8 @@
 from django.shortcuts import render
-from usuarios.models import Barberia
+from .models import Barberia
+
+def pagina_barberias(request):
+    return render(request, 'paginas/indexGuido.html')
 
 # ══════════════════════════════════════════
 # Agregar barbería
