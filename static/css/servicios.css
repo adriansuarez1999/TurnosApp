@@ -1,0 +1,412 @@
+/* BARBERAPP — servicios.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #111;
+  color: #eee;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 15px;
+}
+
+
+/* ---- NAVBAR ---- */
+
+.navbar {
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 0 28px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icono {
+  background-color: #c9a84c;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  font-size: 16px;
+}
+
+.logo-texto {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  flex: 1;
+}
+
+.nav-links a {
+  color: #888;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.nav-links a:hover,
+.nav-links a.activo {
+  color: #c9a84c;
+}
+
+.nav-botones {
+  display: flex;
+  gap: 10px;
+}
+
+
+/* ---- BOTONES ---- */
+
+.btn {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-dorado {
+  background-color: #c9a84c;
+  color: #111;
+  font-weight: 700;
+}
+
+.btn-dorado:hover {
+  background-color: #e0bc5a;
+}
+
+.btn-borde {
+  background: none;
+  border: 1px solid #444;
+  color: #ccc;
+}
+
+.btn-borde:hover {
+  border-color: #c9a84c;
+  color: #c9a84c;
+}
+
+.btn-rojo {
+  background-color: #e24b4a;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-rojo:hover {
+  background-color: #c93a39;
+}
+
+
+/* ---- CONTENIDO ---- */
+
+.contenido {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 28px;
+}
+
+.encabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  color: #fff;
+}
+
+.dorado {
+  color: #c9a84c;
+}
+
+.subtitulo {
+  font-size: 13px;
+  color: #777;
+  margin-top: 4px;
+}
+
+
+/* ---- GRILLA DE TARJETAS ---- */
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 14px;
+}
+
+.tarjeta {
+  width: 500px;
+  height: 220px;
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 18px;
+}
+.tarjeta-cabeza {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+.tarjeta-nombre {
+  font-size: 15px;
+  font-weight: 600;
+  color: #eee;
+}
+.tarjeta-precio {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: #c9a84c;
+  white-space: nowrap;
+}
+.tarjeta-desc {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.barber-data {
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.barber-data img {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+}
+.barber-data button:hover {
+  border-color: #c9a84c;
+  color: #c9a84c;
+}
+
+.tarjeta-pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #222;
+  padding-top: 12px;
+}
+
+.tarjeta-id {
+  font-size: 11px;
+  color: #555;
+}
+
+.tarjeta-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icono {
+  background: none;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: #888;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.btn-editar:hover {
+  border-color: #c9a84c;
+  color: #c9a84c;
+}
+
+.btn-eliminar:hover {
+  border-color: #e24b4a;
+  color: #e24b4a;
+}
+
+
+/* ---- MODALES ---- */
+
+.fondo-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+
+.fondo-modal.abierto {
+  display: flex;
+}
+
+.modal {
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.modal-chico {
+  max-width: 360px;
+  text-align: center;
+}
+
+.modal-cabeza {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-cabeza h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: #fff;
+}
+
+.btn-cerrar {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.btn-cerrar:hover {
+  color: #eee;
+}
+
+
+/* ---- FORMULARIO ---- */
+
+.campo {
+  margin-bottom: 16px;
+}
+
+.campo label {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 6px;
+}
+
+.campo input {
+  width: 100%;
+  background-color: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #eee;
+  font-size: 13px;
+  font-family: 'Segoe UI', sans-serif;
+  outline: none;
+}
+
+.campo input:focus {
+  border-color: #c9a84c;
+}
+
+.campo input.con-error {
+  border-color: #e24b4a;
+}
+
+.error {
+  display: block;
+  font-size: 11px;
+  color: #e24b4a;
+  margin-top: 4px;
+  min-height: 14px;
+}
+
+.modal-botones {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.modal-botones .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+
+/* ---- MODAL ELIMINAR ---- */
+
+.del-titulo {
+  font-size: 17px;
+  font-weight: 600;
+  color: #eee;
+  margin-bottom: 10px;
+}
+
+.del-texto {
+  font-size: 13px;
+  color: #888;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.del-texto strong {
+  color: #eee;
+}
+
+
+/* ---- INPUT FILE ---- */
+
+.input-file {
+  width: 100%;
+  background-color: #111;
+  border: 1px dashed #3a3a3a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #888;
+  font-size: 13px;
+  font-family: 'Segoe UI', sans-serif;
+  cursor: pointer;
+}
+
+.input-file:hover {
+  border-color: #c9a84c;
+}
+
+.campo-ayuda {
+  display: block;
+  font-size: 11px;
+  color: #555;
+  margin-top: 4px;
+}

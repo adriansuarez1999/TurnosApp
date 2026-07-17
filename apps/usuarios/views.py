@@ -1,7 +1,21 @@
+from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
-from .models import Usuario
+from .models import Usuario, Servicio
+from django.contrib import admin
+from django.urls import path, include
+from django.shortcuts import render
 import json
+
+
+def home(request):
+    return render(request, 'index.html')
+
+
+# ══════════════════════════════════════════
+# AUTENTICACION
+# ══════════════════════════════════════════
 
 # LOGIN
 @csrf_exempt
@@ -10,13 +24,17 @@ def login(request):
         try:
             data = json.loads(request.body)
 
-            user = Usuario.objects.get(
-                email=data['email'],
-                password=data['password']
-            )
+            user = Usuario.objects.get(email=data['email'])
+
+            if not check_password(data['password'], user.password):
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'Credenciales incorrectas'
+                })
 
             return JsonResponse({
                 'ok': True,
+                'id_usuario': user.id_usuario,
                 'nombre': user.nombre
             })
 
@@ -37,7 +55,6 @@ def login(request):
         'error': 'Método no permitido'
     })
 
-
 # REGISTRO
 @csrf_exempt
 def registro(request):
@@ -56,7 +73,10 @@ def registro(request):
                 apellido=data['apellido'],
                 email=data['email'],
                 telefono=data.get('telefono', ''),
-                password=data['password']
+                password=make_password(data['password']),
+                rol='cliente',
+                estado='activo',
+                fecha_registro=datetime.now()
             )
 
             return JsonResponse({
@@ -74,3 +94,85 @@ def registro(request):
         'ok': False,
         'error': 'Método no permitido'
     })
+
+
+# ══════════════════════════════════════════
+# CRUD SERVICIOS
+# ══════════════════════════════════════════
+
+@csrf_exempt
+def servicios(request):
+    # Listar todos
+    if request.method == 'GET':
+        lista = list(Servicio.objects.values(
+            'id_servicio', 'nombre', 'precio', 'descripcion'
+        ))
+        return JsonResponse({'ok': True, 'servicios': lista})
+
+    # Crear nuevo
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            if not data.get('nombre') or not data.get('precio'):
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'Nombre y precio son obligatorios.'
+                })
+
+            s = Servicio.objects.create(
+                nombre=data['nombre'],
+                precio=data['precio'],
+                descripcion=data.get('descripcion', '')
+            )
+
+            return JsonResponse({
+                'ok': True,
+                'id_servicio': s.id_servicio,
+                'nombre': s.nombre
+            })
+
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)})
+
+    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+
+
+@csrf_exempt
+def servicio_detalle(request, id):
+    # Editar
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            s = Servicio.objects.get(id_servicio=id)
+
+            s.nombre = data.get('nombre', s.nombre)
+            s.precio = data.get('precio', s.precio)
+            s.descripcion = data.get('descripcion', s.descripcion)
+            s.save()
+
+            return JsonResponse({'ok': True, 'nombre': s.nombre})
+
+        except Servicio.DoesNotExist:
+            return JsonResponse({'ok': False, 'error': 'Servicio no encontrado.'})
+
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)})
+
+    # Eliminar
+    if request.method == 'DELETE':
+        try:
+            s = Servicio.objects.get(id_servicio=id)
+            s.delete()
+            return JsonResponse({'ok': True})
+
+        except Servicio.DoesNotExist:
+            return JsonResponse({'ok': False, 'error': 'Servicio no encontrado.'})
+
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)})
+
+    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+
+
+

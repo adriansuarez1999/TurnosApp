@@ -1,5 +1,9 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 # BASE
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,11 +21,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apps.barberias',
     'apps.usuarios',
+    'apps.turnos',
     
-
-    # futuras apps
-    # 'apps.usuarios',
 ]
 
 # MIDDLEWARE
@@ -38,11 +41,11 @@ MIDDLEWARE = [
 # URLS
 ROOT_URLCONF = 'barberia_project.urls'
 
-# TEMPLATES (🔥 ESTO ERA LO IMPORTANTE)
+# TEMPLATES
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # ← carpeta templates
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -57,11 +60,15 @@ TEMPLATES = [
 # WSGI
 WSGI_APPLICATION = 'barberia_project.wsgi.application'
 
-# BASE DE DATOS
+# BASE DE DATOS — MySQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
 
@@ -87,7 +94,7 @@ TIME_ZONE = 'America/Argentina/Buenos_Aires'
 USE_I18N = True
 USE_TZ = True
 
-# STATIC FILES (para CSS, JS, etc.)
+# STATIC FILES
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
