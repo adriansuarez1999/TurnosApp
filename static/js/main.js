@@ -7,11 +7,12 @@
 const API = {
   login:    '/api/login/',
   registro: '/api/registro/',
+  logout:   '/api/logout/',
 };
 
 // Modo simulado: true = sin backend (para desarrollo)
 //                false = conecta con Django real
-const MODO_SIMULADO = false;
+const MODO_SIMULADO = true;
 
 /* ── Referencias ─────────────────────────────────────────── */
 const modalLogin    = document.getElementById('modal-login');
@@ -19,6 +20,7 @@ const modalRegistro  = document.getElementById('modal-registro');
 const navAuth        = document.querySelector('.nav__auth');
 const navLogueado    = document.getElementById('nav-logueado');
 const navNombre      = document.getElementById('nav-nombre-usuario');
+const navUser        = document.querySelector('.nav__user');
 
 /* ── Abrir / cerrar modales ──────────────────────────────── */
 function abrirModal(modal) {
@@ -71,13 +73,23 @@ function limpiarAlerta(modal) {
 function mostrarUsuarioLogueado(nombre) {
   navNombre.textContent = nombre;
   navAuth.style.display = 'none';
+  navUser.style.display = 'none';
   navLogueado.style.display = 'flex';
 }
 function mostrarNavSinSesion() {
   navAuth.style.display = 'flex';
+  navUser.style.display = 'flex';
   navLogueado.style.display = 'none';
 }
-document.getElementById('btn-salir').addEventListener('click', () => {
+document.getElementById('btn-salir').addEventListener('click', async () => {
+  try {
+    await fetch(API.logout, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    });
+  } catch (err) {
+    console.error(err);
+  }
   sessionStorage.removeItem('barberapp_usuario');
   mostrarNavSinSesion();
 });
@@ -114,7 +126,10 @@ document.getElementById('btn-login-enviar').addEventListener('click', async () =
     } else {
       const respuesta = await fetch(API.login, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
         body: JSON.stringify({ email, password }),
       });
       datos = await respuesta.json();
@@ -134,6 +149,16 @@ document.getElementById('btn-login-enviar').addEventListener('click', async () =
     btn.disabled = false;
     btn.textContent = 'Ingresar';
   }
+});
+
+/* ── Enviar login con Enter ───────────────────────────────── */
+[document.getElementById('login-email'), document.getElementById('login-password')].forEach(input => {
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('btn-login-enviar').click();
+    }
+  });
 });
 
 /* ── REGISTRO ─────────────────────────────────────────────── */
@@ -171,7 +196,10 @@ document.getElementById('btn-registro-enviar').addEventListener('click', async (
     } else {
       const respuesta = await fetch(API.registro, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
         body: JSON.stringify({ nombre, apellido, email, telefono, password }),
       });
       datos = await respuesta.json();

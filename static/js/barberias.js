@@ -11,7 +11,7 @@
 ═══════════════════════════════════════════════════════════ */
 
 // Cambiar a false cuando el endpoint de Gonzalo esté disponible.
-const MODO_SIMULADO_BARBERIAS = false;
+const MODO_SIMULADO_BARBERIAS = true;
 
 const API_BARBERIAS = {
   listar:  '/api/barberias/',
@@ -23,7 +23,7 @@ let barberiasActuales = []; // guardamos la última lista traída, para el busca
 /* ── Obtener barberías (real o simulado) ─────────────────── */
 async function obtenerBarberias() {
   const listado = document.getElementById('listado-barberias');
-  listado.innerHTML = '<li class="listing__estado">Cargando barberías...</li>';
+  listado.innerHTML = '<li class="col-12 listing__estado">Cargando barberías...</li>';
 
   try {
     let datos;
@@ -54,27 +54,29 @@ function renderizarBarberias(barberias) {
   listado.innerHTML = '';
 
   if (!barberias || barberias.length === 0) {
-    listado.innerHTML = '<li class="listing__estado">No hay barberías para mostrar.</li>';
+    listado.innerHTML = '<li class="col-12 listing__estado">No hay barberías para mostrar.</li>';
     return;
   }
 
   barberias.forEach(barberia => {
     const li = document.createElement('li');
-    li.className = 'barber-card';
+    li.className = 'col';
     li.innerHTML = `
-      <div class="barber-card__logo">
-        ${barberia.foto
-          ? `<img src="${barberia.foto}" alt="Foto de ${barberia.nombre}">`
-          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-               <path d="M6 3v12"/>
-               <path d="M18 9a3 3 0 1 0 0-6"/>
-               <path d="M6 21a3 3 0 1 0 0-6"/>
-               <path d="M15 6l-9 9"/>
-               <path d="M18 15l-3-3"/>
-             </svg>`}
+      <div class="barber-card">
+        <div class="barber-card__logo">
+          ${barberia.foto
+            ? `<img src="${barberia.foto}" alt="Foto de ${barberia.nombre}">`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                 <path d="M6 3v12"/>
+                 <path d="M18 9a3 3 0 1 0 0-6"/>
+                 <path d="M6 21a3 3 0 1 0 0-6"/>
+                 <path d="M15 6l-9 9"/>
+                 <path d="M18 15l-3-3"/>
+               </svg>`}
+        </div>
+        <p class="barber-card__name">${barberia.nombre}</p>
+        <button class="btn-card" data-id="${barberia.id}">Ver turnos</button>
       </div>
-      <p class="barber-card__name">${barberia.nombre}</p>
-      <button class="btn-card" data-id="${barberia.id}">Ver turnos</button>
     `;
     listado.appendChild(li);
   });
@@ -109,7 +111,7 @@ function ejecutarBusqueda() {
 
   if (filtradas.length === 0) {
     const listado = document.getElementById('listado-barberias');
-    listado.innerHTML = `<li class="sin-resultados">No se encontraron barberías con "${texto}"</li>`;
+    listado.innerHTML = `<li class="col-12 sin-resultados">No se encontraron barberías con "${texto}"</li>`;
   }
 
   // 🔌 Cuando el buscador de Gonzalo esté listo (CU-03), reemplazar lo de arriba por:

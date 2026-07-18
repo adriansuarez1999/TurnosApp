@@ -8,15 +8,17 @@ from apps.usuarios.models import Barbero, Servicio
 from .models import Turno
 
 
-@csrf_exempt
 def crear_turno(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
 
+    id_cliente = request.session.get('id_usuario')
+    if not id_cliente:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión para reservar un turno.'}, status=401)
+
     try:
         data = json.loads(request.body)
 
-        id_cliente = data['id_cliente']
         id_barbero = data.get('id_barbero')   # puede venir None → asignación automática
         id_servicio = data['id_servicio']
         fecha = data['fecha']
@@ -37,7 +39,6 @@ def crear_turno(request):
         with transaction.atomic():
 
             if id_barbero:
-                # ── Caso: cliente eligió un barbero puntual ──
                 try:
                     barbero = Barbero.objects.get(id_barbero=id_barbero)
                 except Barbero.DoesNotExist:
@@ -57,7 +58,6 @@ def crear_turno(request):
                     }, status=409)
 
             else:
-                # ── Caso: "Cualquiera disponible" → asignación automática ──
                 candidatos = Barbero.objects.filter(id_barberia=servicio.id_barberia_id)
 
                 barbero = None
@@ -109,7 +109,6 @@ def crear_turno(request):
         return JsonResponse({'ok': False, 'error': f'Falta el campo {e}'}, status=400)
     except Exception as e:
         return JsonResponse({'ok': False, 'error': str(e)}, status=400)
-
 
 def _parsear_hora(valor):
     # Acepta 'HH:MM' o 'HH:MM:SS'
@@ -168,29 +167,24 @@ def turnos_disponibles(request):
     return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
 
 
-@csrf_exempt
 def cancelar_turno(request, id):
-    # PATCH /turnos/<id>/cancelar/
     if request.method == 'PATCH':
+        id_cliente = request.session.get('id_usuario')
+        if not id_cliente:
+            return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
         try:
-            data = json.loads(request.body)
+            turno = Turno.objects.get(id_turno=id)
+        except Turno.DoesNotExist:
+            return JsonResponse({'ok': False, 'error': 'Turno no encontrado.'}, status=404)
 
-            try:
-                id_cliente = int(data.get('id_cliente'))
-            except (TypeError, ValueError):
-                return JsonResponse({'ok': False, 'error': 'id_cliente invalido.'}, status=400)
+        if turno.id_cliente_id != id_cliente:
+            return JsonResponse({
+                'ok': False,
+                'error': 'No tenes permiso para cancelar este turno.'
+            }, status=403)
 
-            try:
-                turno = Turno.objects.get(id_turno=id)
-            except Turno.DoesNotExist:
-                return JsonResponse({'ok': False, 'error': 'Turno no encontrado.'}, status=404)
-
-            if turno.id_cliente_id != id_cliente:
-                return JsonResponse({
-                    'ok': False,
-                    'error': 'No tenes permiso para cancelar este turno.'
-                }, status=403)
-
+        try:
             turno.estado = 'CANCELADO'
             turno.updated_at = datetime.now()
             turno.save()
@@ -207,19 +201,13 @@ def cancelar_turno(request, id):
     return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
 
 
-@csrf_exempt
 def mis_turnos(request):
-    # GET /mis-turnos/?id_cliente=<id>
     if request.method == 'GET':
+        id_cliente = request.session.get('id_usuario')
+        if not id_cliente:
+            return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
         try:
-            id_cliente = request.GET.get('id_cliente')
-
-            if not id_cliente:
-                return JsonResponse({
-                    'ok': False,
-                    'error': 'El parametro id_cliente es obligatorio.'
-                }, status=400)
-
             hoy = datetime.now().date()
 
             proximos = Turno.objects.filter(

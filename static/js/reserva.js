@@ -12,7 +12,7 @@
    el desarrollo mientras el endpoint no esté listo.
 ═══════════════════════════════════════════════════════════ */
 
-const MODO_SIMULADO_RESERVA = false;
+const MODO_SIMULADO_RESERVA = true;
 
 const API_RESERVA = {
   barberos:    id => `/api/barberos/?barberia=${id}`,
@@ -80,9 +80,11 @@ function renderizarPasoServicio() {
   const servicios = estadoReserva.barberia.servicios || [];
 
   cont.innerHTML = servicios.map(s => `
-    <div class="opcion-card" data-id="${s.id}">
-      <span class="opcion-card__nombre">${s.nombre}</span>
-      <span class="opcion-card__precio">$${s.precio.toLocaleString('es-AR')}</span>
+    <div class="col">
+      <div class="opcion-card" data-id="${s.id}">
+        <span class="opcion-card__nombre">${s.nombre}</span>
+        <span class="opcion-card__precio">$${s.precio.toLocaleString('es-AR')}</span>
+      </div>
     </div>
   `).join('');
 
@@ -122,14 +124,18 @@ async function renderizarPasoBarbero() {
   const barberos = await obtenerBarberos();
 
   const opcionCualquiera = `
-    <div class="opcion-card opcion-cualquiera" data-id="cualquiera">
-      <span class="opcion-card__nombre">✂️ Cualquiera disponible (asignación automática)</span>
+    <div class="col-12">
+      <div class="opcion-card opcion-cualquiera" data-id="cualquiera">
+        <span class="opcion-card__nombre">✂️ Cualquiera disponible (asignación automática)</span>
+      </div>
     </div>
   `;
 
   const opcionesBarberos = barberos.map(b => `
-    <div class="opcion-card" data-id="${b.id}">
-      <span class="opcion-card__nombre">${b.nombre}</span>
+    <div class="col">
+      <div class="opcion-card" data-id="${b.id}">
+        <span class="opcion-card__nombre">${b.nombre}</span>
+      </div>
     </div>
   `).join('');
 
@@ -187,14 +193,16 @@ inputFecha.addEventListener('change', async () => {
   document.getElementById('btn-paso3-siguiente').disabled = true;
 
   const grid = document.getElementById('horarios-grid');
-  grid.innerHTML = '<p class="listing__estado">Buscando horarios...</p>';
+  grid.innerHTML = '<p class="col-12 listing__estado">Buscando horarios...</p>';
 
   const horarios = await obtenerHorariosDisponibles(estadoReserva.fecha);
 
   grid.innerHTML = horarios.map(h => `
-    <button class="horario-btn" data-hora="${h.hora}" ${h.disponible ? '' : 'disabled'}>
-      ${h.hora}
-    </button>
+    <div class="col">
+      <button class="horario-btn w-100" data-hora="${h.hora}" ${h.disponible ? '' : 'disabled'}>
+        ${h.hora}
+      </button>
+    </div>
   `).join('');
 
   grid.querySelectorAll('.horario-btn:not(:disabled)').forEach(btn => {
@@ -233,12 +241,11 @@ document.getElementById('btn-confirmar-reserva').addEventListener('click', async
   btn.textContent = 'Confirmando...';
 
   const payload = {
-    barberia: estadoReserva.barberiaId,
-    servicio: estadoReserva.servicio.id,
-    barbero: estadoReserva.barbero ? estadoReserva.barbero.id : null,
-    fecha: estadoReserva.fecha,
-    horario: estadoReserva.horario,
-  };
+  id_servicio: estadoReserva.servicio.id,
+  id_barbero: estadoReserva.barbero ? estadoReserva.barbero.id : null,
+  fecha: estadoReserva.fecha,
+  hora_inicio: estadoReserva.horario,
+};
 
   try {
     let datos;
@@ -261,7 +268,10 @@ document.getElementById('btn-confirmar-reserva').addEventListener('click', async
       // 🔌 Adrián: acá se conecta el POST real a /turnos/
       const resp = await fetch(API_RESERVA.crearTurno, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
         body: JSON.stringify(payload),
       });
       datos = await resp.json();

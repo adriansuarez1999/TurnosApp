@@ -375,7 +375,8 @@ a   { text-decoration: none; color: inherit; }
   margin: 0.75rem auto 0;
   border-radius: 2px;
 }
-.listing__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+/* .listing__grid ya no define columnas: el grid responsive ahora
+   lo maneja Bootstrap (row row-cols-2 row-cols-lg-4 g-4 en el HTML) */
 
 .barber-card {
   background: var(--color-primary);
@@ -472,7 +473,7 @@ a   { text-decoration: none; color: inherit; }
 .modal-overlay.activo { display: flex; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-.modal {
+.modal-caja {
   background: var(--color-card-bg);
   border: 1px solid rgba(197,157,95,0.25);
   border-radius: var(--radius-lg);
@@ -523,7 +524,6 @@ a   { text-decoration: none; color: inherit; }
 .form-grupo select:focus { border-color: var(--color-accent); background: rgba(197,157,95,0.07); }
 .form-grupo input::placeholder { color: rgba(255,255,255,0.25); }
 
-.form-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
 .modal__btn-enviar,
 .btn-primario {
@@ -545,6 +545,21 @@ a   { text-decoration: none; color: inherit; }
 .btn-primario:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: var(--shadow-btn); }
 .modal__btn-enviar:disabled,
 .btn-primario:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-atras {
+  flex: 1;
+  padding: 0.875rem;
+  background: transparent;
+  color: var(--color-text-dark);
+  border: 1.5px solid rgba(17,17,17,0.2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+.btn-atras:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
 .modal__alerta { display: none; padding: 0.7rem 1rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; margin-bottom: 1rem; }
 .modal__alerta.error { display: block; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ff6b7a; }
@@ -620,18 +635,6 @@ a   { text-decoration: none; color: inherit; }
   margin-bottom: 1.25rem;
 }
 
-.servicios-lista, .barberos-lista {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-@media (min-width: 640px) {
-  .servicios-lista, .barberos-lista { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 1024px) {
-  .servicios-lista, .barberos-lista { grid-template-columns: repeat(3, 1fr); }
-}
-
 .servicio-card, .barbero-card {
   background: var(--color-primary);
   border-radius: var(--radius-md);
@@ -704,13 +707,9 @@ a   { text-decoration: none; color: inherit; }
 
 .reserva__titulo { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1.5rem; }
 
-.opciones-lista {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.875rem;
-  margin-bottom: 2rem;
-}
-@media (min-width: 640px) { .opciones-lista { grid-template-columns: repeat(2, 1fr); } }
+/* .opciones-lista ya no define columnas: el grid responsive lo
+   maneja Bootstrap (row row-cols-1 row-cols-sm-2 g-3 en el HTML) */
+.opciones-lista { margin-bottom: 2rem; }
 
 .opcion-card {
   background: var(--color-primary);
@@ -731,7 +730,6 @@ a   { text-decoration: none; color: inherit; }
 .opcion-card__sub { color: rgba(255,255,255,0.45); font-size: 0.8125rem; }
 
 .opcion-cualquiera {
-  grid-column: 1 / -1;
   background: rgba(197,157,95,0.08);
   border: 2px dashed rgba(197,157,95,0.4);
 }
@@ -739,13 +737,9 @@ a   { text-decoration: none; color: inherit; }
 
 .reserva__campo-fecha { margin-bottom: 1.5rem; max-width: 20rem; }
 
-.horarios-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.625rem;
-  margin-bottom: 2rem;
-}
-@media (min-width: 640px) { .horarios-grid { grid-template-columns: repeat(4, 1fr); } }
+/* .horarios-grid ya no define columnas: el grid responsive lo
+   maneja Bootstrap (row row-cols-3 row-cols-sm-4 g-2 en el HTML) */
+.horarios-grid { margin-bottom: 2rem; }
 
 .horario-btn {
   padding: 0.625rem 0.5rem;
@@ -796,23 +790,16 @@ a   { text-decoration: none; color: inherit; }
   margin-bottom: 1rem;
   color: var(--color-text-dark);
 }
-.turnos-lista { display: flex; flex-direction: column; gap: 1rem; }
 
 .turno-card {
   background: var(--color-primary);
   border-radius: var(--radius-md);
   padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
   box-shadow: var(--shadow-card);
 }
 .turno-card__barberia { color: var(--color-text-light); font-weight: 700; font-family: var(--font-display); font-size: 1.0625rem; }
 .turno-card__detalle { color: rgba(255,255,255,0.6); font-size: 0.875rem; margin-top: 0.15rem; }
 .turno-card__fecha { color: var(--color-accent); font-size: 0.8125rem; font-weight: 600; margin-top: 0.35rem; }
-.turno-card__estado { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 
 .btn-cancelar-turno {
   padding: 0.4rem 0.9rem;
@@ -867,9 +854,6 @@ a   { text-decoration: none; color: inherit; }
 /* ═══════════════════════════════════════════════════════════
     RESPONSIVE — Tablet & Desktop
 ═══════════════════════════════════════════════════════════ */
-@media (min-width: 640px) {
-  .listing__grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-}
 @media (min-width: 768px) {
   .nav__hamburger { display: none; }
   .nav__links     { display: flex; }
@@ -882,8 +866,6 @@ a   { text-decoration: none; color: inherit; }
   .hero__content { order: 1; flex: 1; }
   .hero__image   { display: block; order: 2; flex: 0 0 42%; }
 
-  .listing__grid { grid-template-columns: repeat(2, 1fr); }
-
   .footer__inner { flex-direction: row; justify-content: space-between; text-align: left; }
 
   .detalle-hero__inner { flex-direction: row; align-items: flex-end; }
@@ -893,7 +875,6 @@ a   { text-decoration: none; color: inherit; }
   .nav { padding-block: 1.25rem; }
   .hero { padding-block: 5rem; }
   .hero__title { margin-bottom: 2.5rem; }
-  .listing__grid { grid-template-columns: repeat(4, 1fr); }
   .barber-card { padding: 1.75rem 1.5rem 1.5rem; }
 }
 

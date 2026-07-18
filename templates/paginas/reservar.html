@@ -1,36 +1,9 @@
-{% load static %}^
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reservar turno — BarberApp</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-  <header class="site-header" role="banner">
-    <nav class="nav container" aria-label="Navegación principal">
-      <a href="../index.html" class="nav__logo" aria-label="BarberApp — Inicio">
-        <div class="nav__logo-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 3v12"/>
-            <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-            <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-            <path d="M15 6l-9 9"/>
-            <path d="M18 15l-3-3"/>
-          </svg>
-        </div>
-        <span class="nav__logo-text">Barber<span>App</span></span>
-      </a>
-      <div class="nav__spacer" aria-hidden="true"></div>
-    </nav>
-  </header>
+{% block title %}Reservar turno — BarberApp{% endblock %}
 
-  <main id="main-content">
+{% block content %}
     <div id="reserva-contenido">
       <section class="reserva">
         <div class="container">
@@ -52,7 +25,7 @@
           <!-- PASO 1: SERVICIO -->
           <div class="reserva__panel" id="panel-paso-1">
             <h3 class="reserva__titulo">Elegí un servicio</h3>
-            <div class="opciones-lista" id="lista-opciones-servicio"></div>
+            <div class="row row-cols-1 row-cols-sm-2 g-3 opciones-lista" id="lista-opciones-servicio"></div>
             <div class="reserva__nav-botones">
               <div></div>
               <button class="btn-primario" id="btn-paso1-siguiente" disabled>Siguiente</button>
@@ -62,9 +35,9 @@
           <!-- PASO 2: BARBERO -->
           <div class="reserva__panel" id="panel-paso-2">
             <h3 class="reserva__titulo">Elegí un barbero</h3>
-            <div class="opciones-lista" id="lista-opciones-barbero"></div>
+            <div class="row row-cols-1 row-cols-sm-2 g-3 opciones-lista" id="lista-opciones-barbero"></div>
             <div class="reserva__nav-botones">
-              <button class="btn-primario" id="btn-paso2-atras" style="background:transparent; color:var(--color-text-dark); border:1.5px solid rgba(17,17,17,0.2);">Atrás</button>
+              <button class="btn-atras" id="btn-paso2-atras">Atrás</button>
               <button class="btn-primario" id="btn-paso2-siguiente" disabled>Siguiente</button>
             </div>
           </div>
@@ -78,12 +51,12 @@
               <input type="date" id="input-fecha" style="background:#fff; color:var(--color-text-dark); border:1.5px solid rgba(17,17,17,0.15);">
             </div>
 
-            <div class="horarios-grid" id="horarios-grid">
-              <p class="listing__estado">Elegí una fecha para ver los horarios disponibles.</p>
+            <div class="row row-cols-3 row-cols-sm-4 g-2 horarios-grid" id="horarios-grid">
+              <p class="col-12 listing__estado">Elegí una fecha para ver los horarios disponibles.</p>
             </div>
 
             <div class="reserva__nav-botones">
-              <button class="btn-primario" id="btn-paso3-atras" style="background:transparent; color:var(--color-text-dark); border:1.5px solid rgba(17,17,17,0.2);">Atrás</button>
+              <button class="btn-atras" id="btn-paso3-atras">Atrás</button>
               <button class="btn-primario" id="btn-paso3-siguiente" disabled>Siguiente</button>
             </div>
           </div>
@@ -98,7 +71,7 @@
             </div>
 
             <div class="reserva__nav-botones">
-              <button class="btn-primario" id="btn-paso4-atras" style="background:transparent; color:var(--color-text-dark); border:1.5px solid rgba(17,17,17,0.2);">Atrás</button>
+              <button class="btn-atras" id="btn-paso4-atras">Atrás</button>
               <button class="btn-primario" id="btn-confirmar-reserva">Confirmar reserva</button>
             </div>
           </div>
@@ -109,18 +82,8 @@
         </div>
       </section>
     </div>
-  </main>
+{% endblock %}
 
-  <footer class="site-footer" role="contentinfo">
-    <div class="container footer__inner">
-      <p class="footer__brand">Barber<span>App</span></p>
-      <div class="footer__divider" aria-hidden="true"></div>
-      <p class="footer__copy">© 2026 BarberApp — Todos los derechos reservados</p>
-    </div>
-  </footer>
-
-  <script src="{% static 'js/mock-data.js' %}"></script>
-  <script src="{% static 'js/turnos-utils.js' %}"></script>
+{% block extra_js %}
   <script src="{% static 'js/reserva.js' %}"></script>
-</body>
-</html>
+{% endblock %}
