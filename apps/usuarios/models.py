@@ -6,6 +6,7 @@ class Barbero(models.Model):
     id_usuario = models.OneToOneField('Usuario', models.DO_NOTHING, db_column='id_usuario')
     id_barberia = models.ForeignKey('barberias.Barberia', models.DO_NOTHING, db_column='id_barberia')
     especialidad = models.CharField(max_length=100, blank=True, null=True)
+    foto = models.CharField(max_length=255, blank=True, null=True)
     promedio_calificacion = models.DecimalField(max_digits=3, decimal_places=2)
 
     class Meta:

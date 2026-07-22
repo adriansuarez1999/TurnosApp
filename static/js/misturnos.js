@@ -14,7 +14,7 @@
    - Usa badgeEstadoHTML() de turnos-utils.js para el color.
 ═══════════════════════════════════════════════════════════ */
 
-const MODO_SIMULADO_MISTURNOS = true;
+const MODO_SIMULADO_MISTURNOS = false;
 
 const API_MISTURNOS = {
   listar:  '/api/mis-turnos/',
@@ -84,7 +84,7 @@ function turnoCardHTML(turno, esProximo) {
     day: '2-digit', month: 'short', year: 'numeric',
   });
 
-  const botonCancelar = (esProximo && turno.estado === 'confirmado')
+  const botonCancelar = (esProximo && turno.estado.toUpperCase() !== 'CANCELADO')
     ? `<button class="btn-cancelar-turno" data-id="${turno.id}">Cancelar</button>`
     : '';
 

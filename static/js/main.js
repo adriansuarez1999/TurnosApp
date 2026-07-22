@@ -12,7 +12,7 @@ const API = {
 
 // Modo simulado: true = sin backend (para desarrollo)
 //                false = conecta con Django real
-const MODO_SIMULADO = true;
+const MODO_SIMULADO = false;
 
 /* ── Referencias ─────────────────────────────────────────── */
 const modalLogin    = document.getElementById('modal-login');

@@ -11,7 +11,7 @@
 ═══════════════════════════════════════════════════════════ */
 
 // Cambiar a false cuando el endpoint de Gonzalo esté disponible.
-const MODO_SIMULADO_BARBERIAS = true;
+const MODO_SIMULADO_BARBERIAS = false;
 
 const API_BARBERIAS = {
   listar:  '/api/barberias/',
@@ -93,31 +93,40 @@ function abrirBarberia(id) {
 }
 
 /* ── Buscador (filtra sobre la última lista traída) ───────── */
-function ejecutarBusqueda() {
-  const texto = document.getElementById('search-input').value.trim().toLowerCase();
+async function ejecutarBusqueda() {
+  const texto = document.getElementById('search-input').value.trim();
 
   if (!texto) {
     renderizarBarberias(barberiasActuales);
     return;
   }
 
-  const filtradas = barberiasActuales.filter(b => {
-    const enNombre = b.nombre.toLowerCase().includes(texto);
-    const enServicios = (b.servicios || []).some(s => s.nombre.toLowerCase().includes(texto));
-    return enNombre || enServicios;
-  });
+  const listado = document.getElementById('listado-barberias');
+  listado.innerHTML = '<li class="col-12 listing__estado">Buscando...</li>';
 
-  renderizarBarberias(filtradas);
+  try {
+    let resultados;
 
-  if (filtradas.length === 0) {
-    const listado = document.getElementById('listado-barberias');
-    listado.innerHTML = `<li class="col-12 sin-resultados">No se encontraron barberías con "${texto}"</li>`;
+    if (MODO_SIMULADO_BARBERIAS) {
+      await new Promise(r => setTimeout(r, 300));
+      const textoLower = texto.toLowerCase();
+      resultados = barberiasActuales.filter(b => b.nombre.toLowerCase().includes(textoLower));
+    } else {
+      const respuesta = await fetch(API_BARBERIAS.buscar + encodeURIComponent(texto));
+      if (!respuesta.ok) throw new Error('Respuesta no OK: ' + respuesta.status);
+      resultados = await respuesta.json();
+    }
+
+    renderizarBarberias(resultados);
+
+    if (resultados.length === 0) {
+      listado.innerHTML = `<li class="col-12 sin-resultados">No se encontraron barberías con "${texto}"</li>`;
+    }
+
+  } catch (err) {
+    console.error('Error al buscar barberías:', err);
+    listado.innerHTML = '<li class="col-12 listing__estado">Ocurrió un error al buscar.</li>';
   }
-
-  // 🔌 Cuando el buscador de Gonzalo esté listo (CU-03), reemplazar lo de arriba por:
-  // const respuesta = await fetch(API_BARBERIAS.buscar + encodeURIComponent(texto));
-  // const datos = await respuesta.json();
-  // renderizarBarberias(datos);
 }
 
 document.getElementById('btn-buscar').addEventListener('click', ejecutarBusqueda);

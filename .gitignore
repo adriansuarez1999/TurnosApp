@@ -14,3 +14,5 @@ db.sqlite3
 
 # VS Code
 .vscode/
+
+.media/

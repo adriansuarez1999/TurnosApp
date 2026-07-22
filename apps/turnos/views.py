@@ -88,7 +88,7 @@ def crear_turno(request):
                 fecha=fecha_dt,
                 hora_inicio=hora_inicio,
                 hora_fin=hora_fin,
-                estado='PENDIENTE',
+                estado='CONFIRMADO',
                 monto_total=servicio.precio,
                 fecha_reserva=datetime.now(),
                 created_at=datetime.now(),
@@ -118,54 +118,66 @@ def _parsear_hora(valor):
 
 @csrf_exempt
 def turnos_disponibles(request):
-    # GET /turnos/disponibles/?barbero=<id>&fecha=<yyyy-mm-dd>
-    if request.method == 'GET':
-        try:
-            id_barbero = request.GET.get('barbero')
-            fecha = request.GET.get('fecha')
+    # GET /turnos/disponibles/?fecha=<yyyy-mm-dd>&barbero=<id>
+    # o  GET /turnos/disponibles/?fecha=<yyyy-mm-dd>&barberia=<id>  (sin barbero puntual)
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Metodo no permitido'}, status=405)
 
-            if not id_barbero or not fecha:
-                return JsonResponse({
-                    'ok': False,
-                    'error': 'Los parametros barbero y fecha son obligatorios.'
-                }, status=400)
+    try:
+        id_barbero = request.GET.get('barbero')
+        id_barberia = request.GET.get('barberia')
+        fecha = request.GET.get('fecha')
 
-            fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
+        if not fecha or (not id_barbero and not id_barberia):
+            return JsonResponse({
+                'error': 'Falta la fecha, y el barbero o la barbería.'
+            }, status=400)
 
-            # Bloques de 30 minutos entre las 14:00 y las 21:00
-            duracion_bloque = 30
-            hora_apertura = datetime.combine(fecha_obj, _parsear_hora('14:00'))
-            hora_cierre = datetime.combine(fecha_obj, _parsear_hora('21:00'))
+        fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
 
-            turnos_ocupados = Turno.objects.filter(
-                id_barbero=id_barbero,
-                fecha=fecha_obj
-            ).exclude(estado='CANCELADO')
+        if id_barbero:
+            ids_barberos = [int(id_barbero)]
+        else:
+            ids_barberos = list(
+                Barbero.objects.filter(id_barberia=id_barberia).values_list('id_barbero', flat=True)
+            )
 
-            horarios_libres = []
-            actual = hora_apertura
+        duracion_bloque = 30
+        hora_apertura = datetime.combine(fecha_obj, _parsear_hora('14:00'))
+        hora_cierre = datetime.combine(fecha_obj, _parsear_hora('21:00'))
 
-            while actual + timedelta(minutes=duracion_bloque) <= hora_cierre:
-                bloque_inicio = actual.time()
-                bloque_fin = (actual + timedelta(minutes=duracion_bloque)).time()
+        turnos_ocupados = list(Turno.objects.filter(
+            id_barbero__in=ids_barberos,
+            fecha=fecha_obj
+        ).exclude(estado='CANCELADO'))
 
-                ocupado = any(
+        horarios = []
+        actual = hora_apertura
+
+        while actual + timedelta(minutes=duracion_bloque) <= hora_cierre:
+            bloque_inicio = actual.time()
+            bloque_fin = (actual + timedelta(minutes=duracion_bloque)).time()
+
+            # libre si ALGÚN barbero de la lista está libre en ese bloque
+            libre_en_alguno = any(
+                not any(
                     bloque_inicio < t.hora_fin and bloque_fin > t.hora_inicio
-                    for t in turnos_ocupados
+                    for t in turnos_ocupados if t.id_barbero_id == bid
                 )
+                for bid in ids_barberos
+            )
 
-                if not ocupado:
-                    horarios_libres.append(bloque_inicio.strftime('%H:%M'))
+            horarios.append({
+                'hora': bloque_inicio.strftime('%H:%M'),
+                'disponible': libre_en_alguno,
+            })
 
-                actual += timedelta(minutes=duracion_bloque)
+            actual += timedelta(minutes=duracion_bloque)
 
-            return JsonResponse({'ok': True, 'horarios': horarios_libres})
+        return JsonResponse(horarios, safe=False)
 
-        except Exception as e:
-            return JsonResponse({'ok': False, 'error': str(e)})
-
-    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
-
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 def cancelar_turno(request, id):
     if request.method == 'PATCH':
@@ -205,7 +217,7 @@ def mis_turnos(request):
     if request.method == 'GET':
         id_cliente = request.session.get('id_usuario')
         if not id_cliente:
-            return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+            return JsonResponse({'error': 'Tenés que iniciar sesión.'}, status=401)
 
         try:
             hoy = datetime.now().date()
@@ -222,7 +234,7 @@ def mis_turnos(request):
 
             def serializar(turno):
                 return {
-                    'id_turno': turno.id_turno,
+                    'id': turno.id_turno,
                     'barberia': turno.id_barbero.id_barberia.nombre,
                     'barbero': f'{turno.id_barbero.id_usuario.nombre} {turno.id_barbero.id_usuario.apellido}',
                     'servicio': turno.id_servicio.nombre,
@@ -232,10 +244,9 @@ def mis_turnos(request):
                 }
 
             lista = [serializar(t) for t in proximos] + [serializar(t) for t in pasados]
-
-            return JsonResponse({'ok': True, 'turnos': lista})
+            return JsonResponse(lista, safe=False)
 
         except Exception as e:
-            return JsonResponse({'ok': False, 'error': str(e)})
+            return JsonResponse({'error': str(e)}, status=400)
 
-    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+    return JsonResponse({'error': 'Metodo no permitido'}, status=405)

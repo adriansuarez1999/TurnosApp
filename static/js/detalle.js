@@ -8,7 +8,7 @@
    - Botón "Reservar turno" → paginas/reservar.html?id=<id>
 ═══════════════════════════════════════════════════════════ */
 
-const MODO_SIMULADO_DETALLE = true;
+const MODO_SIMULADO_DETALLE = false;
 
 const API_DETALLE = {
   barberia: id => `/api/barberias/${id}/`,
@@ -73,6 +73,26 @@ function renderizarDetalle(barberia, barberos) {
          <path d="M6 3v12"/><path d="M18 9a3 3 0 1 0 0-6"/><path d="M6 21a3 3 0 1 0 0-6"/>
          <path d="M15 6l-9 9"/><path d="M18 15l-3-3"/>
        </svg>`;
+
+  // ── Portada (fondo del hero) ──
+  const portada = document.getElementById('detalle-portada');
+  const fotos = barberia.fotos || [];
+
+  if (fotos.length > 0) {
+    portada.innerHTML = fotos.map((url, i) =>
+      `<img src="${url}" alt="" class="${i === 0 ? 'activa' : ''}">`
+    ).join('');
+
+    if (fotos.length > 1) {
+      const imgs = portada.querySelectorAll('img');
+      let actual = 0;
+      setInterval(() => {
+        imgs[actual].classList.remove('activa');
+        actual = (actual + 1) % imgs.length;
+        imgs[actual].classList.add('activa');
+      }, 5000);
+    }
+  }
 
 // ── Servicios ──
 const listaServicios = document.getElementById('lista-servicios');
