@@ -84,18 +84,18 @@ function turnoCardHTML(turno, esProximo) {
     day: '2-digit', month: 'short', year: 'numeric',
   });
 
-  const botonCancelar = (esProximo && turno.estado === 'confirmado')
+  const botonCancelar = (esProximo && turno.estado.toUpperCase() !== 'CANCELADO')
     ? `<button class="btn-cancelar-turno" data-id="${turno.id}">Cancelar</button>`
     : '';
 
   return `
-    <li class="turno-card">
+    <li class="turno-card d-flex align-items-center justify-content-between gap-3 flex-wrap">
       <div class="turno-card__info">
         <p class="turno-card__barberia">${turno.barberia}</p>
         <p class="turno-card__detalle">${turno.servicio} · ${turno.barbero}</p>
         <p class="turno-card__fecha">${fechaFormateada} — ${turno.hora} hs</p>
       </div>
-      <div class="turno-card__estado">
+      <div class="turno-card__estado d-flex align-items-center gap-2 flex-wrap">
         ${badgeEstadoHTML(turno.estado)}
         ${botonCancelar}
       </div>
@@ -136,7 +136,10 @@ document.getElementById('btn-cancelar-si').addEventListener('click', async () =>
       if (turno) turno.estado = 'cancelado';
       guardarTurnos(lista);
     } else {
-      const resp = await fetch(API_MISTURNOS.cancelar(id), { method: 'PATCH' });
+      const resp = await fetch(API_MISTURNOS.cancelar(id), {
+        method: 'PATCH',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      });
       if (!resp.ok) throw new Error('No se pudo cancelar el turno');
     }
 

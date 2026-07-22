@@ -74,34 +74,54 @@ function renderizarDetalle(barberia, barberos) {
          <path d="M15 6l-9 9"/><path d="M18 15l-3-3"/>
        </svg>`;
 
-  // ── Servicios ──
-  const listaServicios = document.getElementById('lista-servicios');
-  const servicios = barberia.servicios || [];
-  listaServicios.innerHTML = servicios.length
-    ? servicios.map(s => `
-        <li class="servicio-card">
-          <span class="servicio-card__nombre">${s.nombre}</span>
-          <span class="servicio-card__precio">$${s.precio.toLocaleString('es-AR')}</span>
-        </li>
-      `).join('')
-    : '<li class="listing__estado">Esta barbería todavía no cargó servicios.</li>';
+  // ── Portada (fondo del hero) ──
+  const portada = document.getElementById('detalle-portada');
+  const fotos = barberia.fotos || [];
 
-  // ── Barberos ──
-  const listaBarberos = document.getElementById('lista-barberos');
-  listaBarberos.innerHTML = barberos.length
-    ? barberos.map(b => `
-        <li class="barbero-card">
-          <div class="barbero-card__foto">
-            ${b.foto
-              ? `<img src="${b.foto}" alt="Foto de ${b.nombre}">`
-              : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                 </svg>`}
-          </div>
-          <p class="barbero-card__nombre">${b.nombre}</p>
-        </li>
-      `).join('')
-    : '<li class="listing__estado">Todavía no hay barberos cargados.</li>';
+  if (fotos.length > 0) {
+    portada.innerHTML = fotos.map((url, i) =>
+      `<img src="${url}" alt="" class="${i === 0 ? 'activa' : ''}">`
+    ).join('');
+
+    if (fotos.length > 1) {
+      const imgs = portada.querySelectorAll('img');
+      let actual = 0;
+      setInterval(() => {
+        imgs[actual].classList.remove('activa');
+        actual = (actual + 1) % imgs.length;
+        imgs[actual].classList.add('activa');
+      }, 5000);
+    }
+  }
+
+// ── Servicios ──
+const listaServicios = document.getElementById('lista-servicios');
+const servicios = barberia.servicios || [];
+listaServicios.innerHTML = servicios.length
+  ? servicios.map(s => `
+      <li class="servicio-card col">
+        <span class="servicio-card__nombre">${s.nombre}</span>
+        <span class="servicio-card__precio">$${s.precio.toLocaleString('es-AR')}</span>
+      </li>
+    `).join('')
+  : '<li class="col-12 listing__estado">Esta barbería todavía no cargó servicios.</li>';
+
+// ── Barberos ──
+const listaBarberos = document.getElementById('lista-barberos');
+listaBarberos.innerHTML = barberos.length
+  ? barberos.map(b => `
+      <li class="barbero-card col">
+        <div class="barbero-card__foto">
+          ${b.foto
+            ? `<img src="${b.foto}" alt="Foto de ${b.nombre}">`
+            : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+               </svg>`}
+        </div>
+        <p class="barbero-card__nombre">${b.nombre}</p>
+      </li>
+    `).join('')
+  : '<li class="col-12 listing__estado">Todavía no hay barberos cargados.</li>';
 
   // ── Botón reservar ──
   document.getElementById('btn-reservar-turno').addEventListener('click', () => {

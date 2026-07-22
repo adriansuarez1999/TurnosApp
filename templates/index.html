@@ -1,73 +1,13 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BarberApp — Reservá tu turno</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-</head>
-<body>
 
-  <!--  ╔══════════════════════════════════════════
-        ║  HEADER
-        ╚══════════════════════════════════════════ -->
-  <header class="site-header" role="banner">
-    <nav class="nav container" aria-label="Navegación principal">
+{% block title %}BarberApp — Reservá tu turno{% endblock %}
 
-      <button class="nav__hamburger" aria-label="Abrir menú" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
+{% block nav %}
+  {% include 'partials/nav_completa.html' %}
+{% endblock %}
 
-      <a href="#" class="nav__logo" aria-label="BarberApp — Inicio">
-        <div class="nav__logo-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 3v12"/>
-            <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-            <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-            <path d="M15 6l-9 9"/>
-            <path d="M18 15l-3-3"/>
-          </svg>
-        </div>
-        <span class="nav__logo-text">Barber<span>App</span></span>
-      </a>
-
-      <ul class="nav__links" role="list">
-        <li><a href="#">Reservar turno</a></li>
-        <li><a href="#" id="nav-barberias">Barberías</a></li>
-        <li><a href="paginas/misturnos.html">Mis turnos</a></li>
-        <li><a href="#">Promociones</a></li>
-      </ul>
-
-      <div class="nav__spacer" aria-hidden="true"></div>
-
-      <div class="nav__user">
-        <div class="nav__avatar" aria-label="Perfil de usuario" role="img">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-        </div>
-        <span class="nav__user-label">Usuario</span>
-      </div>
-
-      <div class="nav__auth" role="group" aria-label="Acciones de cuenta">
-        <button class="btn-outline" id="btn-crear-cuenta">Crear cuenta</button>
-        <button class="btn-accent"  id="btn-acceder">Acceder</button>
-      </div>
-
-      <div class="nav__logueado" id="nav-logueado">
-        <p class="nav__bienvenida">Hola, <span id="nav-nombre-usuario"></span></p>
-        <button class="btn-salir" id="btn-salir">Salir</button>
-      </div>
-
-    </nav>
-  </header>
-
-  <main id="main-content">
+{% block content %}
 
     <!--  ╔══════════════════════════════════════════
           ║  HERO
@@ -136,7 +76,7 @@
         </header>
 
         <ul
-            class="listing__grid"
+            class="row row-cols-2 row-cols-lg-4 g-4 list-unstyled"
             id="listado-barberias"
             role="list"
             aria-label="Listado de barberías">
@@ -144,24 +84,14 @@
       </div>
     </section>
 
-  </main>
+{% endblock %}
 
-  <!-- ╔══════════════════════════════════════════
-       ║  FOOTER
-       ╚══════════════════════════════════════════ -->
-  <footer class="site-footer" role="contentinfo">
-    <div class="container footer__inner">
-      <p class="footer__brand">Barber<span>App</span></p>
-      <div class="footer__divider" aria-hidden="true"></div>
-      <p class="footer__copy">© 2026 BarberApp — Todos los derechos reservados</p>
-    </div>
-  </footer>
-
+{% block modals %}
   <!-- ╔══════════════════════════════════════════
        ║  MODAL — LOGIN (Acceder)
        ╚══════════════════════════════════════════ -->
   <div class="modal-overlay" id="modal-login" role="dialog" aria-modal="true" aria-labelledby="titulo-login">
-    <div class="modal">
+    <div class="modal-caja">
       <button class="modal__cerrar" id="cerrar-login" aria-label="Cerrar">✕</button>
 
       <h2 class="modal__titulo" id="titulo-login">Bienvenido</h2>
@@ -190,7 +120,7 @@
        ║  MODAL — REGISTRO (Crear cuenta)
        ╚══════════════════════════════════════════ -->
   <div class="modal-overlay" id="modal-registro" role="dialog" aria-modal="true" aria-labelledby="titulo-registro">
-    <div class="modal">
+    <div class="modal-caja">
       <button class="modal__cerrar" id="cerrar-registro" aria-label="Cerrar">✕</button>
 
       <h2 class="modal__titulo" id="titulo-registro">Crear cuenta</h2>
@@ -201,14 +131,18 @@
 
       <div class="modal__alerta" id="alerta-registro"></div>
 
-      <div class="form-fila">
-        <div class="form-grupo">
-          <label for="reg-nombre">Nombre</label>
-          <input type="text" id="reg-nombre" placeholder="Juan" />
+      <div class="row g-3">
+        <div class="col">
+          <div class="form-grupo">
+            <label for="reg-nombre">Nombre</label>
+            <input type="text" id="reg-nombre" placeholder="Juan" />
+          </div>
         </div>
-        <div class="form-grupo">
-          <label for="reg-apellido">Apellido</label>
-          <input type="text" id="reg-apellido" placeholder="Pérez" />
+        <div class="col">
+          <div class="form-grupo">
+            <label for="reg-apellido">Apellido</label>
+            <input type="text" id="reg-apellido" placeholder="Pérez" />
+          </div>
         </div>
       </div>
 
@@ -233,13 +167,9 @@
       <button class="modal__btn-enviar" id="btn-registro-enviar">Crear mi cuenta</button>
     </div>
   </div>
+{% endblock %}
 
-  <!-- ╔══════════════════════════════════════════
-       ║  JAVASCRIPT
-       ╚══════════════════════════════════════════ -->
-  <script src="{% static 'js/mock-data.js' %}"></script>
-  <script src="{% static 'js/turnos-utils.js' %}"></script>
+{% block extra_js %}
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/barberias.js' %}"></script>
-</body>
-</html>
+{% endblock %}

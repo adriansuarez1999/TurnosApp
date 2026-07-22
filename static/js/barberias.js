@@ -23,7 +23,7 @@ let barberiasActuales = []; // guardamos la última lista traída, para el busca
 /* ── Obtener barberías (real o simulado) ─────────────────── */
 async function obtenerBarberias() {
   const listado = document.getElementById('listado-barberias');
-  listado.innerHTML = '<li class="listing__estado">Cargando barberías...</li>';
+  listado.innerHTML = '<li class="col-12 listing__estado">Cargando barberías...</li>';
 
   try {
     let datos;
@@ -54,27 +54,29 @@ function renderizarBarberias(barberias) {
   listado.innerHTML = '';
 
   if (!barberias || barberias.length === 0) {
-    listado.innerHTML = '<li class="listing__estado">No hay barberías para mostrar.</li>';
+    listado.innerHTML = '<li class="col-12 listing__estado">No hay barberías para mostrar.</li>';
     return;
   }
 
   barberias.forEach(barberia => {
     const li = document.createElement('li');
-    li.className = 'barber-card';
+    li.className = 'col';
     li.innerHTML = `
-      <div class="barber-card__logo">
-        ${barberia.foto
-          ? `<img src="${barberia.foto}" alt="Foto de ${barberia.nombre}">`
-          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-               <path d="M6 3v12"/>
-               <path d="M18 9a3 3 0 1 0 0-6"/>
-               <path d="M6 21a3 3 0 1 0 0-6"/>
-               <path d="M15 6l-9 9"/>
-               <path d="M18 15l-3-3"/>
-             </svg>`}
+      <div class="barber-card">
+        <div class="barber-card__logo">
+          ${barberia.foto
+            ? `<img src="${barberia.foto}" alt="Foto de ${barberia.nombre}">`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                 <path d="M6 3v12"/>
+                 <path d="M18 9a3 3 0 1 0 0-6"/>
+                 <path d="M6 21a3 3 0 1 0 0-6"/>
+                 <path d="M15 6l-9 9"/>
+                 <path d="M18 15l-3-3"/>
+               </svg>`}
+        </div>
+        <p class="barber-card__name">${barberia.nombre}</p>
+        <button class="btn-card" data-id="${barberia.id}">Ver turnos</button>
       </div>
-      <p class="barber-card__name">${barberia.nombre}</p>
-      <button class="btn-card" data-id="${barberia.id}">Ver turnos</button>
     `;
     listado.appendChild(li);
   });
@@ -91,31 +93,40 @@ function abrirBarberia(id) {
 }
 
 /* ── Buscador (filtra sobre la última lista traída) ───────── */
-function ejecutarBusqueda() {
-  const texto = document.getElementById('search-input').value.trim().toLowerCase();
+async function ejecutarBusqueda() {
+  const texto = document.getElementById('search-input').value.trim();
 
   if (!texto) {
     renderizarBarberias(barberiasActuales);
     return;
   }
 
-  const filtradas = barberiasActuales.filter(b => {
-    const enNombre = b.nombre.toLowerCase().includes(texto);
-    const enServicios = (b.servicios || []).some(s => s.nombre.toLowerCase().includes(texto));
-    return enNombre || enServicios;
-  });
+  const listado = document.getElementById('listado-barberias');
+  listado.innerHTML = '<li class="col-12 listing__estado">Buscando...</li>';
 
-  renderizarBarberias(filtradas);
+  try {
+    let resultados;
 
-  if (filtradas.length === 0) {
-    const listado = document.getElementById('listado-barberias');
-    listado.innerHTML = `<li class="sin-resultados">No se encontraron barberías con "${texto}"</li>`;
+    if (MODO_SIMULADO_BARBERIAS) {
+      await new Promise(r => setTimeout(r, 300));
+      const textoLower = texto.toLowerCase();
+      resultados = barberiasActuales.filter(b => b.nombre.toLowerCase().includes(textoLower));
+    } else {
+      const respuesta = await fetch(API_BARBERIAS.buscar + encodeURIComponent(texto));
+      if (!respuesta.ok) throw new Error('Respuesta no OK: ' + respuesta.status);
+      resultados = await respuesta.json();
+    }
+
+    renderizarBarberias(resultados);
+
+    if (resultados.length === 0) {
+      listado.innerHTML = `<li class="col-12 sin-resultados">No se encontraron barberías con "${texto}"</li>`;
+    }
+
+  } catch (err) {
+    console.error('Error al buscar barberías:', err);
+    listado.innerHTML = '<li class="col-12 listing__estado">Ocurrió un error al buscar.</li>';
   }
-
-  // 🔌 Cuando el buscador de Gonzalo esté listo (CU-03), reemplazar lo de arriba por:
-  // const respuesta = await fetch(API_BARBERIAS.buscar + encodeURIComponent(texto));
-  // const datos = await respuesta.json();
-  // renderizarBarberias(datos);
 }
 
 document.getElementById('btn-buscar').addEventListener('click', ejecutarBusqueda);

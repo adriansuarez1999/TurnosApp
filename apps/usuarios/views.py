@@ -18,7 +18,6 @@ def home(request):
 # ══════════════════════════════════════════
 
 # LOGIN
-@csrf_exempt
 def login(request):
     if request.method == 'POST':
         try:
@@ -31,6 +30,11 @@ def login(request):
                     'ok': False,
                     'error': 'Credenciales incorrectas'
                 })
+
+            # A partir de acá, el backend sabe quién sos por la sesión,
+            # no por lo que mande el frontend en cada pedido.
+            request.session['id_usuario'] = user.id_usuario
+            request.session['rol'] = user.rol
 
             return JsonResponse({
                 'ok': True,
@@ -55,8 +59,13 @@ def login(request):
         'error': 'Método no permitido'
     })
 
+
+# LOGOUT
+def logout(request):
+    request.session.flush()
+    return JsonResponse({'ok': True})
+
 # REGISTRO
-@csrf_exempt
 def registro(request):
     if request.method == 'POST':
         try:

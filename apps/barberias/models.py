@@ -1,7 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
 class Barberia(models.Model):
     id_barberia = models.AutoField(primary_key=True)
     id_dueno = models.ForeignKey('usuarios.Usuario', models.DO_NOTHING, db_column='id_dueno')
@@ -16,3 +15,15 @@ class Barberia(models.Model):
     class Meta:
         managed = False
         db_table = 'barberia'
+
+class FotoBarberia(models.Model):
+    id_foto = models.AutoField(primary_key=True)
+    id_barberia = models.ForeignKey(Barberia, models.CASCADE, db_column='id_barberia', related_name='fotos')
+    url = models.CharField(max_length=255)
+    orden = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = False
+        db_table = 'foto_barberia'
+        ordering = ['orden']

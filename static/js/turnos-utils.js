@@ -27,3 +27,9 @@ function badgeEstadoHTML(estado) {
 
   return `<span class="badge-turno badge-turno--${clave}">${etiquetas[clave]}</span>`;
 }
+
+/* ── Helper: leer el token CSRF de la cookie ──────────────── */
+function getCookie(nombre) {
+  const match = document.cookie.match('(^|;)\\s*' + nombre + '\\s*=\\s*([^;]+)');
+  return match ? match.pop() : '';
+}
