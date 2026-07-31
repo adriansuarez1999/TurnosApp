@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
-from .models import Usuario, Servicio, Turno
+from .models import Usuario, Servicio
+from apps.turnos.models import Turno
+from apps.barberias.models import Barberia
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
@@ -36,10 +38,19 @@ def login(request):
             request.session['id_usuario'] = user.id_usuario
             request.session['rol'] = user.rol
 
+            # Tarea 2: la sesión reconoce si el usuario es dueño de una barbería.
+            # Esto NO se decide por usuario.rol, sino por si existe una Barberia
+            # cuyo id_dueno sea este usuario. El frontend consulta 'es_dueno'
+            # para decidir si muestra el acceso al panel.
+            barberia_propia = Barberia.objects.filter(id_dueno=user.id_usuario).first()
+            request.session['id_barberia'] = barberia_propia.id_barberia if barberia_propia else None
+
             return JsonResponse({
                 'ok': True,
                 'id_usuario': user.id_usuario,
-                'nombre': user.nombre
+                'nombre': user.nombre,
+                'es_dueno': barberia_propia is not None,
+                'id_barberia': barberia_propia.id_barberia if barberia_propia else None
             })
 
         except Usuario.DoesNotExist:
