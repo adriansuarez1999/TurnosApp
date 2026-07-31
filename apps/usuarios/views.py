@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
 from .models import Usuario, Servicio, Turno
 from django.contrib import admin
@@ -11,39 +12,40 @@ import json
 def home(request):
     return render(request, 'index.html')
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    path('', home),
-
-    path('api/', include('apps.usuarios.urls')),
-]
-
 
 # ══════════════════════════════════════════
 # AUTENTICACION
 # ══════════════════════════════════════════
 
-@csrf_exempt
+# LOGIN
 def login(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
 
-            user = Usuario.objects.get(
-                email=data['email'],
-                password=data['password']
-            )
+            user = Usuario.objects.get(email=data['email'])
+
+            if not check_password(data['password'], user.password):
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'Credenciales incorrectas'
+                })
+
+            # A partir de acá, el backend sabe quién sos por la sesión,
+            # no por lo que mande el frontend en cada pedido.
+            request.session['id_usuario'] = user.id_usuario
+            request.session['rol'] = user.rol
 
             return JsonResponse({
                 'ok': True,
+                'id_usuario': user.id_usuario,
                 'nombre': user.nombre
             })
 
         except Usuario.DoesNotExist:
             return JsonResponse({
                 'ok': False,
-                'error': 'Email o contrasena incorrectos.'
+                'error': 'Credenciales incorrectas'
             })
 
         except Exception as e:
@@ -52,10 +54,18 @@ def login(request):
                 'error': str(e)
             })
 
-    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+    return JsonResponse({
+        'ok': False,
+        'error': 'Método no permitido'
+    })
 
 
-@csrf_exempt
+# LOGOUT
+def logout(request):
+    request.session.flush()
+    return JsonResponse({'ok': True})
+
+# REGISTRO
 def registro(request):
     if request.method == 'POST':
         try:
@@ -64,7 +74,7 @@ def registro(request):
             if Usuario.objects.filter(email=data['email']).exists():
                 return JsonResponse({
                     'ok': False,
-                    'error': 'El email ya esta registrado.'
+                    'error': 'El email ya está registrado'
                 })
 
             Usuario.objects.create(
@@ -72,10 +82,10 @@ def registro(request):
                 apellido=data['apellido'],
                 email=data['email'],
                 telefono=data.get('telefono', ''),
-                password=data['password'],
+                password=make_password(data['password']),
                 rol='cliente',
                 estado='activo',
-                fecha_registro=datetime.now(),
+                fecha_registro=datetime.now()
             )
 
             return JsonResponse({
@@ -89,7 +99,10 @@ def registro(request):
                 'error': str(e)
             })
 
-    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+    return JsonResponse({
+        'ok': False,
+        'error': 'Método no permitido'
+    })
 
 
 # ══════════════════════════════════════════

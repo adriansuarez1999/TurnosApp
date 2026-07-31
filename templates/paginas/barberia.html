@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalle de barbería — BarberApp{% endblock %}
+
+{% block content %}
+    <div id="detalle-contenido">
+
+      <!--  ╔══════════════════════════════════════════
+            ║  HERO DE LA BARBERÍA
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-hero">
+        <div class="detalle-hero__portada" id="detalle-portada"></div>
+        <div class="container">
+          <a href="{% url 'index' %}" class="volver">← Volver al listado</a>
+
+          <div class="detalle-hero__inner">
+            <div class="detalle-hero__foto" id="detalle-foto"></div>
+            <div>
+              <h1 class="detalle-hero__nombre" id="detalle-nombre">Cargando...</h1>
+              <p class="detalle-hero__zona" id="detalle-zona"></p>
+              <p class="detalle-hero__desc" id="detalle-descripcion"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!--  ╔══════════════════════════════════════════
+            ║  SERVICIOS
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-section">
+        <div class="container">
+          <h2>Servicios y precios</h2>
+          <ul class="servicios-lista row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 list-unstyled" id="lista-servicios" role="list"></ul>
+        </div>
+      </section>
+
+      <!--  ╔══════════════════════════════════════════
+            ║  BARBEROS
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-section">
+        <div class="container">
+          <h2>Nuestros barberos</h2>
+          <ul class="barberos-lista row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 list-unstyled" id="lista-barberos" role="list"></ul>
+        </div>
+      </section>
+
+      <!--  ╔══════════════════════════════════════════
+            ║  CTA RESERVAR
+            ╚══════════════════════════════════════════ -->
+      <section class="detalle-cta">
+        <div class="container">
+          <button class="btn-primario" id="btn-reservar-turno">Reservar turno</button>
+        </div>
+      </section>
+
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/detalle.js' %}"></script>
+{% endblock %}

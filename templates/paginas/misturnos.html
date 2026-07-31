@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mis turnos — BarberApp{% endblock %}
+
+{% block content %}
+    <section class="misturnos">
+      <div class="container">
+
+        <a href="{% url 'index' %}" class="volver" style="color: rgba(17,17,17,0.5);">← Volver al inicio</a>
+
+        <header class="listing__header" style="margin-top:1rem;">
+          <h2>Mis turnos</h2>
+          <p>Revisá tus próximos turnos y tu historial</p>
+        </header>
+
+        <div class="misturnos__seccion">
+          <h2>Próximos turnos</h2>
+          <ul class="turnos-lista d-flex flex-column gap-3 list-unstyled" id="lista-proximos" role="list"></ul>
+        </div>
+
+        <div class="misturnos__seccion">
+          <h2>Turnos pasados</h2>
+          <ul class="turnos-lista d-flex flex-column gap-3 list-unstyled" id="lista-pasados" role="list"></ul>
+        </div>
+
+      </div>
+    </section>
+{% endblock %}
+
+{% block modals %}
+  <!-- ╔══════════════════════════════════════════
+       ║  MODAL — CONFIRMAR CANCELACIÓN
+       ╚══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-cancelar" role="dialog" aria-modal="true" aria-labelledby="titulo-cancelar">
+    <div class="modal-caja">
+      <button class="modal__cerrar" id="cerrar-modal-cancelar" aria-label="Cerrar">✕</button>
+      <h2 class="modal__titulo" id="titulo-cancelar">¿Cancelar turno?</h2>
+      <p class="modal__subtitulo">Esta acción no se puede deshacer.</p>
+      <div class="modal__botones-confirmacion">
+        <button class="modal__btn-enviar btn-secundario" id="btn-cancelar-no">No, volver</button>
+        <button class="modal__btn-enviar" id="btn-cancelar-si">Sí, cancelar</button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/misturnos.js' %}"></script>
+{% endblock %}

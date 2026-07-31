@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reservar turno — BarberApp{% endblock %}
+
+{% block content %}
+<div id="reserva-contenido" x-data="reservaApp()" x-init="init()">
+
+  <!-- CARGANDO -->
+  <section class="reserva" x-show="cargando" x-cloak>
+    <div class="container">
+      <p class="listing__estado">Cargando...</p>
+    </div>
+  </section>
+
+  <!-- NO SE ENCONTRÓ LA BARBERÍA -->
+  <section class="reserva" x-show="!cargando && !barberia" x-cloak>
+    <div class="container">
+      <p class="listing__estado" x-text="!barberiaId ? 'Falta indicar la barbería a reservar.' : 'No se encontró la barbería.'"></p>
+    </div>
+  </section>
+
+  <!-- WIZARD -->
+  <section class="reserva" x-show="!cargando && barberia" x-cloak>
+    <div class="container">
+
+      <a href="#" onclick="history.back(); return false;" class="volver" style="color: rgba(17,17,17,0.5);">← Volver</a>
+
+      <header class="listing__header" style="margin-top:1rem;">
+        <h2>Reservar turno en <span x-text="barberia ? barberia.nombre : ''"></span></h2>
+      </header>
+
+      <!-- Indicador de pasos -->
+      <div class="reserva__pasos" x-show="!confirmado">
+        <div class="reserva__paso-indicador" :class="{ activo: paso === 1, completo: paso > 1 }"><span class="num">1</span> Servicio</div>
+        <div class="reserva__paso-indicador" :class="{ activo: paso === 2, completo: paso > 2 }"><span class="num">2</span> Barbero</div>
+        <div class="reserva__paso-indicador" :class="{ activo: paso === 3, completo: paso > 3 }"><span class="num">3</span> Fecha y hora</div>
+        <div class="reserva__paso-indicador" :class="{ activo: paso === 4, completo: confirmado }"><span class="num">4</span> Confirmar</div>
+      </div>
+
+      <!-- PASO 1: SERVICIO -->
+      <div class="reserva__panel" x-show="paso === 1 && !confirmado">
+        <h3 class="reserva__titulo">Elegí un servicio</h3>
+        <div class="row row-cols-1 row-cols-sm-2 g-3 opciones-lista">
+          <template x-for="s in servicios" :key="s.id">
+            <div class="col">
+              <div class="opcion-card"
+                   :class="{ seleccionada: servicioSeleccionado && servicioSeleccionado.id === s.id }"
+                   @click="seleccionarServicio(s)">
+                <span class="opcion-card__nombre" x-text="s.nombre"></span>
+                <span class="opcion-card__precio" x-text="'$' + s.precio.toLocaleString('es-AR')"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="reserva__nav-botones">
+          <div></div>
+          <button class="btn-primario" :disabled="!servicioSeleccionado" @click="irAPaso(2)">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- PASO 2: BARBERO -->
+      <div class="reserva__panel" x-show="paso === 2 && !confirmado">
+        <h3 class="reserva__titulo">Elegí un barbero</h3>
+        <div class="row row-cols-1 row-cols-sm-2 g-3 opciones-lista">
+          <div class="col-12">
+            <div class="opcion-card opcion-cualquiera"
+                 :class="{ seleccionada: barberoElegido && barberoEsCualquiera }"
+                 @click="seleccionarBarbero('cualquiera')">
+              <span class="opcion-card__nombre">✂️ Cualquiera disponible (asignación automática)</span>
+            </div>
+          </div>
+          <template x-for="b in barberos" :key="b.id">
+            <div class="col">
+              <div class="opcion-card"
+                   :class="{ seleccionada: barberoSeleccionado && barberoSeleccionado.id === b.id }"
+                   @click="seleccionarBarbero(b)">
+                <span class="opcion-card__nombre" x-text="b.nombre"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="reserva__nav-botones">
+          <button class="btn-atras" @click="irAPaso(1)">Atrás</button>
+          <button class="btn-primario" :disabled="!barberoElegido" @click="irAPaso(3)">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- PASO 3: FECHA Y HORARIO -->
+      <div class="reserva__panel" x-show="paso === 3 && !confirmado">
+        <h3 class="reserva__titulo">Elegí fecha y horario</h3>
+
+        <div class="form-grupo reserva__campo-fecha" style="color:var(--color-text-dark);">
+          <label for="input-fecha" style="color: rgba(17,17,17,0.6);">Fecha</label>
+          <input type="date" id="input-fecha" :min="fechaMin" x-model="fecha" @change="onFechaChange()"
+                 style="background:#fff; color:var(--color-text-dark); border:1.5px solid rgba(17,17,17,0.15);">
+        </div>
+
+        <div class="row row-cols-3 row-cols-sm-4 g-2 horarios-grid">
+          <p class="col-12 listing__estado" x-show="!fecha">Elegí una fecha para ver los horarios disponibles.</p>
+          <p class="col-12 listing__estado" x-show="fecha && cargandoHorarios">Buscando horarios...</p>
+          <template x-for="h in (fecha && !cargandoHorarios ? horarios : [])" :key="h.hora">
+            <div class="col">
+              <button class="horario-btn w-100"
+                      :class="{ seleccionado: horarioSeleccionado === h.hora }"
+                      :disabled="!h.disponible"
+                      @click="seleccionarHorario(h)"
+                      x-text="h.hora"></button>
+            </div>
+          </template>
+        </div>
+
+        <div class="reserva__nav-botones">
+          <button class="btn-atras" @click="irAPaso(2)">Atrás</button>
+          <button class="btn-primario" :disabled="!horarioSeleccionado" @click="irAPaso(4)">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- PASO 4: RESUMEN Y CONFIRMACIÓN -->
+      <div class="reserva__panel" x-show="paso === 4 && !confirmado">
+        <h3 class="reserva__titulo">Confirmá tu turno</h3>
+
+        <div class="reserva__resumen">
+          <h3>Resumen</h3>
+          <div>
+            <div class="reserva__resumen-fila"><span>Barbería</span><span x-text="barberia ? barberia.nombre : ''"></span></div>
+            <div class="reserva__resumen-fila"><span>Servicio</span><span x-text="servicioSeleccionado ? (servicioSeleccionado.nombre + ' — $' + servicioSeleccionado.precio.toLocaleString('es-AR')) : ''"></span></div>
+            <div class="reserva__resumen-fila"><span>Barbero</span><span x-text="barberoLabel"></span></div>
+            <div class="reserva__resumen-fila"><span>Fecha</span><span x-text="fecha"></span></div>
+            <div class="reserva__resumen-fila"><span>Horario</span><span x-text="horarioSeleccionado"></span></div>
+          </div>
+        </div>
+
+        <div class="reserva__nav-botones">
+          <button class="btn-atras" @click="irAPaso(3)">Atrás</button>
+          <button class="btn-primario" :disabled="confirmando" @click="confirmarReserva()"
+                  x-text="confirmando ? 'Confirmando...' : 'Confirmar reserva'"></button>
+        </div>
+      </div>
+
+      <!-- PANTALLA FINAL -->
+      <div class="reserva__panel" x-show="confirmado" x-cloak>
+        <div class="reserva__confirmacion">
+          <div class="icono">✅</div>
+          <h2 class="reserva__titulo">¡Turno reservado!</h2>
+          <p style="margin-bottom:1rem; color: rgba(17,17,17,0.6);">Estado actual de tu turno:</p>
+          <span x-html="badgeEstadoHTML(estadoFinal)"></span>
+          <div style="margin-top:2rem;">
+            <a href="{% url 'misturnos' %}" class="btn-primario" style="display:inline-block; width:auto; padding:0.875rem 2rem;">Ver mis turnos</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/reserva.js' %}"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+{% endblock %}
