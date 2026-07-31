@@ -20,6 +20,9 @@ def pagina_reservar(request):
 def pagina_misturnos(request):
     return render(request, 'paginas/misturnos.html')
 
+def pagina_registrar_barberia(request):
+    return render(request, 'paginas/registrar-barberia.html')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +32,7 @@ urlpatterns = [
     path('paginas/barberia.html', pagina_barberia, name='barberia'),
     path('paginas/reservar.html', pagina_reservar, name='reservar'),
     path('paginas/misturnos.html', pagina_misturnos, name='misturnos'),
+    path('paginas/registrar-barberia.html', pagina_registrar_barberia, name='registrar_barberia'),
 
     path('api/', include('apps.usuarios.urls')),
     path('api/', include('apps.turnos.urls')),

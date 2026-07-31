@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registrar mi barbería — BarberApp{% endblock %}
+
+{% block content %}
+    <section class="reserva">
+      <div class="container" style="max-width: 40rem;">
+
+        <a href="{% url 'index' %}" class="volver" style="color: rgba(17,17,17,0.5);">← Volver al inicio</a>
+
+        <header class="listing__header" style="margin-top:1rem;">
+          <h2>Registrá tu barbería</h2>
+          <p>Cargá los datos de tu negocio para empezar a recibir reservas online</p>
+        </header>
+
+        <div class="reserva__panel" style="display:block;">
+
+          <div class="modal__alerta" id="alerta-registrar-barberia"></div>
+
+          <div class="form-grupo">
+            <label for="rb-nombre">Nombre de la barbería</label>
+            <input type="text" id="rb-nombre" placeholder="Ej: Style Barber">
+          </div>
+
+          <div class="form-grupo">
+            <label for="rb-direccion">Dirección</label>
+            <input type="text" id="rb-direccion" placeholder="Calle y número">
+          </div>
+
+          <div class="form-grupo">
+            <label for="rb-zona">Zona</label>
+            <input type="text" id="rb-zona" placeholder="Ej: Centro, Barrio Norte...">
+          </div>
+
+          <div class="form-grupo">
+            <label for="rb-telefono">
+              Teléfono
+              <small class="texto-opcional">(opcional)</small>
+            </label>
+            <input type="tel" id="rb-telefono" placeholder="3644 123456">
+          </div>
+
+          <div class="form-grupo">
+            <label for="rb-descripcion">
+              Descripción
+              <small class="texto-opcional">(opcional)</small>
+            </label>
+            <textarea id="rb-descripcion" rows="3" placeholder="Contá brevemente de qué se trata tu barbería"></textarea>
+          </div>
+
+          <div class="reserva__nav-botones">
+            <div></div>
+            <button class="btn-primario" id="btn-registrar-barberia-enviar">Registrar barbería</button>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/registrar-barberia.js' %}"></script>
+{% endblock %}
