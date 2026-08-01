@@ -238,3 +238,15 @@ document.getElementById('pill-reservar').addEventListener('click', irABarberias)
 document.getElementById('pill-mis-turnos').addEventListener('click', () => {
   window.location.href = 'paginas/misturnos.html';
 });
+
+document.querySelector('.btn-cta').addEventListener('click', () => {
+  const usuarioLogueado = sessionStorage.getItem('barberapp_usuario');
+
+  if (!usuarioLogueado) {
+    mostrarAlerta(modalLogin, 'ℹ️ Iniciá sesión primero para registrar tu barbería.', 'exito');
+    abrirModal(modalLogin);
+    return;
+  }
+
+  window.location.href = 'paginas/registrar-barberia.html';
+});

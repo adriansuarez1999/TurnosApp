@@ -508,7 +508,8 @@ a   { text-decoration: none; color: inherit; }
 .form-grupo { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.1rem; }
 .form-grupo label { font-size: 0.8125rem; font-weight: 600; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; text-transform: uppercase; }
 .form-grupo input,
-.form-grupo select {
+.form-grupo select,
+.form-grupo textarea {
   background: rgba(255,255,255,0.06);
   border: 1.5px solid rgba(197,157,95,0.2);
   border-radius: var(--radius-sm);
@@ -523,6 +524,22 @@ a   { text-decoration: none; color: inherit; }
 .form-grupo input:focus,
 .form-grupo select:focus { border-color: var(--color-accent); background: rgba(197,157,95,0.07); }
 .form-grupo input::placeholder { color: rgba(255,255,255,0.25); }
+
+/* Variante clara de .form-grupo: para formularios sobre fondo
+   claro (el panel de dueño la va a usar seguido) */
+.formulario-claro .form-grupo label { color: rgba(17,17,17,0.6); }
+.formulario-claro .form-grupo input,
+.formulario-claro .form-grupo select,
+.formulario-claro .form-grupo textarea {
+  background: #fff;
+  color: var(--color-text-dark);
+  border: 1.5px solid rgba(17,17,17,0.15);
+}
+.formulario-claro .form-grupo input::placeholder,
+.formulario-claro .form-grupo textarea::placeholder { color: rgba(17,17,17,0.35); }
+.formulario-claro .form-grupo input:focus,
+.formulario-claro .form-grupo select:focus,
+.formulario-claro .form-grupo textarea:focus { border-color: var(--color-accent); background: rgba(197,157,95,0.05); }
 
 
 .modal__btn-enviar,
