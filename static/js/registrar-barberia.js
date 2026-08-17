@@ -6,11 +6,11 @@
    contra el real sin tocar el resto del archivo.
 ═══════════════════════════════════════════════════════════ */
 
-const API_REGISTRAR_BARBERIA = '/api/barberias/registrar/';
+const API_REGISTRAR_BARBERIA = '/api/barberias/nueva/';
 
 // Modo simulado: true = sin backend (para desarrollo)
 //                false = conecta con Django real
-const MODO_SIMULADO_REGISTRAR_BARBERIA = true;
+const MODO_SIMULADO_REGISTRAR_BARBERIA = false;
 
 document.getElementById('btn-registrar-barberia-enviar').addEventListener('click', async () => {
   const nombre      = document.getElementById('rb-nombre').value.trim();
@@ -54,8 +54,9 @@ document.getElementById('btn-registrar-barberia-enviar').addEventListener('click
     }
 
     if (datos.ok) {
-      mostrarAlerta('✅ ¡Barbería registrada! Ya podés empezar a gestionarla.', 'exito');
-      setTimeout(() => { window.location.href = '/'; }, 1500);
+      sessionStorage.setItem('barberapp_es_dueno', 'true');
+      mostrarAlerta('✅ ¡Barbería registrada! Te llevamos a tu panel...', 'exito');
+      setTimeout(() => { window.location.href = '/paginas/mi-barberia.html'; }, 1500);
     } else {
       mostrarAlerta('❌ ' + (datos.error || 'No se pudo registrar la barbería.'), 'error');
     }
@@ -67,6 +68,3 @@ document.getElementById('btn-registrar-barberia-enviar').addEventListener('click
     btn.textContent = 'Registrar barbería';
   }
 });
-
-/* Fijate que redirige a / al confirmar — como la Tarea 2 (que la sesión reconozca el rol de dueño) todavía no existe, 
-por ahora no hay a dónde más mandarlo. Cuando Facundo tenga esa parte, cambiamos ese redirect por el link al panel.*/

@@ -1,0 +1,75 @@
+{% extends 'panel/panel_base.html' %} {% load static %} {% block title %}Mis
+barberos — Panel — BarberApp{% endblock %} {% block panel_titulo %}Mis
+barberos{% endblock %} {% block panel_subtitulo %}Gestioná el equipo de tu
+barbería{% endblock %} {% block panel_content %}
+<div class="panel-card panel-card--angosto">
+  <h3 class="reserva__titulo" id="titulo-form-barbero">Agregar barbero</h3>
+
+  <div class="modal__alerta" id="alerta-form-barbero"></div>
+
+  <input type="hidden" id="bb-id-editando" value="" />
+
+  <div class="form-fila-2">
+    <div class="form-grupo">
+      <label for="bb-nombre">Nombre</label>
+      <input type="text" id="bb-nombre" />
+    </div>
+    <div class="form-grupo">
+      <label for="bb-apellido">Apellido</label>
+      <input type="text" id="bb-apellido" />
+    </div>
+  </div>
+
+  <div class="form-grupo">
+    <label for="bb-email">Email</label>
+    <input type="email" id="bb-email" />
+  </div>
+
+  <div class="form-grupo" id="grupo-bb-password">
+    <label for="bb-password">Contraseña</label>
+    <input type="password" id="bb-password" placeholder="Mínimo 6 caracteres" />
+  </div>
+
+  <div class="form-grupo">
+    <label for="bb-telefono">Teléfono</label>
+    <input type="tel" id="bb-telefono" />
+  </div>
+
+  <div class="form-grupo">
+    <label for="bb-especialidad">
+      Especialidad
+      <small class="texto-opcional">(opcional)</small>
+    </label>
+    <input
+      type="text"
+      id="bb-especialidad"
+      placeholder="Ej: Fade, barba, color..."
+    />
+  </div>
+
+  <div class="reserva__nav-botones">
+    <a
+      href="#"
+      id="btn-cancelar-edicion"
+      class="btn-atras"
+      style="display: none; text-align: center; text-decoration: none"
+      >Cancelar</a
+    >
+    <button class="btn-primario" id="btn-guardar-barbero">
+      Agregar barbero
+    </button>
+  </div>
+</div>
+
+<div class="panel-card" style="margin-top: 1.5rem">
+  <h3 class="reserva__titulo">Equipo actual</h3>
+  <ul
+    class="row row-cols-1 row-cols-sm-2 g-3 list-unstyled"
+    id="lista-mis-barberos"
+  >
+    <li class="col-12 listing__estado">Cargando...</li>
+  </ul>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/mis-barberos.js' %}"></script>
+{% endblock %}

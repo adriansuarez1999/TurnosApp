@@ -1,33 +1,13 @@
 from datetime import datetime
-from django.shortcuts import render
 from .models import Barberia, FotoBarberia
-from django.db.models import Q
+from django.db.models import Q, Sum, Count
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.hashers import make_password
+from django.core.files.storage import default_storage
 from apps.usuarios.models import Barbero, Servicio, Usuario
+from apps.turnos.models import Turno
 import json
-
-def pagina_barberias(request):
-    return render(request, 'paginas/indexGuido.html')
-
-# ══════════════════════════════════════════
-# Agregar barbería
-# ══════════════════════════════════════════
-
-def agregar_barberia(request):
-    if request.method == 'POST':
-        Barberia.objects.create(
-            nombre=request.POST.get('nombre'),
-            direccion=request.POST.get('direccion'),
-            telefono=request.POST.get('telefono')
-        )
-        # Aquí deberías crear un objeto Barberia y guardarlo en la base de datos
-        # Barberia.objects.create(nombre=nombre, direccion=direccion, telefono=telefono)
-
-        return render(request, 'barberias/agregar_barberia.html', {'mensaje': 'Barbería agregada exitosamente'})
-
-    return render(request, 'barberias/agregar_barberia.html')
 
 
 def _servicio_a_dict(servicio):
@@ -55,8 +35,8 @@ def _barberia_a_dict(barberia, detalle=False):
         'foto': barberia.logo,
     }
     if detalle:
-        servicios = Servicio.objects.filter(id_barberia=barberia.id_barberia)
-        barberos = Barbero.objects.filter(id_barberia=barberia.id_barberia)
+        servicios = Servicio.objects.filter(id_barberia=barberia.id_barberia, estado=1)
+        barberos = Barbero.objects.filter(id_barberia=barberia.id_barberia).exclude(id_usuario__estado='INACTIVO')
         fotos = FotoBarberia.objects.filter(id_barberia=barberia.id_barberia).order_by('orden')
         data.update({
             'descripcion': barberia.descripcion,
@@ -103,7 +83,7 @@ def detalle_barberia(request, id):
 def listar_barberos(request):
     barberia_id = request.GET.get('barberia')
 
-    barberos = Barbero.objects.all()
+    barberos = Barbero.objects.all().exclude(id_usuario__estado='INACTIVO')
     if barberia_id:
         barberos = barberos.filter(id_barberia=barberia_id)
 
@@ -229,7 +209,6 @@ def mi_barberia(request):
             barberia.zona = data.get('zona', barberia.zona)
             barberia.descripcion = data.get('descripcion', barberia.descripcion)
             barberia.logo = data.get('logo', barberia.logo)
-            barberia.estado = data.get('estado', barberia.estado)
             barberia.save()
 
             return JsonResponse({'ok': True, 'nombre': barberia.nombre})
@@ -341,6 +320,7 @@ def mi_barbero_detalle(request, id):
             usuario.nombre = data.get('nombre', usuario.nombre)
             usuario.apellido = data.get('apellido', usuario.apellido)
             usuario.telefono = data.get('telefono', usuario.telefono)
+            usuario.estado = data.get('estado', usuario.estado)
             usuario.save()
 
             return JsonResponse({'ok': True, 'id_barbero': barbero.id_barbero})
@@ -357,3 +337,224 @@ def mi_barbero_detalle(request, id):
         return JsonResponse({'ok': True})
 
     return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+
+def _foto_a_dict(foto):
+    return {
+        'id': foto.id_foto,
+        'url': foto.url,
+        'orden': foto.orden,
+    }
+
+
+# ══════════════════════════════════════════
+# Fotos de portada (panel del dueño)
+# ══════════════════════════════════════════
+
+# GET  /api/mi-barberia/fotos/  -> listar las fotos de portada propias
+# POST /api/mi-barberia/fotos/  -> agregar una foto nueva
+def mis_fotos_barberia(request):
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    if request.method == 'GET':
+        fotos = FotoBarberia.objects.filter(id_barberia=barberia.id_barberia).order_by('orden')
+        return JsonResponse({
+            'ok': True,
+            'fotos': [_foto_a_dict(f) for f in fotos]
+        })
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            if not data.get('url'):
+                return JsonResponse({'ok': False, 'error': 'Falta la url de la foto.'}, status=400)
+
+            ultimo_orden = FotoBarberia.objects.filter(id_barberia=barberia.id_barberia).count()
+
+            foto = FotoBarberia.objects.create(
+                id_barberia_id=barberia.id_barberia,
+                url=data['url'],
+                orden=data.get('orden', ultimo_orden),
+            )
+
+            return JsonResponse({'ok': True, 'id': foto.id_foto}, status=201)
+
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+
+# DELETE /api/mi-barberia/fotos/<id>/  -> sacar una foto de portada
+def mi_foto_detalle(request, id):
+    if request.method != 'DELETE':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    try:
+        foto = FotoBarberia.objects.get(id_foto=id)
+    except FotoBarberia.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Foto no encontrada.'}, status=404)
+
+    if foto.id_barberia_id != barberia.id_barberia:
+        return JsonResponse({'ok': False, 'error': 'Esa foto no pertenece a tu barbería.'}, status=403)
+
+    foto.delete()
+    return JsonResponse({'ok': True})
+
+
+# ══════════════════════════════════════════
+# Tarea 6: Informes
+# ══════════════════════════════════════════
+
+# GET /api/mi-barberia/informes/?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
+@require_GET
+def informes(request):
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    # Siempre filtrado por la barbería del dueño logueado (nunca datos de otra)
+    turnos = Turno.objects.filter(id_barbero__id_barberia=barberia)
+
+    desde = request.GET.get('desde')
+    hasta = request.GET.get('hasta')
+    if desde:
+        turnos = turnos.filter(fecha__gte=desde)
+    if hasta:
+        turnos = turnos.filter(fecha__lte=hasta)
+
+    turnos_por_dia = list(
+        turnos.values('fecha')
+              .annotate(cantidad=Count('id_turno'))
+              .order_by('fecha')
+    )
+
+    ingresos_totales = turnos.aggregate(total=Sum('monto_total'))['total'] or 0
+
+    turnos_por_estado = list(
+        turnos.values('estado')
+              .annotate(cantidad=Count('id_turno'))
+              .order_by('estado')
+    )
+
+    return JsonResponse({
+        'ok': True,
+        'barberia': barberia.nombre,
+        'turnos_por_dia': turnos_por_dia,
+        'ingresos_totales': float(ingresos_totales),
+        'turnos_por_estado': turnos_por_estado,
+    })
+
+
+# ══════════════════════════════════════════
+# Tarea 7: carga real de archivos
+# Reemplaza (o complementa) la carga manual de rutas del Sprint 2.
+# ══════════════════════════════════════════
+
+def _guardar_archivo(archivo, carpeta):
+    """Guarda un archivo subido en media/<carpeta>/ y devuelve la URL pública."""
+    ruta_guardada = default_storage.save(f'{carpeta}/{archivo.name}', archivo)
+    return default_storage.url(ruta_guardada)
+
+
+# POST multipart/form-data con el campo 'logo' -> media/logos/
+def subir_logo_barberia(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    archivo = request.FILES.get('logo')
+    if not archivo:
+        return JsonResponse({'ok': False, 'error': 'No se recibió ningún archivo (campo "logo").'}, status=400)
+
+    barberia.logo = _guardar_archivo(archivo, 'logos')
+    barberia.save()
+
+    return JsonResponse({'ok': True, 'logo': barberia.logo})
+
+
+# POST multipart/form-data con el campo 'foto' -> media/portadas/
+def subir_foto_portada(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    archivo = request.FILES.get('foto')
+    if not archivo:
+        return JsonResponse({'ok': False, 'error': 'No se recibió ningún archivo (campo "foto").'}, status=400)
+
+    url = _guardar_archivo(archivo, 'portadas')
+    orden = FotoBarberia.objects.filter(id_barberia=barberia.id_barberia).count()
+
+    foto = FotoBarberia.objects.create(
+        id_barberia_id=barberia.id_barberia,
+        url=url,
+        orden=orden,
+    )
+
+    return JsonResponse({'ok': True, 'id': foto.id_foto, 'url': foto.url}, status=201)
+
+
+# POST multipart/form-data con el campo 'foto' -> media/barberos/
+def subir_foto_barbero(request, id):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    try:
+        barbero = Barbero.objects.get(id_barbero=id)
+    except Barbero.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Barbero no encontrado.'}, status=404)
+
+    if barbero.id_barberia_id != barberia.id_barberia:
+        return JsonResponse({'ok': False, 'error': 'Ese barbero no pertenece a tu barbería.'}, status=403)
+
+    archivo = request.FILES.get('foto')
+    if not archivo:
+        return JsonResponse({'ok': False, 'error': 'No se recibió ningún archivo (campo "foto").'}, status=400)
+
+    barbero.foto = _guardar_archivo(archivo, 'barberos')
+    barbero.save()
+
+    return JsonResponse({'ok': True, 'foto': barbero.foto})
+

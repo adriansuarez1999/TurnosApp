@@ -1,0 +1,24 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+{% block title %}Fotos de portada — Panel — BarberApp{% endblock %}
+{% block panel_titulo %}Fotos de portada{% endblock %}
+{% block panel_subtitulo %}Estas fotos se muestran de fondo en el detalle de tu barbería{% endblock %}
+
+{% block panel_content %}
+    <div class="panel-card">
+      <div class="modal__alerta" id="alerta-fotos-barberia"></div>
+
+      <ul class="row row-cols-2 row-cols-sm-3 g-3 list-unstyled" id="lista-fotos-barberia"></ul>
+
+      <div class="form-grupo" style="margin-top:1.5rem;">
+        <label>Agregar foto</label>
+        <input type="file" id="nueva-foto-archivo" accept="image/*" style="display:none;">
+        <button type="button" class="btn-agregar-foto" id="btn-agregar-foto">Elegir foto</button>
+      </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/mis-fotos.js' %}"></script>
+{% endblock %}

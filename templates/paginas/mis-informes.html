@@ -1,0 +1,34 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+{% block title %}Informes — Panel — BarberApp{% endblock %}
+{% block panel_titulo %}Informes{% endblock %}
+{% block panel_subtitulo %}Turnos e ingresos de tu barbería{% endblock %}
+
+{% block panel_content %}
+    <div class="panel-card panel-card--angosto" style="margin-bottom:1.5rem;">
+      <h3 class="reserva__titulo" style="margin-bottom:1rem;">Filtrar por fecha</h3>
+      <div class="form-fila-2">
+        <div class="form-grupo">
+          <label for="inf-desde">Desde</label>
+          <input type="date" id="inf-desde">
+        </div>
+        <div class="form-grupo">
+          <label for="inf-hasta">Hasta</label>
+          <input type="date" id="inf-hasta">
+        </div>
+      </div>
+      <div class="reserva__nav-botones">
+        <a href="#" id="btn-limpiar-filtro" class="btn-atras" style="text-align:center; text-decoration:none;">Limpiar</a>
+        <button class="btn-primario" id="btn-filtrar-informes">Filtrar</button>
+      </div>
+    </div>
+
+    <div id="informes-contenido">
+      <p class="listing__estado">Cargando...</p>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/mis-informes.js' %}"></script>
+{% endblock %}

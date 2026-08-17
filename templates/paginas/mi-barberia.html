@@ -1,0 +1,62 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+{% block title %}Mi barbería — Panel — BarberApp{% endblock %}
+{% block panel_titulo %}Mi barbería{% endblock %}
+{% block panel_subtitulo %}Editá los datos de tu negocio{% endblock %}
+
+{% block panel_content %}
+    <div class="panel-card panel-card--angosto" id="panel-mi-barberia" style="display:none;">
+
+      <div class="modal__alerta" id="alerta-mi-barberia"></div>
+
+      <div class="form-grupo">
+        <label for="mb-nombre">Nombre de la barbería</label>
+        <input type="text" id="mb-nombre">
+      </div>
+
+      <div class="form-grupo">
+        <label for="mb-direccion">Dirección</label>
+        <input type="text" id="mb-direccion">
+      </div>
+
+      <div class="form-grupo">
+        <label for="mb-zona">Zona</label>
+        <input type="text" id="mb-zona">
+      </div>
+
+      <div class="form-grupo">
+        <label for="mb-descripcion">
+          Descripción
+          <small class="texto-opcional">(opcional)</small>
+        </label>
+        <textarea id="mb-descripcion" rows="3"></textarea>
+      </div>
+
+      <div class="form-grupo">
+        <label>Logo</label>
+        <div class="subir-archivo-fila">
+          <div class="subir-archivo-preview" id="mb-logo-preview"><span>Sin logo</span></div>
+          <div>
+            <input type="file" id="mb-logo-archivo" accept="image/*" style="display:none;">
+            <button type="button" class="btn-agregar-foto" id="btn-mb-logo-subir">Cambiar logo</button>
+            <p class="texto-opcional" style="margin-top:0.4rem;">Se guarda apenas elegís la imagen.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reserva__nav-botones">
+        <div></div>
+        <button class="btn-primario" id="btn-mi-barberia-guardar">Guardar cambios</button>
+      </div>
+
+    </div>
+
+    <div class="panel-card panel-card--angosto" id="panel-mi-barberia-cargando">
+      <p class="listing__estado">Cargando...</p>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/mi-barberia.js' %}"></script>
+{% endblock %}

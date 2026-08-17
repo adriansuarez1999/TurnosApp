@@ -1,0 +1,104 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Panel — BarberApp{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/bootstrap-bridge.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <div class="panel-layout">
+      <aside class="panel-sidebar">
+        <a href="{% url 'index' %}" class="panel-sidebar__logo">
+          <div class="panel-sidebar__logo-mark">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#111"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M6 3v12" />
+              <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+              <path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+              <path d="M15 6l-9 9" />
+              <path d="M18 15l-3-3" />
+            </svg>
+          </div>
+          <span class="panel-sidebar__logo-text">Barber<span>App</span></span>
+        </a>
+
+        <div class="panel-sidebar__contexto">
+          <span class="panel-sidebar__eyebrow">Panel de administrador</span>
+          <p class="panel-sidebar__barberia" id="panel-sidebar-barberia">
+            Cargando...
+          </p>
+        </div>
+
+        <nav class="panel-sidebar__nav">
+          <a
+            href="{% url 'mi_barberia' %}"
+            class="panel-sidebar__link {% if seccion_activa == 'barberia' %}activo{% endif %}"
+            >Mi barbería</a
+          >
+          <a
+            href="{% url 'mis_barberos' %}"
+            class="panel-sidebar__link {% if seccion_activa == 'barberos' %}activo{% endif %}"
+            >Mis barberos</a
+          >
+          <a
+            href="{% url 'mis_fotos' %}"
+            class="panel-sidebar__link {% if seccion_activa == 'fotos' %}activo{% endif %}"
+            >Fotos de portada</a
+          >
+          <a
+            href="{% url 'mis_servicios' %}"
+            class="panel-sidebar__link {% if seccion_activa == 'servicios' %}activo{% endif %}"
+            >Servicios</a
+          >
+          <a
+            href="{% url 'mis_informes' %}"
+            class="panel-sidebar__link {% if seccion_activa == 'informes' %}activo{% endif %}"
+            >Informes</a
+          >
+        </nav>
+
+        <a href="{% url 'index' %}" class="panel-sidebar__volver"
+          >← Volver al sitio</a
+        >
+      </aside>
+
+      <main class="panel-main">
+        <header class="panel-main__header">
+          <h1>{% block panel_titulo %}{% endblock %}</h1>
+          <p>{% block panel_subtitulo %}{% endblock %}</p>
+        </header>
+
+        {% block panel_content %}{% endblock %}
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/mock-data.js' %}"></script>
+    <script src="{% static 'js/turnos-utils.js' %}"></script>
+    <script src="{% static 'js/panel-base.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

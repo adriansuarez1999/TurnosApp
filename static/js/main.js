@@ -21,6 +21,7 @@ const navAuth        = document.querySelector('.nav__auth');
 const navLogueado    = document.getElementById('nav-logueado');
 const navNombre      = document.getElementById('nav-nombre-usuario');
 const navUser        = document.querySelector('.nav__user');
+const navPanelLink   = document.getElementById('nav-panel-link');
 
 /* ── Abrir / cerrar modales ──────────────────────────────── */
 function abrirModal(modal) {
@@ -70,16 +71,18 @@ function limpiarAlerta(modal) {
 }
 
 /* ── Navbar logueado / sin sesión ─────────────────────────── */
-function mostrarUsuarioLogueado(nombre) {
+function mostrarUsuarioLogueado(nombre, esDueno) {
   navNombre.textContent = nombre;
   navAuth.style.display = 'none';
   navUser.style.display = 'none';
   navLogueado.style.display = 'flex';
+  navPanelLink.style.display = esDueno ? 'inline-block' : 'none';
 }
 function mostrarNavSinSesion() {
   navAuth.style.display = 'flex';
   navUser.style.display = 'flex';
   navLogueado.style.display = 'none';
+  navPanelLink.style.display = 'none';
 }
 document.getElementById('btn-salir').addEventListener('click', async () => {
   try {
@@ -91,6 +94,7 @@ document.getElementById('btn-salir').addEventListener('click', async () => {
     console.error(err);
   }
   sessionStorage.removeItem('barberapp_usuario');
+  sessionStorage.removeItem('barberapp_es_dueno');
   mostrarNavSinSesion();
 });
 
@@ -137,8 +141,9 @@ document.getElementById('btn-login-enviar').addEventListener('click', async () =
 
     if (datos.ok) {
       sessionStorage.setItem('barberapp_usuario', datos.nombre);
+      sessionStorage.setItem('barberapp_es_dueno', datos.es_dueno ? 'true' : 'false');
       cerrarModal(modalLogin);
-      mostrarUsuarioLogueado(datos.nombre);
+      mostrarUsuarioLogueado(datos.nombre, datos.es_dueno);
     } else {
       mostrarAlerta(modalLogin, '❌ ' + datos.error);
     }
@@ -226,7 +231,8 @@ document.getElementById('btn-registro-enviar').addEventListener('click', async (
 
 /* ── Restaurar sesión guardada ────────────────────────────── */
 const usuarioGuardado = sessionStorage.getItem('barberapp_usuario');
-if (usuarioGuardado) mostrarUsuarioLogueado(usuarioGuardado);
+const esDuenoGuardado = sessionStorage.getItem('barberapp_es_dueno') === 'true';
+if (usuarioGuardado) mostrarUsuarioLogueado(usuarioGuardado, esDuenoGuardado);
 
 /* ── Atajos de navegación del hero / nav ──────────────────── */
 function irABarberias() {

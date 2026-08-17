@@ -33,3 +33,16 @@ function getCookie(nombre) {
   const match = document.cookie.match('(^|;)\\s*' + nombre + '\\s*=\\s*([^;]+)');
   return match ? match.pop() : '';
 }
+
+/* ── Helper: subir un archivo a un endpoint (multipart) ───── */
+async function subirArchivo(url, campoNombre, archivo) {
+  const formData = new FormData();
+  formData.append(campoNombre, archivo);
+
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    body: formData,
+  });
+  return resp.json();
+}
