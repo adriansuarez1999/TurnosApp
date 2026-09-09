@@ -11,6 +11,11 @@ urlpatterns = [
     path('mi-barberia/', views.mi_barberia),
     path('mi-barberia/barberos/', views.mis_barberos),
     path('mi-barberia/barberos/<int:id>/', views.mi_barbero_detalle),
+
+    # Sprint 4 - Módulo A: disponibilidad de barberos
+    path('mi-barberia/barberos/<int:id>/disponibilidad/', views.disponibilidad_barbero),
+    path('mi-barberia/disponibilidad/<int:id>/', views.mi_disponibilidad_detalle),
+
     path('mi-barberia/fotos/', views.mis_fotos_barberia),
     path('mi-barberia/fotos/<int:id>/', views.mi_foto_detalle),
 
