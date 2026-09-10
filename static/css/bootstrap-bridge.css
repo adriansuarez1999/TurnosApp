@@ -17,36 +17,42 @@
   --bs-body-font-family: var(--font-body);
   --bs-font-sans-serif: var(--font-body);
 
-  /* Colores base */
+  /* Fondo y texto */
   --bs-body-color: var(--color-text-dark);
   --bs-body-bg: var(--color-bg);
-  --bs-emphasis-color: var(--color-primary);
+  --bs-emphasis-color: var(--color-accent);
 
-  /* Color de marca -> dorado en vez del azul de Bootstrap */
-  --bs-primary: var(--color-accent);
-  --bs-primary-rgb: 197, 157, 95;
-  --bs-primary-text-emphasis: #8a6d3f;
-  --bs-primary-bg-subtle: #f5ecdd;
-  --bs-primary-border-subtle: #e3cca0;
+  /* Verde principal */
+  --bs-primary: #52705B;
+  --bs-primary-rgb: 82, 112, 91;
 
-  /* "dark" -> tu negro de marca, para secciones oscuras */
-  --bs-dark: var(--color-primary);
-  --bs-dark-rgb: 17, 17, 17;
+  --bs-primary-text-emphasis: #24342B;
+  --bs-primary-bg-subtle: #E7ECE5;
+  --bs-primary-border-subtle: #C7D2C3;
 
-  /* Bordes y sombras, para que cards/inputs/modales de Bootstrap
-     compartan el mismo lenguaje visual que tus componentes propios */
+  /* Verde oscuro */
+  --bs-dark: #24342B;
+  --bs-dark-rgb: 36, 52, 43;
+
+  /* Bordes */
+  --bs-border-color: #DED8CC;
+
+  /* Radios */
   --bs-border-radius: var(--radius-md);
   --bs-border-radius-sm: var(--radius-sm);
   --bs-border-radius-lg: var(--radius-lg);
   --bs-border-radius-xl: var(--radius-lg);
+
+  /* Sombras */
   --bs-box-shadow: var(--shadow-card);
   --bs-box-shadow-sm: var(--shadow-btn);
 
   /* Links */
-  --bs-link-color: var(--color-accent);
-  --bs-link-color-rgb: 197, 157, 95;
-  --bs-link-hover-color: #a8834c;
-  --bs-link-hover-color-rgb: 168, 131, 76;
+  --bs-link-color: #52705B;
+  --bs-link-color-rgb: 82, 112, 91;
+
+  --bs-link-hover-color: #3F5848;
+  --bs-link-hover-color-rgb: 63, 88, 72;
 }
 
 /* Bootstrap no expone una variable global para la tipografía de
@@ -56,10 +62,22 @@ h1, h2, h3, h4, h5, h6,
   font-family: var(--font-display);
 }
 
-/* .btn-primary usa --bs-primary para el fondo, pero el texto por
-   defecto queda blanco; con tu dorado claro se lee mejor en oscuro */
 .btn-primary {
-  --bs-btn-color: var(--color-text-dark);
-  --bs-btn-hover-color: var(--color-text-dark);
-  --bs-btn-active-color: var(--color-text-dark);
+  --bs-btn-color: #FFFCF6;
+  --bs-btn-bg: #52705B;
+  --bs-btn-border-color: #52705B;
+
+  --bs-btn-hover-color: #FFFCF6;
+  --bs-btn-hover-bg: #435D4B;
+  --bs-btn-hover-border-color: #435D4B;
+
+  --bs-btn-focus-shadow-rgb: 82, 112, 91;
+
+  --bs-btn-active-color: #FFFCF6;
+  --bs-btn-active-bg: #3A5142;
+  --bs-btn-active-border-color: #3A5142;
+
+  --bs-btn-disabled-color: #FFFCF6;
+  --bs-btn-disabled-bg: #A8B5A2;
+  --bs-btn-disabled-border-color: #A8B5A2;
 }
