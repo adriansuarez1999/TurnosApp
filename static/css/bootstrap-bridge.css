@@ -1,83 +1,501 @@
 /* ═══════════════════════════════════════════════════════════
-   bootstrap-bridge.css
-   Pisa las variables de Bootstrap 5 con la paleta y tipografía
-   propias de BarberApp, para que cualquier componente de
-   Bootstrap (botones, cards, grid, badges, alerts) salga con
-   la identidad visual del proyecto y no con los defaults
-   de Bootstrap.
-
-   Orden de carga obligatorio en el <head>:
-     1) bootstrap.min.css
-     2) bootstrap-bridge.css   <- este archivo
-     3) style.css              <- tiene la última palabra
+   BARBERAPP — BOOTSTRAP THEME
+   Paleta verde clara / pastel
 ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* Tipografía */
-  --bs-body-font-family: var(--font-body);
-  --bs-font-sans-serif: var(--font-body);
 
-  /* Fondo y texto */
-  --bs-body-color: var(--color-text-dark);
-  --bs-body-bg: var(--color-bg);
-  --bs-emphasis-color: var(--color-accent);
+  /* Marca */
+  --bs-primary: #62B47A;
+  --bs-primary-rgb: 98, 180, 122;
 
-  /* Verde principal */
-  --bs-primary: #52705B;
-  --bs-primary-rgb: 82, 112, 91;
+  --bs-secondary: #687870;
+  --bs-secondary-rgb: 104, 120, 112;
 
-  --bs-primary-text-emphasis: #24342B;
-  --bs-primary-bg-subtle: #E7ECE5;
-  --bs-primary-border-subtle: #C7D2C3;
 
-  /* Verde oscuro */
-  --bs-dark: #24342B;
-  --bs-dark-rgb: 36, 52, 43;
+  /* Página */
+  --bs-body-bg: #FBF8F2;
+  --bs-body-bg-rgb: 251, 248, 242;
+
+  --bs-body-color: #17352B;
+  --bs-body-color-rgb: 23, 53, 43;
+
+  --bs-secondary-color: #687870;
+
 
   /* Bordes */
-  --bs-border-color: #DED8CC;
+  --bs-border-color: #DDE7DE;
 
-  /* Radios */
-  --bs-border-radius: var(--radius-md);
-  --bs-border-radius-sm: var(--radius-sm);
-  --bs-border-radius-lg: var(--radius-lg);
-  --bs-border-radius-xl: var(--radius-lg);
-
-  /* Sombras */
-  --bs-box-shadow: var(--shadow-card);
-  --bs-box-shadow-sm: var(--shadow-btn);
 
   /* Links */
-  --bs-link-color: #52705B;
-  --bs-link-color-rgb: 82, 112, 91;
+  --bs-link-color: #247345;
+  --bs-link-hover-color: #174D32;
 
-  --bs-link-hover-color: #3F5848;
-  --bs-link-hover-color-rgb: 63, 88, 72;
+
+  /* Focus */
+  --bs-focus-ring-color:
+    rgba(98, 180, 122, 0.22);
+
+
+  /* Primary subtle */
+  --bs-primary-bg-subtle: #DDF2E2;
+  --bs-primary-border-subtle: #BCE5C7;
+  --bs-primary-text-emphasis: #174D32;
+
+
+  /* Secondary subtle */
+  --bs-secondary-bg-subtle: #F2F5F1;
+  --bs-secondary-border-subtle: #DDE7DE;
+  --bs-secondary-text-emphasis: #53645B;
+
 }
 
-/* Bootstrap no expone una variable global para la tipografía de
-   headings, así que se fija a mano: */
-h1, h2, h3, h4, h5, h6,
-.h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: var(--font-display);
+
+/* ═══════════════════════════════════════════════════════════
+   BODY
+═══════════════════════════════════════════════════════════ */
+
+body {
+  background-color: #FBF8F2;
+  color: #17352B;
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   BOTÓN PRIMARY
+═══════════════════════════════════════════════════════════ */
 
 .btn-primary {
-  --bs-btn-color: #FFFCF6;
-  --bs-btn-bg: #52705B;
-  --bs-btn-border-color: #52705B;
 
-  --bs-btn-hover-color: #FFFCF6;
-  --bs-btn-hover-bg: #435D4B;
-  --bs-btn-hover-border-color: #435D4B;
+  --bs-btn-color: #FFFFFF;
 
-  --bs-btn-focus-shadow-rgb: 82, 112, 91;
+  --bs-btn-bg: #62B47A;
+  --bs-btn-border-color: #62B47A;
 
-  --bs-btn-active-color: #FFFCF6;
-  --bs-btn-active-bg: #3A5142;
-  --bs-btn-active-border-color: #3A5142;
+  --bs-btn-hover-color: #FFFFFF;
 
-  --bs-btn-disabled-color: #FFFCF6;
-  --bs-btn-disabled-bg: #A8B5A2;
-  --bs-btn-disabled-border-color: #A8B5A2;
+  --bs-btn-hover-bg: #4C9D65;
+  --bs-btn-hover-border-color: #4C9D65;
+
+  --bs-btn-focus-shadow-rgb:
+    98, 180, 122;
+
+  --bs-btn-active-color: #FFFFFF;
+
+  --bs-btn-active-bg: #247345;
+  --bs-btn-active-border-color: #247345;
+
+  --bs-btn-disabled-color: #FFFFFF;
+
+  --bs-btn-disabled-bg: #A6D5B3;
+  --bs-btn-disabled-border-color: #A6D5B3;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   OUTLINE PRIMARY
+═══════════════════════════════════════════════════════════ */
+
+.btn-outline-primary {
+
+  --bs-btn-color: #247345;
+  --bs-btn-border-color: #62B47A;
+
+  --bs-btn-hover-color: #FFFFFF;
+
+  --bs-btn-hover-bg: #62B47A;
+  --bs-btn-hover-border-color: #62B47A;
+
+  --bs-btn-focus-shadow-rgb:
+    98, 180, 122;
+
+  --bs-btn-active-color: #FFFFFF;
+
+  --bs-btn-active-bg: #4C9D65;
+  --bs-btn-active-border-color: #4C9D65;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SECONDARY
+═══════════════════════════════════════════════════════════ */
+
+.btn-secondary {
+
+  --bs-btn-color: #FFFFFF;
+
+  --bs-btn-bg: #687870;
+  --bs-btn-border-color: #687870;
+
+  --bs-btn-hover-color: #FFFFFF;
+
+  --bs-btn-hover-bg: #53645B;
+  --bs-btn-hover-border-color: #53645B;
+
+  --bs-btn-active-bg: #435149;
+  --bs-btn-active-border-color: #435149;
+
+}
+
+
+.btn-outline-secondary {
+
+  --bs-btn-color: #5E7067;
+  --bs-btn-border-color: #CBD7CD;
+
+  --bs-btn-hover-color: #17352B;
+
+  --bs-btn-hover-bg: #EEF8F0;
+  --bs-btn-hover-border-color: #B9C9BC;
+
+  --bs-btn-active-color: #17352B;
+
+  --bs-btn-active-bg: #DDF2E2;
+  --bs-btn-active-border-color: #B9C9BC;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════════════════ */
+
+.card {
+
+  --bs-card-bg: #FFFDF9;
+  --bs-card-border-color: #DDE7DE;
+
+  background-color: #FFFDF9;
+
+  border-color: #DDE7DE;
+
+}
+
+
+.card-header {
+
+  border-bottom-color: #DDE7DE;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════════════════════ */
+
+.navbar.bg-body {
+
+  background-color: #FFFDF9 !important;
+
+}
+
+
+.navbar {
+
+  --bs-navbar-color: #53645B;
+
+  --bs-navbar-hover-color: #247345;
+
+  --bs-navbar-active-color: #174D32;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   FORMULARIOS
+═══════════════════════════════════════════════════════════ */
+
+.form-control,
+.form-select {
+
+  background-color: #FFFDF9;
+
+  border-color: #D7E2D9;
+
+  color: #17352B;
+
+}
+
+
+.form-control::placeholder {
+
+  color: #8B9991;
+
+}
+
+
+.form-control:focus,
+.form-select:focus {
+
+  background-color: #FFFDF9;
+
+  color: #17352B;
+
+  border-color: #7BC48F;
+
+  box-shadow:
+    0 0 0 0.25rem
+    rgba(98, 180, 122, 0.16);
+
+}
+
+
+.input-group-text {
+
+  background-color: #EEF8F0;
+
+  border-color: #D7E2D9;
+
+  color: #53645B;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   MODALES
+═══════════════════════════════════════════════════════════ */
+
+.modal-content {
+
+  background-color: #FFFDF9;
+
+  border-color: #DDE7DE;
+
+}
+
+
+.modal-header {
+
+  border-bottom-color: #DDE7DE;
+
+}
+
+
+.modal-footer {
+
+  border-top-color: #DDE7DE;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   DROPDOWNS
+═══════════════════════════════════════════════════════════ */
+
+.dropdown-menu {
+
+  --bs-dropdown-bg: #FFFDF9;
+
+  --bs-dropdown-border-color: #DDE7DE;
+
+  --bs-dropdown-link-color: #17352B;
+
+  --bs-dropdown-link-hover-color: #174D32;
+
+  --bs-dropdown-link-hover-bg: #EEF8F0;
+
+  --bs-dropdown-link-active-bg: #62B47A;
+
+  --bs-dropdown-link-active-color: #FFFFFF;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   TABLAS
+═══════════════════════════════════════════════════════════ */
+
+.table {
+
+  --bs-table-bg: transparent;
+
+  --bs-table-color: #17352B;
+
+  --bs-table-border-color: #DDE7DE;
+
+  --bs-table-hover-bg: #F0F8F1;
+
+  --bs-table-hover-color: #17352B;
+
+}
+
+
+.table > thead {
+
+  background-color: #F3F8F3;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   BADGES
+═══════════════════════════════════════════════════════════ */
+
+.text-bg-primary {
+
+  color: #FFFFFF !important;
+
+  background-color: #62B47A !important;
+
+}
+
+
+.text-bg-success {
+
+  color: #FFFFFF !important;
+
+  background-color: #4C9D65 !important;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   FONDOS
+═══════════════════════════════════════════════════════════ */
+
+.bg-body {
+
+  background-color: #FFFDF9 !important;
+
+}
+
+
+.bg-body-tertiary {
+
+  background-color: #EEF8F0 !important;
+
+}
+
+
+.bg-primary {
+
+  background-color: #62B47A !important;
+
+}
+
+
+.bg-primary-subtle {
+
+  background-color: #DDF2E2 !important;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   TEXTO
+═══════════════════════════════════════════════════════════ */
+
+.text-primary {
+
+  color: #247345 !important;
+
+}
+
+
+.text-body-secondary {
+
+  color: #687870 !important;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   LINKS
+═══════════════════════════════════════════════════════════ */
+
+a {
+
+  color: #247345;
+
+}
+
+
+a:hover {
+
+  color: #174D32;
+
+}
+
+
+.navbar-brand {
+
+  color: #17352B;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   LIST GROUP
+═══════════════════════════════════════════════════════════ */
+
+.list-group {
+
+  --bs-list-group-bg: #FFFDF9;
+
+  --bs-list-group-border-color: #DDE7DE;
+
+  --bs-list-group-action-hover-bg: #EEF8F0;
+
+  --bs-list-group-active-bg: #62B47A;
+
+  --bs-list-group-active-border-color: #62B47A;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   PAGINACIÓN
+═══════════════════════════════════════════════════════════ */
+
+.pagination {
+
+  --bs-pagination-color: #247345;
+
+  --bs-pagination-hover-color: #174D32;
+
+  --bs-pagination-hover-bg: #EEF8F0;
+
+  --bs-pagination-active-bg: #62B47A;
+
+  --bs-pagination-active-border-color: #62B47A;
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   CHECKBOX / RADIO
+═══════════════════════════════════════════════════════════ */
+
+.form-check-input:checked {
+
+  background-color: #62B47A;
+
+  border-color: #62B47A;
+
+}
+
+
+.form-check-input:focus {
+
+  border-color: #7BC48F;
+
+  box-shadow:
+    0 0 0 0.25rem
+    rgba(98, 180, 122, 0.16);
+
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SELECCIÓN
+═══════════════════════════════════════════════════════════ */
+
+::selection {
+
+  background: #BCE5C7;
+
+  color: #174D32;
+
 }

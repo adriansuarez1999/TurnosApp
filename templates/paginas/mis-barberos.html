@@ -1,75 +1,540 @@
-{% extends 'panel/panel_base.html' %} {% load static %} {% block title %}Mis
-barberos — Panel — BarberApp{% endblock %} {% block panel_titulo %}Mis
-barberos{% endblock %} {% block panel_subtitulo %}Gestioná el equipo de tu
-barbería{% endblock %} {% block panel_content %}
-<div class="panel-card panel-card--angosto">
-  <h3 class="reserva__titulo" id="titulo-form-barbero">Agregar barbero</h3>
+{% extends 'panel/panel_base.html' %}
+{% load static %}
 
-  <div class="modal__alerta" id="alerta-form-barbero"></div>
 
-  <input type="hidden" id="bb-id-editando" value="" />
+{% block title %}
+Mis barberos — BarberApp
+{% endblock %}
 
-  <div class="form-fila-2">
-    <div class="form-grupo">
-      <label for="bb-nombre">Nombre</label>
-      <input type="text" id="bb-nombre" />
-    </div>
-    <div class="form-grupo">
-      <label for="bb-apellido">Apellido</label>
-      <input type="text" id="bb-apellido" />
-    </div>
-  </div>
 
-  <div class="form-grupo">
-    <label for="bb-email">Email</label>
-    <input type="email" id="bb-email" />
-  </div>
+{% block panel_titulo %}
+Mis barberos
+{% endblock %}
 
-  <div class="form-grupo" id="grupo-bb-password">
-    <label for="bb-password">Contraseña</label>
-    <input type="password" id="bb-password" placeholder="Mínimo 6 caracteres" />
-  </div>
 
-  <div class="form-grupo">
-    <label for="bb-telefono">Teléfono</label>
-    <input type="tel" id="bb-telefono" />
-  </div>
+{% block panel_subtitulo %}
+Gestioná el equipo de profesionales de tu barbería.
+{% endblock %}
 
-  <div class="form-grupo">
-    <label for="bb-especialidad">
-      Especialidad
-      <small class="texto-opcional">(opcional)</small>
-    </label>
-    <input
-      type="text"
-      id="bb-especialidad"
-      placeholder="Ej: Fade, barba, color..."
-    />
-  </div>
 
-  <div class="reserva__nav-botones">
-    <a
-      href="#"
-      id="btn-cancelar-edicion"
-      class="btn-atras"
-      style="display: none; text-align: center; text-decoration: none"
-      >Cancelar</a
-    >
-    <button class="btn-primario" id="btn-guardar-barbero">
-      Agregar barbero
-    </button>
-  </div>
+{% block panel_acciones %}
+
+<button
+  type="button"
+  class="btn btn-primary"
+  id="btn-nuevo-barbero"
+>
+  <i class="bi bi-person-plus me-1"></i>
+  Agregar barbero
+</button>
+
+{% endblock %}
+
+
+
+{% block panel_content %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ALERTA GENERAL
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="alert d-none"
+  id="alerta-barberos"
+  role="alert"
+>
 </div>
 
-<div class="panel-card" style="margin-top: 1.5rem">
-  <h3 class="reserva__titulo">Equipo actual</h3>
-  <ul
-    class="row row-cols-1 row-cols-sm-2 g-3 list-unstyled"
-    id="lista-mis-barberos"
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     EQUIPO
+════════════════════════════════════════════════════════════ -->
+
+<div class="card">
+
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center"
   >
-    <li class="col-12 listing__estado">Cargando...</li>
-  </ul>
+
+    <div>
+
+      <h2 class="h5 mb-1">
+        Equipo actual
+      </h2>
+
+      <p class="text-body-secondary small mb-0">
+        Barberos registrados en tu negocio.
+      </p>
+
+    </div>
+
+
+    <span
+      class="badge text-bg-secondary"
+      id="cantidad-barberos"
+    >
+      0
+    </span>
+
+  </div>
+
+
+
+  <div class="card-body p-0">
+
+
+    <!-- Estado de carga -->
+    <div
+      class="p-4"
+      id="estado-barberos"
+    >
+
+      <div
+        class="d-flex align-items-center gap-2 text-body-secondary"
+      >
+
+        <div
+          class="spinner-border spinner-border-sm"
+          role="status"
+        ></div>
+
+        <span>
+          Cargando barberos...
+        </span>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Tabla -->
+    <div
+      class="table-responsive d-none"
+      id="contenedor-tabla-barberos"
+    >
+
+      <table
+        class="table table-hover align-middle mb-0"
+      >
+
+        <thead>
+
+          <tr>
+
+            <th
+              scope="col"
+              class="ps-4"
+            >
+              Barbero
+            </th>
+
+            <th scope="col">
+              Contacto
+            </th>
+
+            <th scope="col">
+              Especialidad
+            </th>
+
+            <th scope="col">
+              Estado
+            </th>
+
+            <th
+              scope="col"
+              class="text-end pe-4"
+            >
+              Acciones
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody
+          id="lista-mis-barberos"
+        >
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
 </div>
-{% endblock %} {% block extra_js %}
-<script src="{% static 'js/mis-barberos.js' %}"></script>
+
+{% endblock %}
+
+
+
+{% block modals %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL ALTA / EDICIÓN
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="modal fade"
+  id="modal-barbero"
+  tabindex="-1"
+  aria-labelledby="modal-barbero-titulo"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal-dialog modal-dialog-centered modal-lg"
+  >
+
+    <div class="modal-content">
+
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2
+            class="modal-title fs-5"
+            id="modal-barbero-titulo"
+          >
+            Agregar barbero
+          </h2>
+
+          <p
+            class="text-body-secondary small mb-0 mt-1"
+            id="modal-barbero-subtitulo"
+          >
+            Completá los datos del nuevo integrante.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+
+      <form id="form-barbero">
+
+
+        <div class="modal-body">
+
+          <input
+            type="hidden"
+            id="bb-id-editando"
+            value=""
+          >
+
+
+          <!-- Alerta -->
+          <div
+            class="alert d-none"
+            id="alerta-form-barbero"
+            role="alert"
+          >
+          </div>
+
+
+
+          <div class="row g-3">
+
+
+            <!-- Nombre -->
+            <div class="col-md-6">
+
+              <label
+                for="bb-nombre"
+                class="form-label"
+              >
+                Nombre
+              </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="bb-nombre"
+                required
+              >
+
+            </div>
+
+
+
+            <!-- Apellido -->
+            <div class="col-md-6">
+
+              <label
+                for="bb-apellido"
+                class="form-label"
+              >
+                Apellido
+              </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="bb-apellido"
+                required
+              >
+
+            </div>
+
+
+
+            <!-- Email -->
+            <div class="col-md-6">
+
+              <label
+                for="bb-email"
+                class="form-label"
+              >
+                Email
+              </label>
+
+              <input
+                type="email"
+                class="form-control"
+                id="bb-email"
+                autocomplete="email"
+                required
+              >
+
+              <div
+                class="form-text d-none"
+                id="ayuda-email-edicion"
+              >
+                El email no puede modificarse desde esta pantalla.
+              </div>
+
+            </div>
+
+
+
+            <!-- Teléfono -->
+            <div class="col-md-6">
+
+              <label
+                for="bb-telefono"
+                class="form-label"
+              >
+                Teléfono
+              </label>
+
+              <input
+                type="tel"
+                class="form-control"
+                id="bb-telefono"
+                required
+              >
+
+            </div>
+
+
+
+            <!-- Password -->
+            <div
+              class="col-md-6"
+              id="grupo-bb-password"
+            >
+
+              <label
+                for="bb-password"
+                class="form-label"
+              >
+                Contraseña
+              </label>
+
+              <input
+                type="password"
+                class="form-control"
+                id="bb-password"
+                placeholder="Mínimo 6 caracteres"
+                autocomplete="new-password"
+              >
+
+              <div class="form-text">
+                Necesaria para que el barbero pueda iniciar sesión.
+              </div>
+
+            </div>
+
+
+
+            <!-- Especialidad -->
+            <div class="col-md-6">
+
+              <label
+                for="bb-especialidad"
+                class="form-label"
+              >
+                Especialidad
+              </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="bb-especialidad"
+                placeholder="Ej: Fade, barba, color..."
+              >
+
+              <div class="form-text">
+                Campo opcional.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="modal-footer">
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btn-guardar-barbero"
+          >
+            Agregar barbero
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL CAMBIAR ESTADO
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="modal fade"
+  id="modal-estado-barbero"
+  tabindex="-1"
+  aria-labelledby="modal-estado-barbero-titulo"
+  aria-hidden="true"
+>
+
+  <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content">
+
+
+      <div class="modal-header">
+
+        <h2
+          class="modal-title fs-5"
+          id="modal-estado-barbero-titulo"
+        >
+          Cambiar estado
+        </h2>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+
+      <div class="modal-body">
+
+        <p
+          class="mb-0"
+          id="texto-confirmar-estado"
+        >
+        </p>
+
+
+        <div
+          class="alert alert-danger d-none mt-3 mb-0"
+          id="alerta-estado-barbero"
+          role="alert"
+        >
+        </div>
+
+      </div>
+
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-confirmar-estado"
+        >
+          Confirmar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- Input general para cambiar foto -->
+
+<input
+  type="file"
+  class="d-none"
+  id="input-foto-barbero"
+  accept="image/*"
+>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/mis-barberos.js' %}"
+></script>
+
 {% endblock %}

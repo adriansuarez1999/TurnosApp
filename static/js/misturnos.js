@@ -1,158 +1,550 @@
-/* ═══════════════════════════════════════════════════════════
-   misturnos.js
-   Vista "Mis Turnos" (historial de Lautaro), armada acá también
-   para poder probar el flujo completo de punta a punta:
-   reservar → ver en Mis Turnos → cancelar.
+(() => {
+  /* ═══════════════════════════════════════════════════════════
+     misturnos.js
 
-   - GET /mis-turnos/ (Facundo) → devuelve todos los turnos del
-     cliente autenticado, ordenados próximos primero.
-   - Mientras el endpoint no esté listo, usa TURNOS_MOCK_INICIALES
-     guardados en sessionStorage (mock-data.js) — así los turnos
-     reservados en reserva.js aparecen acá también.
-   - Separa en "Próximos turnos" y "Turnos pasados".
-   - Botón "Cancelar" solo en turnos con estado "confirmado".
-   - Usa badgeEstadoHTML() de turnos-utils.js para el color.
-═══════════════════════════════════════════════════════════ */
+     Pantalla "Mis turnos".
 
-const MODO_SIMULADO_MISTURNOS = false;
+     Bootstrap maneja:
+     - cards
+     - badges
+     - alertas
+     - modal
+     - botones
+     - layout
 
-const API_MISTURNOS = {
-  listar:  '/api/mis-turnos/',
-  cancelar: id => `/api/turnos/${id}/cancelar/`,
-};
+     JavaScript maneja:
+     - fetch
+     - separación próximos / pasados
+     - cancelación
+  ═══════════════════════════════════════════════════════════ */
 
-let turnoIdPendienteCancelar = null;
+  const MODO_SIMULADO_MISTURNOS = false;
 
-/* ── Obtener turnos ───────────────────────────────────────── */
-async function obtenerMisTurnos() {
-  const proximosCont = document.getElementById('lista-proximos');
-  const pasadosCont  = document.getElementById('lista-pasados');
-  proximosCont.innerHTML = '<li class="listing__estado">Cargando turnos...</li>';
-  pasadosCont.innerHTML  = '';
+  const API_MISTURNOS = {
+    listar: "/api/mis-turnos/",
 
-  try {
-    let turnos;
+    cancelar: (id) => `/api/turnos/${id}/cancelar/`,
+  };
 
-    if (MODO_SIMULADO_MISTURNOS) {
-      await new Promise(r => setTimeout(r, 300));
-      turnos = obtenerTurnosGuardados();
-    } else {
-      const resp = await fetch(API_MISTURNOS.listar);
-      if (!resp.ok) throw new Error('No se pudieron obtener los turnos');
-      turnos = await resp.json();
+  let turnoIdPendienteCancelar = null;
+
+  /* ═══════════════════════════════════════════════════════════
+     REFERENCIAS
+  ═══════════════════════════════════════════════════════════ */
+
+  const listaProximos = document.getElementById("lista-proximos");
+
+  const listaPasados = document.getElementById("lista-pasados");
+
+  const cantidadProximos = document.getElementById("cantidad-proximos");
+
+  const cantidadPasados = document.getElementById("cantidad-pasados");
+
+  const modalCancelarElemento = document.getElementById("modal-cancelar");
+
+  const btnCancelarSi = document.getElementById("btn-cancelar-si");
+
+  const alertaCancelar = document.getElementById("alerta-cancelar");
+
+  const modalCancelar = bootstrap.Modal.getOrCreateInstance(
+    modalCancelarElemento,
+  );
+
+  /* ═══════════════════════════════════════════════════════════
+     CARGAR TURNOS
+  ═══════════════════════════════════════════════════════════ */
+
+  async function obtenerMisTurnos() {
+    mostrarCarga();
+
+    try {
+      let turnos;
+
+      /* ── SIMULADO ─────────────────────────────────────── */
+
+      if (MODO_SIMULADO_MISTURNOS) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        turnos = obtenerTurnosGuardados();
+      } else {
+
+      /* ── DJANGO ───────────────────────────────────────── */
+        const respuesta = await fetch(API_MISTURNOS.listar);
+
+        if (!respuesta.ok) {
+          throw new Error("No se pudieron obtener los turnos");
+        }
+
+        turnos = await respuesta.json();
+      }
+
+      renderizarMisTurnos(turnos);
+    } catch (error) {
+      console.error("Error al obtener mis turnos:", error);
+
+      listaProximos.innerHTML = `
+
+        <div class="alert alert-danger mb-0">
+
+          No se pudieron cargar tus turnos.
+
+        </div>
+
+      `;
+
+      listaPasados.innerHTML = "";
+
+      cantidadProximos.textContent = "0";
+
+      cantidadPasados.textContent = "0";
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CARGA
+  ═══════════════════════════════════════════════════════════ */
+
+  function mostrarCarga() {
+    listaProximos.innerHTML = `
+
+      <div
+        class="d-flex align-items-center gap-2 text-body-secondary"
+      >
+
+        <div
+          class="spinner-border spinner-border-sm"
+          role="status"
+        ></div>
+
+        <span>
+          Cargando turnos...
+        </span>
+
+      </div>
+
+    `;
+
+    listaPasados.innerHTML = "";
+
+    cantidadProximos.textContent = "0";
+
+    cantidadPasados.textContent = "0";
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     SEPARAR TURNOS
+  ═══════════════════════════════════════════════════════════ */
+
+  function renderizarMisTurnos(turnos) {
+    const hoy = obtenerFechaActual();
+
+    const proximos = turnos
+      .filter((turno) => turno.fecha >= hoy)
+      .sort(compararTurnosAscendente);
+
+    const pasados = turnos
+      .filter((turno) => turno.fecha < hoy)
+      .sort(compararTurnosDescendente);
+
+    cantidadProximos.textContent = proximos.length;
+
+    cantidadPasados.textContent = pasados.length;
+
+    renderizarProximos(proximos);
+
+    renderizarPasados(pasados);
+
+    conectarBotonesCancelar();
+  }
+
+  function obtenerFechaActual() {
+    const hoy = new Date();
+
+    const year = hoy.getFullYear();
+
+    const month = String(hoy.getMonth() + 1).padStart(2, "0");
+
+    const day = String(hoy.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  function compararTurnosAscendente(a, b) {
+    return `${a.fecha}${a.hora}`.localeCompare(`${b.fecha}${b.hora}`);
+  }
+
+  function compararTurnosDescendente(a, b) {
+    return `${b.fecha}${b.hora}`.localeCompare(`${a.fecha}${a.hora}`);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     PRÓXIMOS
+  ═══════════════════════════════════════════════════════════ */
+
+  function renderizarProximos(turnos) {
+    if (turnos.length === 0) {
+      listaProximos.innerHTML = `
+
+        <div class="alert alert-secondary mb-0">
+
+          No tenés turnos próximos.
+
+        </div>
+
+      `;
+
+      return;
     }
 
-    renderizarMisTurnos(turnos);
-
-  } catch (err) {
-    console.error('Error al obtener mis turnos:', err);
-    proximosCont.innerHTML = '<li class="listing__estado">Ocurrió un error al cargar tus turnos.</li>';
+    listaProximos.innerHTML = turnos
+      .map((turno) => crearTurnoHTML(turno, true))
+      .join("");
   }
-}
 
-/* ── Separar próximos / pasados y renderizar ──────────────── */
-function renderizarMisTurnos(turnos) {
-  const hoy = new Date().toISOString().split('T')[0];
+  /* ═══════════════════════════════════════════════════════════
+     PASADOS
+  ═══════════════════════════════════════════════════════════ */
 
-  const proximos = turnos
-    .filter(t => t.fecha >= hoy)
-    .sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+  function renderizarPasados(turnos) {
+    if (turnos.length === 0) {
+      listaPasados.innerHTML = `
 
-  const pasados = turnos
-    .filter(t => t.fecha < hoy)
-    .sort((a, b) => (b.fecha + b.hora).localeCompare(a.fecha + a.hora));
+        <div class="alert alert-secondary mb-0">
 
-  const proximosCont = document.getElementById('lista-proximos');
-  const pasadosCont  = document.getElementById('lista-pasados');
+          Todavía no tenés turnos pasados.
 
-  proximosCont.innerHTML = proximos.length
-    ? proximos.map(t => turnoCardHTML(t, true)).join('')
-    : '<li class="listing__estado">No tenés turnos próximos.</li>';
+        </div>
 
-  pasadosCont.innerHTML = pasados.length
-    ? pasados.map(t => turnoCardHTML(t, false)).join('')
-    : '<li class="listing__estado">Todavía no tenés turnos pasados.</li>';
+      `;
 
-  // Conectar botones de cancelar recién creados
-  document.querySelectorAll('.btn-cancelar-turno').forEach(btn => {
-    btn.addEventListener('click', () => abrirModalCancelar(btn.dataset.id));
-  });
-}
-
-function turnoCardHTML(turno, esProximo) {
-  const fechaFormateada = new Date(turno.fecha + 'T00:00:00').toLocaleDateString('es-AR', {
-    day: '2-digit', month: 'short', year: 'numeric',
-  });
-
-  const botonCancelar = (esProximo && turno.estado.toUpperCase() !== 'CANCELADO')
-    ? `<button class="btn-cancelar-turno" data-id="${turno.id}">Cancelar</button>`
-    : '';
-
-  return `
-    <li class="turno-card d-flex align-items-center justify-content-between gap-3 flex-wrap">
-      <div class="turno-card__info">
-        <p class="turno-card__barberia">${turno.barberia}</p>
-        <p class="turno-card__detalle">${turno.servicio} · ${turno.barbero}</p>
-        <p class="turno-card__fecha">${fechaFormateada} — ${turno.hora} hs</p>
-      </div>
-      <div class="turno-card__estado d-flex align-items-center gap-2 flex-wrap">
-        ${badgeEstadoHTML(turno.estado)}
-        ${botonCancelar}
-      </div>
-    </li>
-  `;
-}
-
-/* ── Cancelar turno (con modal de confirmación) ───────────── */
-const modalCancelar = document.getElementById('modal-cancelar');
-
-function abrirModalCancelar(id) {
-  turnoIdPendienteCancelar = id;
-  modalCancelar.classList.add('activo');
-}
-
-function cerrarModalCancelar() {
-  turnoIdPendienteCancelar = null;
-  modalCancelar.classList.remove('activo');
-}
-
-document.getElementById('cerrar-modal-cancelar').addEventListener('click', cerrarModalCancelar);
-document.getElementById('btn-cancelar-no').addEventListener('click', cerrarModalCancelar);
-modalCancelar.addEventListener('click', e => { if (e.target === modalCancelar) cerrarModalCancelar(); });
-
-document.getElementById('btn-cancelar-si').addEventListener('click', async () => {
-  const id = turnoIdPendienteCancelar;
-  if (!id) return;
-
-  const btn = document.getElementById('btn-cancelar-si');
-  btn.disabled = true;
-  btn.textContent = 'Cancelando...';
-
-  try {
-    if (MODO_SIMULADO_MISTURNOS) {
-      await new Promise(r => setTimeout(r, 500));
-      const lista = obtenerTurnosGuardados();
-      const turno = lista.find(t => String(t.id) === String(id));
-      if (turno) turno.estado = 'cancelado';
-      guardarTurnos(lista);
-    } else {
-      const resp = await fetch(API_MISTURNOS.cancelar(id), {
-        method: 'PATCH',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
-      if (!resp.ok) throw new Error('No se pudo cancelar el turno');
+      return;
     }
 
-    cerrarModalCancelar();
-    await obtenerMisTurnos();
-
-  } catch (err) {
-    console.error(err);
-    alert('⚠️ No se pudo cancelar el turno.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Sí, cancelar';
+    listaPasados.innerHTML = turnos
+      .map((turno) => crearTurnoHTML(turno, false))
+      .join("");
   }
-});
 
-obtenerMisTurnos();
+  /* ═══════════════════════════════════════════════════════════
+     CARD TURNO
+  ═══════════════════════════════════════════════════════════ */
+
+  function crearTurnoHTML(turno, esProximo) {
+    const fechaFormateada = formatearFecha(turno.fecha);
+
+    const puedeCancelar =
+      esProximo && String(turno.estado).toUpperCase() !== "CANCELADO";
+
+    return `
+
+      <div class="card">
+
+        <div class="card-body">
+
+          <div
+            class="d-flex flex-column flex-md-row justify-content-between gap-3"
+          >
+
+            <div>
+
+              <div
+                class="d-flex align-items-center flex-wrap gap-2 mb-2"
+              >
+
+                <h3 class="h5 mb-0">
+
+                  ${turno.barberia}
+
+                </h3>
+
+
+                ${crearBadgeEstado(turno.estado)}
+
+              </div>
+
+
+              <p
+                class="text-body-secondary mb-2"
+              >
+
+                ${turno.servicio}
+
+                <span class="mx-1">
+                  ·
+                </span>
+
+                ${turno.barbero}
+
+              </p>
+
+
+              <div
+                class="d-flex flex-wrap gap-3 small"
+              >
+
+                <span>
+
+                  <strong>
+                    Fecha:
+                  </strong>
+
+                  ${fechaFormateada}
+
+                </span>
+
+
+                <span>
+
+                  <strong>
+                    Hora:
+                  </strong>
+
+                  ${turno.hora} hs
+
+                </span>
+
+              </div>
+
+            </div>
+
+
+            ${
+              puedeCancelar
+                ? `
+
+                  <div
+                    class="d-flex align-items-start"
+                  >
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger btn-cancelar-turno"
+                      data-id="${turno.id}"
+                    >
+                      Cancelar turno
+                    </button>
+
+                  </div>
+
+                `
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     BADGES
+  ═══════════════════════════════════════════════════════════ */
+
+  function crearBadgeEstado(estado) {
+    const valor = String(estado || "").toLowerCase();
+
+    let clase = "text-bg-secondary";
+
+    let texto = estado || "Sin estado";
+
+    if (valor === "confirmado") {
+      clase = "text-bg-success";
+
+      texto = "Confirmado";
+    } else if (valor === "pendiente") {
+      clase = "text-bg-warning";
+
+      texto = "Pendiente";
+    } else if (valor === "cancelado") {
+      clase = "text-bg-danger";
+
+      texto = "Cancelado";
+    } else if (valor === "completado") {
+      clase = "text-bg-secondary";
+
+      texto = "Completado";
+    }
+
+    return `
+
+      <span
+        class="badge ${clase}"
+      >
+        ${texto}
+      </span>
+
+    `;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     FECHA
+  ═══════════════════════════════════════════════════════════ */
+
+  function formatearFecha(fecha) {
+    if (!fecha) {
+      return "—";
+    }
+
+    return new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", {
+      day: "2-digit",
+
+      month: "short",
+
+      year: "numeric",
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     BOTONES CANCELAR
+  ═══════════════════════════════════════════════════════════ */
+
+  function conectarBotonesCancelar() {
+    document.querySelectorAll(".btn-cancelar-turno").forEach((boton) => {
+      boton.addEventListener(
+        "click",
+
+        () => {
+          abrirModalCancelar(boton.dataset.id);
+        },
+      );
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     MODAL
+  ═══════════════════════════════════════════════════════════ */
+
+  function abrirModalCancelar(id) {
+    turnoIdPendienteCancelar = id;
+
+    limpiarAlertaCancelar();
+
+    modalCancelar.show();
+  }
+
+  function cerrarModalCancelar() {
+    turnoIdPendienteCancelar = null;
+
+    modalCancelar.hide();
+  }
+
+  modalCancelarElemento.addEventListener(
+    "hidden.bs.modal",
+
+    () => {
+      turnoIdPendienteCancelar = null;
+
+      limpiarAlertaCancelar();
+    },
+  );
+
+  /* ═══════════════════════════════════════════════════════════
+     CONFIRMAR CANCELACIÓN
+  ═══════════════════════════════════════════════════════════ */
+
+  btnCancelarSi.addEventListener(
+    "click",
+
+    async () => {
+      const id = turnoIdPendienteCancelar;
+
+      if (!id) {
+        return;
+      }
+
+      btnCancelarSi.disabled = true;
+
+      btnCancelarSi.innerHTML = `
+
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          aria-hidden="true"
+        ></span>
+
+        Cancelando...
+
+      `;
+
+      limpiarAlertaCancelar();
+
+      try {
+        /* ── SIMULADO ─────────────────────────────────── */
+
+        if (MODO_SIMULADO_MISTURNOS) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          const lista = obtenerTurnosGuardados();
+
+          const turno = lista.find((item) => String(item.id) === String(id));
+
+          if (turno) {
+            turno.estado = "cancelado";
+          }
+
+          guardarTurnos(lista);
+        } else {
+
+        /* ── DJANGO ───────────────────────────────────── */
+          const respuesta = await fetch(API_MISTURNOS.cancelar(id), {
+            method: "PATCH",
+
+            headers: {
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+          });
+
+          if (!respuesta.ok) {
+            let mensaje = "No se pudo cancelar el turno.";
+
+            try {
+              const datos = await respuesta.json();
+
+              mensaje = datos.error || mensaje;
+            } catch {
+              // La respuesta no contiene JSON.
+            }
+
+            throw new Error(mensaje);
+          }
+        }
+
+        cerrarModalCancelar();
+
+        await obtenerMisTurnos();
+      } catch (error) {
+        console.error(error);
+
+        mostrarAlertaCancelar(error.message || "No se pudo cancelar el turno.");
+      } finally {
+        btnCancelarSi.disabled = false;
+
+        btnCancelarSi.textContent = "Cancelar turno";
+      }
+    },
+  );
+
+  /* ═══════════════════════════════════════════════════════════
+     ALERTA MODAL
+  ═══════════════════════════════════════════════════════════ */
+
+  function mostrarAlertaCancelar(mensaje) {
+    alertaCancelar.textContent = mensaje;
+
+    alertaCancelar.classList.remove("d-none");
+  }
+
+  function limpiarAlertaCancelar() {
+    alertaCancelar.textContent = "";
+
+    alertaCancelar.classList.add("d-none");
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     INICIO
+  ═══════════════════════════════════════════════════════════ */
+
+  obtenerMisTurnos();
+})();

@@ -1,50 +1,142 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %} 
 
-{% block title %}Mis turnos — BarberApp{% endblock %}
+{% load static %} 
+
+{% block title %} Mis turnos — BarberApp {% endblock %} 
+
+{% block nav %} 
+  {% include 'partials/nav_completa.html'%} 
+{% endblock %} 
 
 {% block content %}
-    <section class="misturnos">
-      <div class="container">
 
-        <a href="{% url 'index' %}" class="volver" style="color: rgba(17,17,17,0.5);">← Volver al inicio</a>
+<section class="py-4 py-lg-5 bg-body-tertiary">
+  <div class="container">
+    <!-- ═══════════════════════════════════════════════════════
+         ENCABEZADO
+    ═════════════════════════════════════════════════════════ -->
 
-        <header class="listing__header" style="margin-top:1rem;">
-          <h2>Mis turnos</h2>
-          <p>Revisá tus próximos turnos y tu historial</p>
-        </header>
+    <div class="mb-4">
+      <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-sm mb-3">
+        ← Volver al inicio
+      </a>
 
-        <div class="misturnos__seccion">
-          <h2>Próximos turnos</h2>
-          <ul class="turnos-lista d-flex flex-column gap-3 list-unstyled" id="lista-proximos" role="list"></ul>
+      <h1 class="display-6 fw-bold mb-2">Mis turnos</h1>
+
+      <p class="text-body-secondary mb-0">
+        Revisá tus próximos turnos y consultá tu historial.
+      </p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PRÓXIMOS TURNOS
+    ═════════════════════════════════════════════════════════ -->
+
+    <div class="card mb-4">
+      <div class="card-header bg-body">
+        <div class="d-flex justify-content-between align-items-center gap-3">
+          <div>
+            <h2 class="h5 mb-1">Próximos turnos</h2>
+
+            <p class="text-body-secondary small mb-0">
+              Reservas pendientes y confirmadas.
+            </p>
+          </div>
+
+          <span class="badge text-bg-primary" id="cantidad-proximos"> 0 </span>
         </div>
-
-        <div class="misturnos__seccion">
-          <h2>Turnos pasados</h2>
-          <ul class="turnos-lista d-flex flex-column gap-3 list-unstyled" id="lista-pasados" role="list"></ul>
-        </div>
-
       </div>
-    </section>
-{% endblock %}
 
-{% block modals %}
-  <!-- ╔══════════════════════════════════════════
-       ║  MODAL — CONFIRMAR CANCELACIÓN
-       ╚══════════════════════════════════════════ -->
-  <div class="modal-overlay" id="modal-cancelar" role="dialog" aria-modal="true" aria-labelledby="titulo-cancelar">
-    <div class="modal-caja">
-      <button class="modal__cerrar" id="cerrar-modal-cancelar" aria-label="Cerrar">✕</button>
-      <h2 class="modal__titulo" id="titulo-cancelar">¿Cancelar turno?</h2>
-      <p class="modal__subtitulo">Esta acción no se puede deshacer.</p>
-      <div class="modal__botones-confirmacion">
-        <button class="modal__btn-enviar btn-secundario" id="btn-cancelar-no">No, volver</button>
-        <button class="modal__btn-enviar" id="btn-cancelar-si">Sí, cancelar</button>
+      <div class="card-body">
+        <div class="d-flex flex-column gap-3" id="lista-proximos">
+          <div class="d-flex align-items-center gap-2 text-body-secondary">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+
+            <span> Cargando turnos... </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         HISTORIAL
+    ═════════════════════════════════════════════════════════ -->
+
+    <div class="card">
+      <div class="card-header bg-body">
+        <div class="d-flex justify-content-between align-items-center gap-3">
+          <div>
+            <h2 class="h5 mb-1">Historial</h2>
+
+            <p class="text-body-secondary small mb-0">Tus turnos anteriores.</p>
+          </div>
+
+          <span class="badge text-bg-secondary" id="cantidad-pasados"> 0 </span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="d-flex flex-column gap-3" id="lista-pasados"></div>
       </div>
     </div>
   </div>
-{% endblock %}
+</section>
 
-{% block extra_js %}
-  <script src="{% static 'js/misturnos.js' %}"></script>
+{% endblock %} {% block modals %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL CANCELAR TURNO
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="modal fade"
+  id="modal-cancelar"
+  tabindex="-1"
+  aria-labelledby="titulo-cancelar"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="titulo-cancelar">Cancelar turno</h2>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-2">¿Seguro que querés cancelar este turno?</p>
+
+        <p class="text-body-secondary small mb-0">
+          Esta acción no se puede deshacer.
+        </p>
+
+        <div
+          class="alert alert-danger d-none mt-3 mb-0"
+          id="alerta-cancelar"
+          role="alert"
+        ></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Volver
+        </button>
+
+        <button type="button" class="btn btn-danger" id="btn-cancelar-si">
+          Cancelar turno
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+
+<script src="{% static 'js/misturnos.js' %}"></script>
+
 {% endblock %}

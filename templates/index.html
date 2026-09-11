@@ -1,175 +1,959 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}BarberApp — Reservá tu turno{% endblock %}
+
+{% block title %}
+BarberApp — Reservá tu turno
+{% endblock %}
+
 
 {% block nav %}
   {% include 'partials/nav_completa.html' %}
 {% endblock %}
 
+
+
 {% block content %}
 
-    <!--  ╔══════════════════════════════════════════
-          ║  HERO
-          ╚══════════════════════════════════════════ -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="container hero__inner">
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════ -->
 
-        <div class="hero__content">
-          <span class="hero__eyebrow">Plataforma de turnos</span>
-          <h1 class="hero__title" id="hero-title">
-            Descubrí las mejores<br>
-            barberías de <em>tu zona</em>
+<section
+  class="home-hero"
+  aria-labelledby="hero-title"
+>
+
+  <div class="container">
+
+    <div class="row align-items-center g-5">
+
+
+      <!-- ═══════════════════════════════════════════════════
+           CONTENIDO
+      ════════════════════════════════════════════════════ -->
+
+      <div class="col-lg-7">
+
+        <div class="home-hero__content">
+
+
+          <!-- Eyebrow -->
+          <div class="home-eyebrow mb-3">
+
+            <i class="bi bi-scissors me-2"></i>
+
+            Tu próximo corte, más cerca
+
+          </div>
+
+
+
+          <!-- Título -->
+          <h1
+            class="home-hero__title"
+            id="hero-title"
+          >
+
+            Encontrá tu
+
+            <br>
+
+            barbería
+            <span>
+              ideal
+            </span>
+
           </h1>
 
-          <div class="hero__actions" role="group" aria-label="Acciones rápidas">
-            <button class="pill pill--primary" id="pill-reservar">✂ Reserva turno</button>
-            <button class="pill" id="pill-barberias">📍 Barbería cercana</button>
-            <button class="pill" id="pill-mis-turnos">📅 Mis turnos</button>
-            <button class="pill" id="pill-promociones">🏷 Promociones</button>
+
+
+          <!-- Texto -->
+          <p class="home-hero__description">
+
+            Descubrí barberías, compará opciones y reservá
+            tu próximo turno de forma rápida y sencilla.
+
+          </p>
+
+
+
+          <!-- ═══════════════════════════════════════════════
+               BUSCADOR
+          ════════════════════════════════════════════════ -->
+
+          <div class="home-search mb-4">
+
+            <div class="input-group input-group-lg">
+
+              <span
+                class="input-group-text bg-white border-end-0"
+              >
+
+                <i class="bi bi-geo-alt"></i>
+
+              </span>
+
+
+              <input
+                id="search-input"
+                type="search"
+                class="form-control border-start-0"
+                placeholder="¿Qué barbería buscás?"
+                aria-label="Buscar barbería"
+              >
+
+
+              <button
+                class="btn btn-primary px-4"
+                type="button"
+                id="btn-buscar"
+              >
+
+                <i class="bi bi-search me-2"></i>
+
+                Buscar
+
+              </button>
+
+            </div>
+
           </div>
 
-          <div class="hero__search" role="search">
-            <label for="search-input" class="sr-only">Buscar barberías</label>
-            <input
-              id="search-input"
-              type="search"
-              placeholder="Buscar barbería, zona o servicio..."
-              aria-label="Buscar barbería"
-            />
-            <button type="submit" id="btn-buscar" aria-label="Buscar">Buscar</button>
-          </div>
-        </div>
 
-        <div class="hero__image" aria-hidden="true">
-          <div class="hero__image-frame">
-            <div class="hero__image-label">Vista previa</div>
+
+          <!-- ═══════════════════════════════════════════════
+               ACCIONES RÁPIDAS
+          ════════════════════════════════════════════════ -->
+
+          <div
+            class="d-flex flex-wrap gap-2 mb-5"
+            role="group"
+            aria-label="Acciones rápidas"
+          >
+
+            <button
+              class="btn btn-primary"
+              id="pill-reservar"
+              type="button"
+            >
+              Reservar turno
+            </button>
+
+
+            <button
+              class="btn btn-outline-primary"
+              id="pill-barberias"
+              type="button"
+            >
+              Barberías
+            </button>
+
+
+            <button
+              class="btn btn-outline-secondary"
+              id="pill-mis-turnos"
+              type="button"
+            >
+              Mis turnos
+            </button>
+
+
+            <button
+              class="btn btn-outline-secondary"
+              id="pill-promociones"
+              type="button"
+            >
+              Promociones
+            </button>
+
           </div>
+
+
+
+          <!-- ═══════════════════════════════════════════════
+               BENEFICIOS
+          ════════════════════════════════════════════════ -->
+
+          <div class="row g-3 home-benefits">
+
+
+            <div class="col-sm-4">
+
+              <div class="home-benefit">
+
+                <div class="home-benefit__icon">
+
+                  <i class="bi bi-calendar-check"></i>
+
+                </div>
+
+
+                <div>
+
+                  <div class="home-benefit__title">
+                    Reservá online
+                  </div>
+
+                  <div class="home-benefit__text">
+                    Sin llamadas
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <div class="col-sm-4">
+
+              <div class="home-benefit">
+
+                <div class="home-benefit__icon">
+
+                  <i class="bi bi-clock"></i>
+
+                </div>
+
+
+                <div>
+
+                  <div class="home-benefit__title">
+                    Tu tiempo vale
+                  </div>
+
+                  <div class="home-benefit__text">
+                    Elegí el horario
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <div class="col-sm-4">
+
+              <div class="home-benefit">
+
+                <div class="home-benefit__icon">
+
+                  <i class="bi bi-star"></i>
+
+                </div>
+
+
+                <div>
+
+                  <div class="home-benefit__title">
+                    Más opciones
+                  </div>
+
+                  <div class="home-benefit__text">
+                    Todo en un lugar
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
 
       </div>
-    </section>
 
-    <!-- ╔══════════════════════════════════════════
-         ║  OWNER CTA
-         ╚══════════════════════════════════════════ -->
-    <section class="owner-cta" aria-label="Sección para dueños de barberías">
-      <div class="container owner-cta__inner">
-        <div class="owner-cta__scissors" aria-hidden="true">✂️</div>
-        <div class="owner-cta__text">
-          <strong>¿Sos dueño de una barbería?</strong>
-          <p>Sumá tu negocio y empezá a recibir reservas online hoy mismo.</p>
+
+
+      <!-- ═══════════════════════════════════════════════════
+           BLOQUE PARA VIDEO
+      ════════════════════════════════════════════════════ -->
+
+      <div class="col-lg-5 d-none d-lg-block">
+
+        <div class="home-video">
+
+          <div class="home-video__decoration"></div>
+
+
+          <div class="home-video__content">
+
+            <button
+              type="button"
+              class="home-video__play"
+              aria-label="Reproducir video"
+            >
+
+              <i class="bi bi-play-fill"></i>
+
+            </button>
+
+
+            <div class="home-video__text">
+
+              <span>
+                BarberApp para negocios
+              </span>
+
+
+              <strong>
+                Conocé cómo funciona
+              </strong>
+
+
+              <p>
+                Próximamente vas a poder ver cómo registrar
+                y administrar tu barbería.
+              </p>
+
+            </div>
+
+          </div>
+
         </div>
-        <button class="btn-cta">Registrate</button>
+
       </div>
-    </section>
 
-    <!-- ╔══════════════════════════════════════════
-         ║  BARBERSHOP LISTING
-         ╚══════════════════════════════════════════ -->
-    <section class="listing" aria-labelledby="listing-title">
-      <div class="container">
+    </div>
 
-        <header class="listing__header">
-          <h2 id="listing-title">Encontrá tu mejor opción</h2>
-          <p>Las mejores barberías cerca tuyo, listas para reservar</p>
-        </header>
+  </div>
 
-        <ul
-            class="row row-cols-2 row-cols-lg-4 g-4 list-unstyled"
-            id="listado-barberias"
-            role="list"
-            aria-label="Listado de barberías">
-        </ul>
+</section>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     OWNER CTA
+════════════════════════════════════════════════════════════ -->
+
+<section class="home-owner">
+
+  <div class="container">
+
+    <div class="home-owner__inner">
+
+
+      <div class="home-owner__icon">
+
+        <i class="bi bi-shop"></i>
+
       </div>
-    </section>
+
+
+
+      <div class="flex-grow-1">
+
+        <div class="home-owner__title">
+          ¿Tenés una barbería?
+        </div>
+
+        <p class="home-owner__text">
+          Sumá tu negocio a BarberApp y empezá a recibir
+          reservas online.
+        </p>
+
+      </div>
+
+
+
+      <button
+        class="btn btn-primary px-4"
+        id="btn-registrar-barberia"
+        type="button"
+      >
+
+        Registrar mi barbería
+
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     LISTADO DE BARBERÍAS
+════════════════════════════════════════════════════════════ -->
+
+<section
+  class="home-listing"
+  aria-labelledby="listing-title"
+>
+
+  <div class="container">
+
+
+    <!-- Encabezado -->
+    <div
+      class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4"
+    >
+
+      <div>
+
+        <div class="home-section-mark"></div>
+
+
+        <h2
+          class="home-section-title"
+          id="listing-title"
+        >
+          Barberías destacadas
+        </h2>
+
+
+        <p class="text-body-secondary mb-0">
+
+          Descubrí barberías disponibles y elegí
+          tu próxima experiencia.
+
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="btn btn-light border home-all-barbers"
+        id="home-ver-todas"
+      >
+
+        Ver todas las barberías
+
+        <i class="bi bi-arrow-right ms-1"></i>
+
+      </button>
+
+    </div>
+
+
+
+    <!-- Listado dinámico -->
+    <ul
+      class="row row-cols-2 row-cols-lg-4 g-4 list-unstyled"
+      id="listado-barberias"
+      role="list"
+      aria-label="Listado de barberías"
+    >
+    </ul>
+
+  </div>
+
+</section>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BLOQUE DE VALOR
+════════════════════════════════════════════════════════════ -->
+
+<section class="home-value">
+
+  <div class="container">
+
+    <div class="row g-4">
+
+
+      <div class="col-md-4">
+
+        <div class="home-value__item">
+
+          <div class="home-value__icon">
+
+            <i class="bi bi-people"></i>
+
+          </div>
+
+
+          <div>
+
+            <div class="home-value__title">
+              Más visibilidad
+            </div>
+
+            <p class="home-value__text">
+              Conectamos barberías con nuevos clientes.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="col-md-4">
+
+        <div class="home-value__item">
+
+          <div class="home-value__icon">
+
+            <i class="bi bi-bar-chart"></i>
+
+          </div>
+
+
+          <div>
+
+            <div class="home-value__title">
+              Gestión simple
+            </div>
+
+            <p class="home-value__text">
+              Administrá servicios, personal y reservas.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="col-md-4">
+
+        <div class="home-value__item">
+
+          <div class="home-value__icon">
+
+            <i class="bi bi-heart"></i>
+
+          </div>
+
+
+          <div>
+
+            <div class="home-value__title">
+              Comunidad real
+            </div>
+
+            <p class="home-value__text">
+              Barberías y clientes conectados en un mismo lugar.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
 {% endblock %}
+
+
 
 {% block modals %}
-  <!-- ╔══════════════════════════════════════════
-       ║  MODAL — LOGIN (Acceder)
-       ╚══════════════════════════════════════════ -->
-  <div class="modal-overlay" id="modal-login" role="dialog" aria-modal="true" aria-labelledby="titulo-login">
-    <div class="modal-caja">
-      <button class="modal__cerrar" id="cerrar-login" aria-label="Cerrar">✕</button>
 
-      <h2 class="modal__titulo" id="titulo-login">Bienvenido</h2>
-      <p class="modal__subtitulo">
-        ¿No tenés cuenta?
-        <a id="ir-a-registro">Registrate acá</a>
-      </p>
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN
+════════════════════════════════════════════════════════════ -->
 
-      <div class="modal__alerta" id="alerta-login"></div>
+<div
+  class="modal fade"
+  id="modal-login"
+  tabindex="-1"
+  aria-labelledby="titulo-login"
+  aria-hidden="true"
+>
 
-      <div class="form-grupo">
-        <label for="login-email">Email</label>
-        <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email" />
+  <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content">
+
+
+      <div class="modal-header">
+
+        <h1
+          class="modal-title fs-5"
+          id="titulo-login"
+        >
+          Bienvenido
+        </h1>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          id="cerrar-login"
+          aria-label="Cerrar"
+        ></button>
+
       </div>
 
-      <div class="form-grupo">
-        <label for="login-password">Contraseña</label>
-        <input type="password" id="login-password" placeholder="Tu contraseña" autocomplete="current-password" />
+
+
+      <div class="modal-body">
+
+        <p class="text-body-secondary">
+
+          ¿No tenés cuenta?
+
+          <button
+            type="button"
+            class="btn btn-link p-0 align-baseline"
+            id="ir-a-registro"
+          >
+            Registrate acá
+          </button>
+
+        </p>
+
+
+        <div
+          class="alert d-none"
+          id="alerta-login"
+          role="alert"
+        >
+        </div>
+
+
+
+        <div class="mb-3">
+
+          <label
+            for="login-email"
+            class="form-label"
+          >
+            Email
+          </label>
+
+
+          <input
+            type="email"
+            class="form-control"
+            id="login-email"
+            placeholder="tu@email.com"
+            autocomplete="email"
+          >
+
+        </div>
+
+
+
+        <div class="mb-3">
+
+          <label
+            for="login-password"
+            class="form-label"
+          >
+            Contraseña
+          </label>
+
+
+          <input
+            type="password"
+            class="form-control"
+            id="login-password"
+            placeholder="Tu contraseña"
+            autocomplete="current-password"
+          >
+
+        </div>
+
       </div>
 
-      <button class="modal__btn-enviar" id="btn-login-enviar">Ingresar</button>
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-login-enviar"
+        >
+          Ingresar
+        </button>
+
+      </div>
+
     </div>
+
   </div>
 
-  <!-- ╔══════════════════════════════════════════
-       ║  MODAL — REGISTRO (Crear cuenta)
-       ╚══════════════════════════════════════════ -->
-  <div class="modal-overlay" id="modal-registro" role="dialog" aria-modal="true" aria-labelledby="titulo-registro">
-    <div class="modal-caja">
-      <button class="modal__cerrar" id="cerrar-registro" aria-label="Cerrar">✕</button>
+</div>
 
-      <h2 class="modal__titulo" id="titulo-registro">Crear cuenta</h2>
-      <p class="modal__subtitulo">
-        ¿Ya tenés cuenta?
-        <a id="ir-a-login">Iniciá sesión</a>
-      </p>
 
-      <div class="modal__alerta" id="alerta-registro"></div>
 
-      <div class="row g-3">
-        <div class="col">
-          <div class="form-grupo">
-            <label for="reg-nombre">Nombre</label>
-            <input type="text" id="reg-nombre" placeholder="Juan" />
-          </div>
+<!-- ═══════════════════════════════════════════════════════════
+     REGISTRO
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="modal fade"
+  id="modal-registro"
+  tabindex="-1"
+  aria-labelledby="titulo-registro"
+  aria-hidden="true"
+>
+
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+
+    <div class="modal-content">
+
+
+      <div class="modal-header">
+
+        <h1
+          class="modal-title fs-5"
+          id="titulo-registro"
+        >
+          Crear cuenta
+        </h1>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          id="cerrar-registro"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+
+      <div class="modal-body">
+
+        <p class="text-body-secondary">
+
+          ¿Ya tenés cuenta?
+
+          <button
+            type="button"
+            class="btn btn-link p-0 align-baseline"
+            id="ir-a-login"
+          >
+            Iniciá sesión
+          </button>
+
+        </p>
+
+
+        <div
+          class="alert d-none"
+          id="alerta-registro"
+          role="alert"
+        >
         </div>
-        <div class="col">
-          <div class="form-grupo">
-            <label for="reg-apellido">Apellido</label>
-            <input type="text" id="reg-apellido" placeholder="Pérez" />
+
+
+
+        <div class="row g-3">
+
+
+          <div class="col-md-6">
+
+            <label
+              for="reg-nombre"
+              class="form-label"
+            >
+              Nombre
+            </label>
+
+
+            <input
+              type="text"
+              class="form-control"
+              id="reg-nombre"
+              placeholder="Juan"
+            >
+
           </div>
+
+
+
+          <div class="col-md-6">
+
+            <label
+              for="reg-apellido"
+              class="form-label"
+            >
+              Apellido
+            </label>
+
+
+            <input
+              type="text"
+              class="form-control"
+              id="reg-apellido"
+              placeholder="Pérez"
+            >
+
+          </div>
+
+
+
+          <div class="col-12">
+
+            <label
+              for="reg-email"
+              class="form-label"
+            >
+              Email
+            </label>
+
+
+            <input
+              type="email"
+              class="form-control"
+              id="reg-email"
+              placeholder="tu@email.com"
+              autocomplete="email"
+            >
+
+          </div>
+
+
+
+          <div class="col-12">
+
+            <label
+              for="reg-telefono"
+              class="form-label"
+            >
+
+              Teléfono
+
+              <span class="text-body-secondary">
+                (opcional)
+              </span>
+
+            </label>
+
+
+            <input
+              type="tel"
+              class="form-control"
+              id="reg-telefono"
+              placeholder="3644 123456"
+            >
+
+          </div>
+
+
+
+          <div class="col-12">
+
+            <label
+              for="reg-password"
+              class="form-label"
+            >
+              Contraseña
+            </label>
+
+
+            <input
+              type="password"
+              class="form-control"
+              id="reg-password"
+              placeholder="Mínimo 6 caracteres"
+              autocomplete="new-password"
+            >
+
+          </div>
+
         </div>
+
       </div>
 
-      <div class="form-grupo">
-        <label for="reg-email">Email</label>
-        <input type="email" id="reg-email" placeholder="tu@email.com" autocomplete="email" />
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-registro-enviar"
+        >
+          Crear mi cuenta
+        </button>
+
       </div>
 
-      <div class="form-grupo">
-        <label for="reg-telefono">
-            Teléfono
-            <small class="texto-opcional">(opcional)</small>
-        </label>
-        <input type="tel" id="reg-telefono" placeholder="3644 123456">
-      </div>
-
-      <div class="form-grupo">
-        <label for="reg-password">Contraseña</label>
-        <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
-      </div>
-
-      <button class="modal__btn-enviar" id="btn-registro-enviar">Crear mi cuenta</button>
     </div>
+
   </div>
+
+</div>
+
 {% endblock %}
 
+
+
 {% block extra_js %}
-  <script src="{% static 'js/main.js' %}"></script>
-  <script src="{% static 'js/barberias.js' %}"></script>
+
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/barberias.js' %}"></script>
+
+<script>
+
+(() => {
+
+  const btnVerTodas =
+    document.getElementById(
+      'home-ver-todas'
+    );
+
+
+  if (!btnVerTodas) {
+    return;
+  }
+
+
+  btnVerTodas.addEventListener(
+    'click',
+
+    () => {
+
+      document
+        .getElementById(
+          'listado-barberias'
+        )
+        ?.scrollIntoView(
+          {
+            behavior:
+              'smooth',
+          }
+        );
+
+    }
+  );
+
+})();
+
+</script>
+
 {% endblock %}

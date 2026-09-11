@@ -1,62 +1,230 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Detalle de barbería — BarberApp{% endblock %}
-
-{% block content %}
-    <div id="detalle-contenido">
-
-      <!--  ╔══════════════════════════════════════════
-            ║  HERO DE LA BARBERÍA
-            ╚══════════════════════════════════════════ -->
-      <section class="detalle-hero">
-        <div class="detalle-hero__portada" id="detalle-portada"></div>
-        <div class="container">
-          <a href="{% url 'index' %}" class="volver">← Volver al listado</a>
-
-          <div class="detalle-hero__inner">
-            <div class="detalle-hero__foto" id="detalle-foto"></div>
-            <div>
-              <h1 class="detalle-hero__nombre" id="detalle-nombre">Cargando...</h1>
-              <p class="detalle-hero__zona" id="detalle-zona"></p>
-              <p class="detalle-hero__desc" id="detalle-descripcion"></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!--  ╔══════════════════════════════════════════
-            ║  SERVICIOS
-            ╚══════════════════════════════════════════ -->
-      <section class="detalle-section">
-        <div class="container">
-          <h2>Servicios y precios</h2>
-          <ul class="servicios-lista row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 list-unstyled" id="lista-servicios" role="list"></ul>
-        </div>
-      </section>
-
-      <!--  ╔══════════════════════════════════════════
-            ║  BARBEROS
-            ╚══════════════════════════════════════════ -->
-      <section class="detalle-section">
-        <div class="container">
-          <h2>Nuestros barberos</h2>
-          <ul class="barberos-lista row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 list-unstyled" id="lista-barberos" role="list"></ul>
-        </div>
-      </section>
-
-      <!--  ╔══════════════════════════════════════════
-            ║  CTA RESERVAR
-            ╚══════════════════════════════════════════ -->
-      <section class="detalle-cta">
-        <div class="container">
-          <button class="btn-primario" id="btn-reservar-turno">Reservar turno</button>
-        </div>
-      </section>
-
-    </div>
+{% block title %}
+Detalle de barbería — BarberApp
 {% endblock %}
 
+
+{% block nav %}
+  {% include 'partials/nav_completa.html' %}
+{% endblock %}
+
+
+{% block content %}
+
+<div id="detalle-contenido">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HERO / INFORMACIÓN PRINCIPAL
+  ═════════════════════════════════════════════════════════════ -->
+
+  <section class="py-4 py-lg-5 bg-body-tertiary">
+
+    <div class="container">
+
+      <div class="mb-4">
+
+        <a
+          href="{% url 'index' %}"
+          class="btn btn-outline-secondary btn-sm"
+        >
+          ← Volver al listado
+        </a>
+
+      </div>
+
+
+      <div class="row align-items-center g-4">
+
+        <!-- Foto / logo -->
+        <div class="col-12 col-md-auto">
+
+          <div
+            id="detalle-foto"
+            class="border rounded bg-body d-flex align-items-center justify-content-center overflow-hidden"
+            style="width: 150px; height: 150px;"
+          >
+          </div>
+
+        </div>
+
+
+        <!-- Información -->
+        <div class="col">
+
+          <span
+            class="badge text-bg-light border mb-2"
+            id="detalle-zona"
+          ></span>
+
+
+          <h1
+            class="display-5 fw-bold mb-3"
+            id="detalle-nombre"
+          >
+            Cargando...
+          </h1>
+
+
+          <p
+            class="lead text-body-secondary mb-0"
+            id="detalle-descripcion"
+          >
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       GALERÍA / PORTADA
+  ═════════════════════════════════════════════════════════════ -->
+
+  <section
+    class="py-4"
+    id="seccion-portada"
+  >
+
+    <div class="container">
+
+      <div
+        class="ratio ratio-21x9 rounded overflow-hidden bg-body-tertiary"
+        id="detalle-portada"
+      >
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SERVICIOS
+  ═════════════════════════════════════════════════════════════ -->
+
+  <section class="py-5">
+
+    <div class="container">
+
+      <div class="mb-4">
+
+        <h2 class="h3 fw-bold mb-1">
+          Servicios y precios
+        </h2>
+
+        <p class="text-body-secondary mb-0">
+          Elegí el servicio que necesitás.
+        </p>
+
+      </div>
+
+
+      <ul
+        class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 list-unstyled"
+        id="lista-servicios"
+        role="list"
+      >
+      </ul>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       BARBEROS
+  ═════════════════════════════════════════════════════════════ -->
+
+  <section class="py-5 bg-body-tertiary">
+
+    <div class="container">
+
+      <div class="mb-4">
+
+        <h2 class="h3 fw-bold mb-1">
+          Nuestros barberos
+        </h2>
+
+        <p class="text-body-secondary mb-0">
+          Conocé al equipo de esta barbería.
+        </p>
+
+      </div>
+
+
+      <ul
+        class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 list-unstyled"
+        id="lista-barberos"
+        role="list"
+      >
+      </ul>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       CTA RESERVAR
+  ═════════════════════════════════════════════════════════════ -->
+
+  <section class="py-5">
+
+    <div class="container">
+
+      <div class="card">
+
+        <div
+          class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
+        >
+
+          <div>
+
+            <h3 class="h5 card-title mb-1">
+              ¿Querés reservar un turno?
+            </h3>
+
+
+            <p class="card-text text-body-secondary mb-0">
+              Elegí servicio, barbero, fecha y horario.
+            </p>
+
+          </div>
+
+
+          <button
+            class="btn btn-primary"
+            id="btn-reservar-turno"
+            type="button"
+          >
+            Reservar turno
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+{% endblock %}
+
+
 {% block extra_js %}
-  <script src="{% static 'js/detalle.js' %}"></script>
+
+<script src="{% static 'js/detalle.js' %}"></script>
+
 {% endblock %}
