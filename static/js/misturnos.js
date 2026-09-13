@@ -40,6 +40,16 @@
 
   const cantidadPasados = document.getElementById("cantidad-pasados");
 
+  const cantidadTotal = document.getElementById("cantidad-total");
+
+  const cantidadProximosHeader = document.getElementById(
+    "cantidad-proximos-header",
+  );
+
+  const cantidadPasadosHeader = document.getElementById(
+    "cantidad-pasados-header",
+  );
+
   const modalCancelarElemento = document.getElementById("modal-cancelar");
 
   const btnCancelarSi = document.getElementById("btn-cancelar-si");
@@ -67,8 +77,7 @@
 
         turnos = obtenerTurnosGuardados();
       } else {
-
-      /* ── DJANGO ───────────────────────────────────────── */
+        /* ── DJANGO ───────────────────────────────────────── */
         const respuesta = await fetch(API_MISTURNOS.listar);
 
         if (!respuesta.ok) {
@@ -95,8 +104,11 @@
       listaPasados.innerHTML = "";
 
       cantidadProximos.textContent = "0";
-
       cantidadPasados.textContent = "0";
+      cantidadTotal.textContent = "0";
+
+      cantidadProximosHeader.textContent = "0";
+      cantidadPasadosHeader.textContent = "0";
     }
   }
 
@@ -127,8 +139,11 @@
     listaPasados.innerHTML = "";
 
     cantidadProximos.textContent = "0";
-
     cantidadPasados.textContent = "0";
+    cantidadTotal.textContent = "0";
+
+    cantidadProximosHeader.textContent = "0";
+    cantidadPasadosHeader.textContent = "0";
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -149,6 +164,12 @@
     cantidadProximos.textContent = proximos.length;
 
     cantidadPasados.textContent = pasados.length;
+
+    cantidadTotal.textContent = turnos.length;
+
+    cantidadProximosHeader.textContent = proximos.length;
+
+    cantidadPasadosHeader.textContent = pasados.length;
 
     renderizarProximos(proximos);
 
@@ -185,13 +206,38 @@
     if (turnos.length === 0) {
       listaProximos.innerHTML = `
 
-        <div class="alert alert-secondary mb-0">
+    <div class="appointments-empty">
 
-          No tenés turnos próximos.
+      <span class="appointments-empty__icon">
 
-        </div>
+        <i class="bi bi-calendar-plus"></i>
 
-      `;
+      </span>
+
+
+      <div>
+
+        <h3 class="h6 mb-1">
+          No tenés turnos próximos
+        </h3>
+
+        <p class="text-body-secondary small mb-3">
+          Cuando reserves un turno aparecerá acá.
+        </p>
+
+
+        <a
+          href="/#listado-barberias"
+          class="btn btn-outline-primary btn-sm"
+        >
+          Buscar barbería
+        </a>
+
+      </div>
+
+    </div>
+
+  `;
 
       return;
     }
@@ -209,13 +255,30 @@
     if (turnos.length === 0) {
       listaPasados.innerHTML = `
 
-        <div class="alert alert-secondary mb-0">
+    <div class="appointments-empty">
 
-          Todavía no tenés turnos pasados.
+      <span class="appointments-empty__icon">
 
-        </div>
+        <i class="bi bi-clock-history"></i>
 
-      `;
+      </span>
+
+
+      <div>
+
+        <h3 class="h6 mb-1">
+          Todavía no hay historial
+        </h3>
+
+        <p class="text-body-secondary small mb-0">
+          Tus turnos anteriores aparecerán en esta sección.
+        </p>
+
+      </div>
+
+    </div>
+
+  `;
 
       return;
     }
@@ -232,111 +295,130 @@
   function crearTurnoHTML(turno, esProximo) {
     const fechaFormateada = formatearFecha(turno.fecha);
 
+    const partesFecha = obtenerPartesFecha(turno.fecha);
+
     const puedeCancelar =
       esProximo && String(turno.estado).toUpperCase() !== "CANCELADO";
 
     return `
 
-      <div class="card">
+    <article class="appointment-item">
 
-        <div class="card-body">
+      <div class="appointment-date">
 
-          <div
-            class="d-flex flex-column flex-md-row justify-content-between gap-3"
-          >
+        <span class="appointment-date__day">
+          ${partesFecha.dia}
+        </span>
 
-            <div>
+        <span class="appointment-date__month">
+          ${partesFecha.mes}
+        </span>
 
-              <div
-                class="d-flex align-items-center flex-wrap gap-2 mb-2"
-              >
-
-                <h3 class="h5 mb-0">
-
-                  ${turno.barberia}
-
-                </h3>
+      </div>
 
 
-                ${crearBadgeEstado(turno.estado)}
+      <div class="appointment-item__content">
 
-              </div>
-
-
-              <p
-                class="text-body-secondary mb-2"
-              >
-
-                ${turno.servicio}
-
-                <span class="mx-1">
-                  ·
-                </span>
-
-                ${turno.barbero}
-
-              </p>
+        <div
+          class="d-flex flex-column flex-lg-row justify-content-between gap-3"
+        >
 
 
-              <div
-                class="d-flex flex-wrap gap-3 small"
-              >
+          <div class="flex-grow-1">
 
-                <span>
+            <div
+              class="d-flex align-items-center flex-wrap gap-2 mb-2"
+            >
 
-                  <strong>
-                    Fecha:
-                  </strong>
+              <h3 class="h5 mb-0">
+                ${turno.barberia}
+              </h3>
 
-                  ${fechaFormateada}
-
-                </span>
-
-
-                <span>
-
-                  <strong>
-                    Hora:
-                  </strong>
-
-                  ${turno.hora} hs
-
-                </span>
-
-              </div>
+              ${crearBadgeEstado(turno.estado)}
 
             </div>
 
 
-            ${
-              puedeCancelar
-                ? `
+            <div class="appointment-service mb-3">
 
-                  <div
-                    class="d-flex align-items-start"
-                  >
+              <i class="bi bi-scissors me-1"></i>
 
-                    <button
-                      type="button"
-                      class="btn btn-outline-danger btn-cancelar-turno"
-                      data-id="${turno.id}"
-                    >
-                      Cancelar turno
-                    </button>
+              ${turno.servicio}
 
-                  </div>
+            </div>
 
-                `
-                : ""
-            }
+
+            <div
+              class="d-flex flex-wrap gap-3 gap-md-4 small"
+            >
+
+
+              <span class="appointment-detail">
+
+                <i class="bi bi-person"></i>
+
+                ${turno.barbero}
+
+              </span>
+
+
+              <span class="appointment-detail">
+
+                <i class="bi bi-calendar3"></i>
+
+                ${fechaFormateada}
+
+              </span>
+
+
+              <span class="appointment-detail">
+
+                <i class="bi bi-clock"></i>
+
+                ${turno.hora} hs
+
+              </span>
+
+
+            </div>
 
           </div>
+
+
+          ${
+            puedeCancelar
+              ? `
+
+                <div
+                  class="d-flex align-items-start"
+                >
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm btn-cancelar-turno"
+                    data-id="${turno.id}"
+                  >
+
+                    <i class="bi bi-x-circle me-1"></i>
+
+                    Cancelar
+
+                  </button>
+
+                </div>
+
+              `
+              : ""
+          }
+
 
         </div>
 
       </div>
 
-    `;
+    </article>
+
+  `;
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -486,8 +568,7 @@
 
           guardarTurnos(lista);
         } else {
-
-        /* ── DJANGO ───────────────────────────────────── */
+          /* ── DJANGO ───────────────────────────────────── */
           const respuesta = await fetch(API_MISTURNOS.cancelar(id), {
             method: "PATCH",
 
@@ -540,6 +621,30 @@
     alertaCancelar.textContent = "";
 
     alertaCancelar.classList.add("d-none");
+  }
+
+  function obtenerPartesFecha(fecha) {
+    if (!fecha) {
+      return {
+        dia: "—",
+        mes: "",
+      };
+    }
+
+    const fechaLocal = new Date(`${fecha}T00:00:00`);
+
+    return {
+      dia: fechaLocal.toLocaleDateString("es-AR", {
+        day: "2-digit",
+      }),
+
+      mes: fechaLocal
+        .toLocaleDateString("es-AR", {
+          month: "short",
+        })
+        .replace(".", "")
+        .toUpperCase(),
+    };
   }
 
   /* ═══════════════════════════════════════════════════════════

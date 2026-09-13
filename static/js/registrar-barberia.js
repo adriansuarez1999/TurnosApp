@@ -49,6 +49,8 @@
 
       limpiarAlerta();
 
+      /* ── Valores ─────────────────────────────────────── */
+
       const nombre = document.getElementById("rb-nombre").value.trim();
 
       const direccion = document.getElementById("rb-direccion").value.trim();
@@ -61,11 +63,15 @@
         .getElementById("rb-descripcion")
         .value.trim();
 
+      /* ── Validación ──────────────────────────────────── */
+
       if (!nombre || !direccion || !zona) {
         mostrarAlerta("Completá nombre, dirección y zona.", "warning");
 
         return;
       }
+
+      /* ── Estado cargando ─────────────────────────────── */
 
       btn.disabled = true;
 
@@ -83,7 +89,9 @@
       try {
         let datos;
 
-        /* ── SIMULADO ─────────────────────────────────── */
+        /* ═════════════════════════════════════════════════
+           SIMULADO
+        ═════════════════════════════════════════════════ */
 
         if (MODO_SIMULADO_REGISTRAR_BARBERIA) {
           await new Promise((resolve) => setTimeout(resolve, 800));
@@ -97,7 +105,9 @@
           };
         } else {
 
-        /* ── BACKEND DJANGO ───────────────────────────── */
+        /* ═════════════════════════════════════════════════
+           BACKEND DJANGO
+        ═════════════════════════════════════════════════ */
           const respuesta = await fetch(API_REGISTRAR_BARBERIA, {
             method: "POST",
 
@@ -109,15 +119,23 @@
 
             body: JSON.stringify({
               nombre,
+
               direccion,
+
               zona,
+
               telefono,
+
               descripcion,
             }),
           });
 
           datos = await respuesta.json();
         }
+
+        /* ═════════════════════════════════════════════════
+           RESPUESTA
+        ═════════════════════════════════════════════════ */
 
         if (datos.ok) {
           sessionStorage.setItem("barberapp_es_dueno", "true");
@@ -147,7 +165,13 @@
       } finally {
         btn.disabled = false;
 
-        btn.textContent = "Registrar barbería";
+        btn.innerHTML = `
+
+          <i class="bi bi-check2-circle me-1"></i>
+
+          Registrar barbería
+
+        `;
       }
     },
   );

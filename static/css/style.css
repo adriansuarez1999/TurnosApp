@@ -732,3 +732,1100 @@ h6,
     scroll-behavior: auto;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PERFIL PÚBLICO DE BARBERÍA
+═══════════════════════════════════════════════════════════ */
+
+.barber-profile {
+  background: linear-gradient(
+    180deg,
+    var(--barber-surface-soft) 0,
+    var(--barber-bg) 22rem
+  );
+}
+
+/* Card principal */
+
+.barber-profile__main {
+  border-color: var(--barber-border);
+
+  box-shadow: 0 0.75rem 2.5rem rgba(23, 77, 50, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GALERÍA
+═══════════════════════════════════════════════════════════ */
+
+.barber-profile__gallery {
+  min-height: 26rem;
+
+  background-color: var(--barber-pastel);
+}
+
+.barber-profile__cover {
+  width: 100%;
+  height: 100%;
+  min-height: 26rem;
+
+  overflow: hidden;
+}
+
+.barber-profile__cover .carousel,
+.barber-profile__cover .carousel-inner,
+.barber-profile__cover .carousel-item {
+  height: 100%;
+}
+
+.barber-profile__cover-empty {
+  width: 100%;
+  height: 100%;
+  min-height: 26rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.75rem;
+
+  color: var(--barber-primary-dark);
+
+  background: linear-gradient(
+    135deg,
+    var(--barber-pastel),
+    var(--barber-surface-soft)
+  );
+}
+
+.barber-profile__cover-empty i {
+  font-size: 3rem;
+}
+
+.barber-profile__cover-empty span {
+  font-family: "Fraunces", Georgia, serif;
+
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INFORMACIÓN
+═══════════════════════════════════════════════════════════ */
+
+.barber-profile__info {
+  padding: 2rem;
+}
+
+.barber-profile__logo {
+  width: 4.5rem;
+  height: 4.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border: 1px solid var(--barber-border);
+  border-radius: 1rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.75rem;
+}
+
+.barber-profile__name {
+  font-family: "Fraunces", Georgia, serif;
+
+  color: var(--barber-text);
+
+  font-size: clamp(2rem, 4vw, 3rem);
+
+  font-weight: 700;
+}
+
+.barber-profile__description {
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ESTADÍSTICAS
+═══════════════════════════════════════════════════════════ */
+
+.barber-profile__stat {
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 0.75rem;
+
+  padding: 0.8rem 0.9rem;
+
+  border: 1px solid var(--barber-border);
+  border-radius: 0.75rem;
+
+  background-color: var(--barber-surface-soft);
+}
+
+.barber-profile__stat i {
+  color: var(--barber-primary);
+
+  font-size: 1.25rem;
+}
+
+.barber-profile__stat strong {
+  display: block;
+
+  color: var(--barber-text);
+
+  line-height: 1.1;
+}
+
+.barber-profile__stat span {
+  display: block;
+
+  margin-top: 0.15rem;
+
+  color: var(--barber-muted);
+
+  font-size: 0.78rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECCIONES
+═══════════════════════════════════════════════════════════ */
+
+.barber-profile__section-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.75rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+}
+
+.barber-profile__list {
+  max-height: 20rem;
+
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SERVICIOS
+═══════════════════════════════════════════════════════════ */
+
+.barber-profile__service {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.barber-profile__price {
+  flex-shrink: 0;
+
+  color: var(--barber-primary-dark);
+
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BARBEROS
+═══════════════════════════════════════════════════════════ */
+
+.barber-profile__barber-photo {
+  width: 3rem;
+  height: 3rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border: 1px solid var(--barber-border);
+  border-radius: 50%;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.25rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 991.98px) {
+  .barber-profile__gallery,
+  .barber-profile__cover,
+  .barber-profile__cover-empty {
+    min-height: 21rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .barber-profile__info {
+    padding: 1.5rem;
+  }
+
+  .barber-profile__gallery,
+  .barber-profile__cover,
+  .barber-profile__cover-empty {
+    min-height: 16rem;
+  }
+
+  .barber-profile__list {
+    max-height: none;
+
+    overflow-y: visible;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESERVA DE TURNO
+═══════════════════════════════════════════════════════════ */
+
+.booking-page {
+  background: linear-gradient(
+    180deg,
+    var(--barber-surface-soft) 0,
+    var(--barber-bg) 22rem
+  );
+}
+
+/* Encabezado */
+
+.booking-header__icon {
+  width: 3rem;
+  height: 3rem;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.85rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.35rem;
+}
+
+.booking-title {
+  font-family: "Fraunces", Georgia, serif;
+
+  color: var(--barber-text);
+
+  font-size: clamp(2rem, 4vw, 2.8rem);
+
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CARD PRINCIPAL
+═══════════════════════════════════════════════════════════ */
+
+.booking-flow-card {
+  overflow: hidden;
+
+  border-color: var(--barber-border);
+
+  box-shadow: 0 0.75rem 2rem rgba(23, 77, 50, 0.06);
+}
+
+/* Barbería */
+
+.booking-business {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  padding: 1.5rem;
+
+  border-bottom: 1px solid var(--barber-border);
+
+  background: linear-gradient(
+    135deg,
+    var(--barber-pastel),
+    var(--barber-surface-soft)
+  );
+}
+
+.booking-business__icon {
+  width: 3rem;
+  height: 3rem;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.75rem;
+
+  background-color: rgba(255, 255, 255, 0.65);
+
+  color: var(--barber-primary-dark);
+
+  font-size: 1.3rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PASOS
+═══════════════════════════════════════════════════════════ */
+
+.booking-step {
+  padding: 1.5rem;
+}
+
+.booking-step + .booking-step {
+  border-top: 1px solid var(--barber-border);
+}
+
+.booking-step__header {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 0.9rem;
+
+  margin-bottom: 1.25rem;
+}
+
+.booking-step__number {
+  width: 2rem;
+  height: 2rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background-color: var(--barber-primary);
+
+  color: #fff;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Selector fecha */
+
+.booking-date {
+  max-width: 22rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OPCIONES
+═══════════════════════════════════════════════════════════ */
+
+#lista-servicios .btn,
+#lista-barberos .btn {
+  min-height: 4.2rem;
+
+  border-radius: 0.75rem;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+#lista-servicios .btn:hover,
+#lista-barberos .btn:hover {
+  transform: translateY(-1px);
+
+  box-shadow: 0 0.35rem 1rem rgba(23, 77, 50, 0.06);
+}
+
+#lista-horarios .btn {
+  border-radius: 0.65rem;
+
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESUMEN
+═══════════════════════════════════════════════════════════ */
+
+.booking-summary {
+  top: 1.5rem;
+
+  border-color: var(--barber-primary-border, var(--barber-border));
+
+  box-shadow: 0 0.75rem 2rem rgba(23, 77, 50, 0.07);
+}
+
+.booking-summary__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.75rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.2rem;
+}
+
+.booking-summary__items {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0;
+}
+
+.booking-summary__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 1.5rem;
+
+  padding: 0.7rem 0;
+
+  border-bottom: 1px solid var(--barber-border);
+}
+
+.booking-summary__row:last-child {
+  border-bottom: 0;
+}
+
+.booking-summary__row span {
+  color: var(--barber-muted);
+
+  font-size: 0.875rem;
+}
+
+.booking-summary__row strong {
+  max-width: 60%;
+
+  color: var(--barber-text);
+
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  text-align: right;
+}
+
+.booking-summary__total {
+  color: var(--barber-primary-dark);
+
+  font-family: "Fraunces", Georgia, serif;
+
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONFIRMACIÓN
+═══════════════════════════════════════════════════════════ */
+
+.booking-confirmed-icon {
+  width: 4rem;
+  height: 4rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary-dark);
+
+  font-size: 1.75rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 991.98px) {
+  .booking-summary {
+    position: static !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .booking-step,
+  .booking-business {
+    padding: 1.25rem;
+  }
+
+  .booking-summary__row {
+    gap: 1rem;
+  }
+
+  .booking-summary__row strong {
+    max-width: 55%;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOVIMIENTO REDUCIDO
+═══════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  #lista-servicios .btn,
+  #lista-barberos .btn {
+    transition: none;
+  }
+
+  #lista-servicios .btn:hover,
+  #lista-barberos .btn:hover {
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MIS TURNOS
+═══════════════════════════════════════════════════════════ */
+
+.appointments-page {
+  background: linear-gradient(
+    180deg,
+    var(--barber-surface-soft) 0,
+    var(--barber-bg) 22rem
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ENCABEZADO
+═══════════════════════════════════════════════════════════ */
+
+.appointments-header__icon {
+  width: 3rem;
+  height: 3rem;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.85rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.3rem;
+}
+
+.appointments-title {
+  font-family: "Fraunces", Georgia, serif;
+
+  color: var(--barber-text);
+
+  font-size: clamp(2rem, 4vw, 2.8rem);
+
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESUMEN
+═══════════════════════════════════════════════════════════ */
+
+.appointments-stat {
+  border-color: var(--barber-border);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.appointments-stat:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 0.6rem 1.5rem rgba(23, 77, 50, 0.06);
+}
+
+.appointments-stat__icon {
+  width: 3rem;
+  height: 3rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.85rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.25rem;
+}
+
+.appointments-stat__number {
+  color: var(--barber-text);
+
+  font-family: "Fraunces", Georgia, serif;
+
+  font-size: 1.7rem;
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECCIONES
+═══════════════════════════════════════════════════════════ */
+
+.appointments-section {
+  overflow: hidden;
+
+  border-color: var(--barber-border);
+
+  box-shadow: 0 0.65rem 1.8rem rgba(23, 77, 50, 0.05);
+}
+
+.appointments-section .card-header {
+  padding: 1.25rem 1.5rem;
+}
+
+.appointments-section__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.75rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.15rem;
+}
+
+.appointments-section__icon--muted {
+  background-color: var(--barber-surface-soft);
+
+  color: var(--barber-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TURNO
+═══════════════════════════════════════════════════════════ */
+
+.appointment-item {
+  display: flex;
+
+  overflow: hidden;
+
+  border: 1px solid var(--barber-border);
+
+  border-radius: 0.9rem;
+
+  background-color: var(--barber-surface);
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.appointment-item:hover {
+  transform: translateY(-1px);
+
+  border-color: var(--barber-primary);
+
+  box-shadow: 0 0.45rem 1.3rem rgba(23, 77, 50, 0.06);
+}
+
+/* Fecha */
+
+.appointment-date {
+  width: 5rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  padding: 1rem 0.75rem;
+
+  border-right: 1px solid var(--barber-border);
+
+  background-color: var(--barber-pastel);
+}
+
+.appointment-date__day {
+  color: var(--barber-primary-dark);
+
+  font-family: "Fraunces", Georgia, serif;
+
+  font-size: 1.8rem;
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+.appointment-date__month {
+  margin-top: 0.3rem;
+
+  color: var(--barber-primary-dark);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+/* Contenido */
+
+.appointment-item__content {
+  width: 100%;
+
+  padding: 1.2rem 1.3rem;
+}
+
+.appointment-service {
+  color: var(--barber-primary-dark);
+
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.appointment-detail {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 0.4rem;
+
+  color: var(--barber-muted);
+}
+
+.appointment-detail i {
+  color: var(--barber-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ESTADO VACÍO
+═══════════════════════════════════════════════════════════ */
+
+.appointments-empty {
+  display: flex;
+  align-items: center;
+
+  gap: 1rem;
+
+  padding: 1.5rem;
+
+  border: 1px dashed var(--barber-border);
+
+  border-radius: 0.85rem;
+
+  background-color: var(--barber-surface-soft);
+}
+
+.appointments-empty__icon {
+  width: 3rem;
+  height: 3rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.2rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL CANCELAR
+═══════════════════════════════════════════════════════════ */
+
+.appointments-cancel-icon {
+  width: 3rem;
+  height: 3rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 0.75rem;
+
+  background-color: rgba(220, 53, 69, 0.1);
+
+  color: var(--bs-danger);
+
+  font-size: 1.2rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 575.98px) {
+  .appointment-date {
+    width: 4.25rem;
+
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .appointment-date__day {
+    font-size: 1.5rem;
+  }
+
+  .appointment-item__content {
+    padding: 1rem;
+  }
+
+  .appointments-section .card-header {
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appointments-stat,
+  .appointment-item {
+    transition: none;
+  }
+
+  .appointments-stat:hover,
+  .appointment-item:hover {
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REGISTRAR BARBERÍA
+═══════════════════════════════════════════════════════════ */
+
+.register-shop-page {
+  background: linear-gradient(
+    180deg,
+    var(--barber-surface-soft) 0,
+    var(--barber-bg) 24rem
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ENCABEZADO
+═══════════════════════════════════════════════════════════ */
+
+.register-shop-header__icon {
+  width: 3rem;
+  height: 3rem;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.85rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.3rem;
+}
+
+.register-shop-title {
+  font-family: "Fraunces", Georgia, serif;
+
+  color: var(--barber-text);
+
+  font-size: clamp(2rem, 4vw, 2.8rem);
+
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORMULARIO
+═══════════════════════════════════════════════════════════ */
+
+.register-shop-form-card {
+  border-color: var(--barber-border);
+
+  box-shadow: 0 0.75rem 2rem rgba(23, 77, 50, 0.06);
+}
+
+.register-shop-section-icon {
+  width: 2.8rem;
+  height: 2.8rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 0.75rem;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary);
+
+  font-size: 1.2rem;
+}
+
+/* Inputs con icono */
+
+.register-shop-form-card .input-group-text {
+  min-width: 2.8rem;
+
+  justify-content: center;
+
+  border-color: var(--barber-border);
+
+  background-color: var(--barber-surface-soft);
+
+  color: var(--barber-primary-dark);
+}
+
+/* Nota */
+
+.register-shop-note {
+  display: flex;
+
+  gap: 0.9rem;
+
+  padding: 1rem;
+
+  border: 1px solid var(--barber-primary-border, var(--barber-border));
+
+  border-radius: 0.8rem;
+
+  background-color: var(--barber-surface-soft);
+
+  color: var(--barber-muted);
+}
+
+.register-shop-note > i {
+  margin-top: 0.1rem;
+
+  color: var(--barber-primary);
+
+  font-size: 1.05rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BENEFICIOS
+═══════════════════════════════════════════════════════════ */
+
+.register-shop-benefits {
+  border-color: var(--barber-border);
+
+  box-shadow: 0 0.75rem 2rem rgba(23, 77, 50, 0.05);
+}
+
+.register-shop-benefit {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 0.8rem;
+}
+
+.register-shop-benefit__icon {
+  width: 1.8rem;
+  height: 1.8rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background-color: var(--barber-pastel);
+
+  color: var(--barber-primary-dark);
+
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIGUIENTE PASO
+═══════════════════════════════════════════════════════════ */
+
+.register-shop-next {
+  padding: 1.25rem;
+
+  border: 1px solid var(--barber-primary-border, var(--barber-border));
+
+  border-radius: 0.9rem;
+
+  background: linear-gradient(
+    135deg,
+    var(--barber-pastel),
+    var(--barber-surface-soft)
+  );
+
+  color: var(--barber-text);
+}
+
+.register-shop-next__icon {
+  width: 2.4rem;
+  height: 2.4rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background-color: rgba(255, 255, 255, 0.7);
+
+  color: var(--barber-primary-dark);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 991.98px) {
+  .register-shop-benefits,
+  .register-shop-next {
+    max-width: none;
+  }
+}

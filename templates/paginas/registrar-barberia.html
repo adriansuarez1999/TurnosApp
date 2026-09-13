@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block title %}
 Registrar mi barbería — BarberApp
 {% endblock %}
@@ -8,52 +9,108 @@ Registrar mi barbería — BarberApp
 
 {% block content %}
 
-<section class="py-4 py-lg-5 bg-body-tertiary">
+<section class="register-shop-page py-4 py-lg-5">
 
   <div class="container">
 
-    <div class="row justify-content-center">
 
-      <div class="col-lg-8 col-xl-7">
+    <!-- ═══════════════════════════════════════════════════════
+         VOLVER
+    ═════════════════════════════════════════════════════════ -->
+
+    <div class="mb-4">
+
+      <a
+        href="{% url 'index' %}"
+        class="btn btn-outline-secondary btn-sm"
+      >
+        <i class="bi bi-arrow-left me-1"></i>
+        Volver al inicio
+      </a>
+
+    </div>
 
 
-        <!-- Volver -->
-        <div class="mb-4">
 
-          <a
-            href="{% url 'index' %}"
-            class="btn btn-outline-secondary btn-sm"
-          >
-            ← Volver al inicio
-          </a>
+    <!-- ═══════════════════════════════════════════════════════
+         ENCABEZADO
+    ═════════════════════════════════════════════════════════ -->
 
+    <div class="register-shop-header mb-4">
+
+      <div class="d-flex align-items-center gap-3">
+
+        <div
+          class="register-shop-header__icon d-none d-sm-flex"
+          aria-hidden="true"
+        >
+          <i class="bi bi-shop"></i>
         </div>
 
 
+        <div>
 
-        <!-- Encabezado -->
-        <div class="mb-4">
-
-          <h1 class="display-6 fw-bold mb-2">
+          <h1 class="register-shop-title mb-1">
             Registrá tu barbería
           </h1>
 
           <p class="text-body-secondary mb-0">
-            Cargá los datos principales de tu negocio para empezar
-            a recibir reservas online.
+            Creá el perfil de tu negocio y empezá a recibir reservas online.
           </p>
 
         </div>
 
+      </div>
+
+    </div>
 
 
-        <!-- Formulario -->
-        <div class="card">
 
-          <div class="card-body p-4">
+    <!-- ═══════════════════════════════════════════════════════
+         CONTENIDO
+    ═════════════════════════════════════════════════════════ -->
+
+    <div class="row g-4 align-items-start">
+
+
+      <!-- ═════════════════════════════════════════════════════
+           FORMULARIO
+      ══════════════════════════════════════════════════════ -->
+
+      <div class="col-lg-8">
+
+        <div class="card register-shop-form-card">
+
+          <div class="card-body p-4 p-lg-5">
+
+
+            <!-- Encabezado formulario -->
+
+            <div class="mb-4">
+
+              <span
+                class="register-shop-section-icon mb-3"
+                aria-hidden="true"
+              >
+                <i class="bi bi-building"></i>
+              </span>
+
+
+              <h2 class="h4 mb-1">
+                Datos principales
+              </h2>
+
+
+              <p class="text-body-secondary small mb-0">
+                Esta información será la base del perfil público de tu barbería.
+              </p>
+
+            </div>
+
 
 
             <!-- Alerta -->
+
             <div
               class="alert d-none"
               id="alerta-registrar-barberia"
@@ -67,95 +124,133 @@ Registrar mi barbería — BarberApp
 
 
               <!-- Nombre -->
-              <div class="mb-3">
+
+              <div class="mb-4">
 
                 <label
                   for="rb-nombre"
-                  class="form-label"
+                  class="form-label fw-semibold"
                 >
                   Nombre de la barbería
                 </label>
 
 
-                <input
-                  type="text"
-                  class="form-control"
-                  id="rb-nombre"
-                  placeholder="Ej: Style Barber"
-                  required
-                >
+                <div class="input-group">
+
+                  <span class="input-group-text">
+                    <i class="bi bi-shop"></i>
+                  </span>
+
+
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="rb-nombre"
+                    placeholder="Ej: Style Barber"
+                    autocomplete="organization"
+                    required
+                  >
+
+                </div>
 
               </div>
 
 
 
-              <!-- Dirección -->
-              <div class="mb-3">
+              <!-- Dirección + Zona -->
 
-                <label
-                  for="rb-direccion"
-                  class="form-label"
-                >
-                  Dirección
-                </label>
+              <div class="row g-3 mb-4">
 
 
-                <input
-                  type="text"
-                  class="form-control"
-                  id="rb-direccion"
-                  placeholder="Calle y número"
-                  required
-                >
+                <div class="col-md-7">
 
-              </div>
-
+                  <label
+                    for="rb-direccion"
+                    class="form-label fw-semibold"
+                  >
+                    Dirección
+                  </label>
 
 
-              <!-- Zona -->
-              <div class="mb-3">
+                  <div class="input-group">
 
-                <label
-                  for="rb-zona"
-                  class="form-label"
-                >
-                  Zona
-                </label>
+                    <span class="input-group-text">
+                      <i class="bi bi-geo-alt"></i>
+                    </span>
 
 
-                <input
-                  type="text"
-                  class="form-control"
-                  id="rb-zona"
-                  placeholder="Ej: Centro, Barrio Norte..."
-                  required
-                >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="rb-direccion"
+                      placeholder="Calle y número"
+                      autocomplete="street-address"
+                      required
+                    >
+
+                  </div>
+
+                </div>
+
+
+
+                <div class="col-md-5">
+
+                  <label
+                    for="rb-zona"
+                    class="form-label fw-semibold"
+                  >
+                    Zona
+                  </label>
+
+
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="rb-zona"
+                    placeholder="Ej: Centro"
+                    required
+                  >
+
+                </div>
+
 
               </div>
 
 
 
               <!-- Teléfono -->
-              <div class="mb-3">
+
+              <div class="mb-4">
 
                 <label
                   for="rb-telefono"
-                  class="form-label"
+                  class="form-label fw-semibold"
                 >
                   Teléfono
                 </label>
 
 
-                <input
-                  type="tel"
-                  class="form-control"
-                  id="rb-telefono"
-                  placeholder="3644 123456"
-                >
+                <div class="input-group">
+
+                  <span class="input-group-text">
+                    <i class="bi bi-telephone"></i>
+                  </span>
+
+
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="rb-telefono"
+                    placeholder="3644 123456"
+                    autocomplete="tel"
+                  >
+
+                </div>
 
 
                 <div class="form-text">
-                  Opcional.
+                  Opcional. Podés modificarlo más adelante.
                 </div>
 
               </div>
@@ -163,11 +258,12 @@ Registrar mi barbería — BarberApp
 
 
               <!-- Descripción -->
+
               <div class="mb-4">
 
                 <label
                   for="rb-descripcion"
-                  class="form-label"
+                  class="form-label fw-semibold"
                 >
                   Descripción
                 </label>
@@ -176,13 +272,37 @@ Registrar mi barbería — BarberApp
                 <textarea
                   class="form-control"
                   id="rb-descripcion"
-                  rows="4"
-                  placeholder="Contá brevemente de qué se trata tu barbería"
+                  rows="5"
+                  placeholder="Contá brevemente qué ofrece tu barbería, el estilo del local o qué la hace especial."
                 ></textarea>
 
 
                 <div class="form-text">
-                  Opcional. Podés modificarla más adelante desde tu panel.
+                  Opcional. Esta descripción podrá mostrarse en el perfil público.
+                </div>
+
+              </div>
+
+
+
+              <!-- Información -->
+
+              <div class="register-shop-note mb-4">
+
+                <i class="bi bi-info-circle flex-shrink-0"></i>
+
+
+                <div>
+
+                  <strong class="d-block mb-1">
+                    Vas a poder completar tu perfil después
+                  </strong>
+
+                  <span class="small">
+                    Desde tu panel podrás agregar servicios, barberos,
+                    fotografías y modificar estos datos.
+                  </span>
+
                 </div>
 
               </div>
@@ -190,17 +310,30 @@ Registrar mi barbería — BarberApp
 
 
               <!-- Botón -->
-              <div class="d-flex justify-content-end">
+
+              <div
+                class="d-flex flex-column flex-sm-row justify-content-end gap-2"
+              >
+
+                <a
+                  href="{% url 'index' %}"
+                  class="btn btn-outline-secondary"
+                >
+                  Cancelar
+                </a>
+
 
                 <button
                   type="submit"
-                  class="btn btn-primary"
+                  class="btn btn-primary px-4"
                   id="btn-registrar-barberia-enviar"
                 >
+                  <i class="bi bi-check2-circle me-1"></i>
                   Registrar barbería
                 </button>
 
               </div>
+
 
             </form>
 
@@ -208,8 +341,168 @@ Registrar mi barbería — BarberApp
 
         </div>
 
+      </div>
+
+
+
+      <!-- ═════════════════════════════════════════════════════
+           INFORMACIÓN LATERAL
+      ══════════════════════════════════════════════════════ -->
+
+      <div class="col-lg-4">
+
+        <aside class="d-flex flex-column gap-4">
+
+
+          <!-- BENEFICIOS -->
+
+          <div class="card register-shop-benefits">
+
+            <div class="card-body p-4">
+
+
+              <div class="mb-4">
+
+                <span
+                  class="register-shop-section-icon mb-3"
+                  aria-hidden="true"
+                >
+                  <i class="bi bi-stars"></i>
+                </span>
+
+
+                <h2 class="h5 mb-1">
+                  Tu barbería en BarberApp
+                </h2>
+
+
+                <p class="text-body-secondary small mb-0">
+                  Después del registro vas a tener acceso al panel de gestión.
+                </p>
+
+              </div>
+
+
+
+              <div class="d-flex flex-column gap-3">
+
+
+                <div class="register-shop-benefit">
+
+                  <span class="register-shop-benefit__icon">
+                    <i class="bi bi-check-lg"></i>
+                  </span>
+
+                  <div>
+                    <strong>Perfil público</strong>
+                    <div class="text-body-secondary small">
+                      Mostrá tu barbería a nuevos clientes.
+                    </div>
+                  </div>
+
+                </div>
+
+
+
+                <div class="register-shop-benefit">
+
+                  <span class="register-shop-benefit__icon">
+                    <i class="bi bi-check-lg"></i>
+                  </span>
+
+                  <div>
+                    <strong>Servicios</strong>
+                    <div class="text-body-secondary small">
+                      Configurá precios y duración.
+                    </div>
+                  </div>
+
+                </div>
+
+
+
+                <div class="register-shop-benefit">
+
+                  <span class="register-shop-benefit__icon">
+                    <i class="bi bi-check-lg"></i>
+                  </span>
+
+                  <div>
+                    <strong>Equipo</strong>
+                    <div class="text-body-secondary small">
+                      Administrá los barberos de tu negocio.
+                    </div>
+                  </div>
+
+                </div>
+
+
+
+                <div class="register-shop-benefit">
+
+                  <span class="register-shop-benefit__icon">
+                    <i class="bi bi-check-lg"></i>
+                  </span>
+
+                  <div>
+                    <strong>Reservas online</strong>
+                    <div class="text-body-secondary small">
+                      Tus clientes podrán elegir sus turnos.
+                    </div>
+                  </div>
+
+                </div>
+
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- PASO SIGUIENTE -->
+
+          <div class="register-shop-next">
+
+            <div class="d-flex gap-3">
+
+              <span class="register-shop-next__icon">
+                <i class="bi bi-arrow-right"></i>
+              </span>
+
+
+              <div>
+
+                <div
+                  class="text-uppercase small fw-semibold mb-1"
+                >
+                  Siguiente paso
+                </div>
+
+
+                <h3 class="h6 mb-1">
+                  Personalizá tu barbería
+                </h3>
+
+
+                <p class="small mb-0">
+                  Después del registro te llevaremos directamente
+                  a tu panel.
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+        </aside>
 
       </div>
+
 
     </div>
 

@@ -2,8 +2,7 @@
    DASHBOARD
 
    CSS específico del panel administrativo.
-
-   Inspirado en el ejemplo oficial Dashboard de Bootstrap 5.3.
+   Bootstrap 5.3 + identidad visual BarberApp.
 ═══════════════════════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════════════════════════
@@ -33,57 +32,70 @@
 
     padding: 48px 0 0;
 
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+    box-shadow: inset -1px 0 0 rgba(23, 77, 50, 0.08);
   }
 }
 
-.sidebar-sticky {
-  position: relative;
-
-  top: 0;
-
-  height: calc(100vh - 48px);
-
-  padding-top: 0.5rem;
-
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.sidebar .nav-link {
-  font-size: 0.875rem;
-
-  font-weight: 500;
-
-  color: var(--bs-body-color);
-}
+/* Links */
 
 .sidebar .nav-link {
   display: flex;
-
   align-items: center;
 
   gap: 0.75rem;
 
   padding: 0.65rem 1rem;
+
+  color: var(--bs-body-color);
+
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  border-radius: 0.375rem;
+
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
+
+/* Hover */
 
 .sidebar .nav-link:hover {
-  background: var(--bs-tertiary-bg);
+  color: var(--bs-primary-text-emphasis);
+
+  background-color: var(--bs-tertiary-bg);
 }
+
+/* Sección activa */
 
 .sidebar .nav-link.active {
-  color: var(--bs-primary);
+  color: var(--bs-primary-text-emphasis);
 
-  background: var(--bs-primary-bg-subtle);
+  background-color: var(--bs-primary-bg-subtle);
+
+  font-weight: 600;
 }
 
-.sidebar .nav-link svg {
-  width: 16px;
+/* Iconos */
 
-  height: 16px;
-
+.sidebar .nav-link .bi {
   flex-shrink: 0;
+
+  color: var(--bs-secondary-color);
+}
+
+.sidebar .nav-link:hover .bi,
+.sidebar .nav-link.active .bi {
+  color: var(--bs-primary);
+}
+
+/* Barbería administrada */
+
+#panel-sidebar-barberia {
+  color: var(--bs-body-color);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -92,14 +104,9 @@
 
 .navbar-brand {
   padding-top: 0.75rem;
-
   padding-bottom: 0.75rem;
 
   font-size: 1rem;
-}
-
-.navbar .form-control {
-  padding: 0.75rem 1rem;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -108,96 +115,346 @@
 
 .dashboard-main {
   min-height: calc(100vh - 48px);
+
+  padding-bottom: 4rem;
+}
+
+/* Cards generales */
+
+.dashboard-main .card {
+  border-color: var(--bs-border-color);
+
+  box-shadow: 0 0.25rem 1rem rgba(23, 77, 50, 0.04);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SETTINGS
+   TABLA DE BARBEROS
 ═══════════════════════════════════════════════════════════ */
 
-.settings-section {
-  max-width: 960px;
-}
+#contenedor-tabla-barberos thead th {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
 
-.settings-row {
-  display: grid;
-
-  grid-template-columns: minmax(180px, 260px) 1fr;
-
-  gap: 2rem;
-
-  padding: 2rem 0;
-
-  border-bottom: var(--bs-border-width) solid var(--bs-border-color);
-}
-
-.settings-row:first-child {
-  padding-top: 0;
-}
-
-.settings-row:last-child {
-  border-bottom: 0;
-}
-
-.settings-label h2 {
-  font-size: 1rem;
-
-  font-weight: 600;
-
-  margin-bottom: 0.35rem;
-}
-
-.settings-label p {
-  font-size: 0.875rem;
+  background-color: var(--bs-tertiary-bg);
 
   color: var(--bs-secondary-color);
 
-  margin-bottom: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  border-bottom-color: var(--bs-border-color);
 }
 
-.settings-content {
-  min-width: 0;
+#lista-mis-barberos tr {
+  transition: background-color 0.15s ease;
+}
+
+#lista-mis-barberos td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+#lista-mis-barberos .rounded-circle {
+  border-color: var(--bs-primary-border-subtle) !important;
+
+  background-color: var(--bs-primary-bg-subtle) !important;
+}
+
+#lista-mis-barberos .dropdown-toggle {
+  min-width: 6.5rem;
+}
+
+#contenedor-tabla-barberos {
+  border-radius: 0 0 var(--bs-card-border-radius) var(--bs-card-border-radius);
+}
+
+#estado-barberos {
+  min-height: 9rem;
+}
+
+@media (max-width: 767.98px) {
+  #contenedor-tabla-barberos table {
+    min-width: 760px;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LOGO
+   TABLA DE SERVICIOS
 ═══════════════════════════════════════════════════════════ */
 
-.barber-logo-preview {
-  width: 120px;
+#contenedor-tabla-servicios thead th {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
 
-  height: 120px;
+  background-color: var(--bs-tertiary-bg);
 
-  overflow: hidden;
+  color: var(--bs-secondary-color);
 
-  border: var(--bs-border-width) solid var(--bs-border-color);
+  font-size: 0.78rem;
+  font-weight: 600;
 
-  border-radius: var(--bs-border-radius);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 
-  background: var(--bs-tertiary-bg);
+  border-bottom-color: var(--bs-border-color);
 }
 
-.barber-logo-preview img {
-  width: 100%;
+#lista-mis-servicios tr {
+  transition: background-color 0.15s ease;
+}
 
-  height: 100%;
+#lista-mis-servicios td {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
 
-  object-fit: cover;
+#lista-mis-servicios td:first-child {
+  max-width: 320px;
+}
+
+#lista-mis-servicios td:first-child .small {
+  margin-top: 0.2rem;
+
+  line-height: 1.4;
+}
+
+#lista-mis-servicios .dropdown-toggle {
+  min-width: 6.5rem;
+}
+
+#contenedor-tabla-servicios {
+  border-radius: 0 0 var(--bs-card-border-radius) var(--bs-card-border-radius);
+}
+
+#estado-servicios {
+  min-height: 9rem;
+}
+
+@media (max-width: 767.98px) {
+  #contenedor-tabla-servicios table {
+    min-width: 720px;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   RESPONSIVE
+   FOTOS
+═══════════════════════════════════════════════════════════ */
+
+.fotos-panel-card .card-body {
+  padding: 1.5rem;
+}
+
+/* Galería */
+
+#lista-fotos-barberia .card {
+  overflow: hidden;
+
+  border-color: var(--bs-border-color);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+#lista-fotos-barberia .card:hover {
+  transform: translateY(-2px);
+
+  border-color: var(--bs-primary-border-subtle);
+
+  box-shadow: 0 0.5rem 1.5rem rgba(23, 77, 50, 0.08);
+}
+
+/* Imagen */
+
+#lista-fotos-barberia .ratio {
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+#lista-fotos-barberia img {
+  transition: transform 0.25s ease;
+}
+
+#lista-fotos-barberia .card:hover img {
+  transform: scale(1.025);
+}
+
+/* Pie */
+
+#lista-fotos-barberia .card-body {
+  padding: 1rem 1.1rem;
+
+  background-color: var(--bs-body-bg);
+}
+
+/* Botón eliminar */
+
+#lista-fotos-barberia .btn-eliminar-foto {
+  width: 2.25rem;
+  height: 2.25rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+/* Carga / vacío */
+
+#estado-fotos {
+  min-height: 9rem;
+}
+
+@media (max-width: 575.98px) {
+  .fotos-panel-card .card-body {
+    padding: 1rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INFORMES
+═══════════════════════════════════════════════════════════ */
+
+/* Filtros */
+
+.informe-filtros-card {
+  border-color: var(--bs-primary-border-subtle);
+
+  background: linear-gradient(
+    135deg,
+    var(--bs-body-bg) 0%,
+    var(--bs-primary-bg-subtle) 180%
+  );
+}
+
+/* Métricas */
+
+.informe-stat-card {
+  border-color: var(--bs-border-color);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.informe-stat-card:hover {
+  transform: translateY(-2px);
+
+  border-color: var(--bs-primary-border-subtle);
+
+  box-shadow: 0 0.5rem 1.5rem rgba(23, 77, 50, 0.07);
+}
+
+.informe-stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 0.75rem;
+
+  background-color: var(--bs-primary-bg-subtle);
+
+  color: var(--bs-primary);
+
+  font-size: 1.25rem;
+}
+
+/* Resumen por estado */
+
+#resumen-estados > div > .border {
+  border-color: var(--bs-primary-border-subtle) !important;
+
+  background-color: var(--bs-body-bg);
+
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+}
+
+#resumen-estados > div > .border:hover {
+  transform: translateY(-1px);
+
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+/* Tabla */
+
+.informe-tabla thead th {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+
+  background-color: var(--bs-tertiary-bg);
+
+  color: var(--bs-secondary-color);
+
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  border-bottom-color: var(--bs-border-color);
+}
+
+.informe-tabla tbody td {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+/* Gráficos */
+
+#grafico-turnos-dia,
+#grafico-turnos-estado {
+  max-width: 100%;
+}
+
+/* Carga */
+
+#estado-informes {
+  min-height: 6rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE GENERAL
 ═══════════════════════════════════════════════════════════ */
 
 @media (max-width: 767.98px) {
-  .settings-row {
-    grid-template-columns: 1fr;
+  .dashboard-main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
 
-    gap: 1rem;
+/* ═══════════════════════════════════════════════════════════
+   ACCESIBILIDAD / MOVIMIENTO
+═══════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar .nav-link,
+  .informe-stat-card,
+  #lista-fotos-barberia .card,
+  #lista-fotos-barberia img,
+  #resumen-estados > div > .border {
+    transition: none;
   }
 
-  .sidebar {
-    position: static;
+  .informe-stat-card:hover,
+  #lista-fotos-barberia .card:hover,
+  #resumen-estados > div > .border:hover {
+    transform: none;
+  }
 
-    padding: 0;
+  #lista-fotos-barberia .card:hover img {
+    transform: none;
   }
 }
