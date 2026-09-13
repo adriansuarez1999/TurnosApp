@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
-from apps.usuarios.models import Barbero, Servicio, Usuario
+from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad
 from apps.turnos.models import Turno
 import json
 
@@ -334,6 +334,168 @@ def mi_barbero_detalle(request, id):
         usuario.estado = 'INACTIVO'
         usuario.save()
 
+        return JsonResponse({'ok': True})
+
+    return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+
+# ══════════════════════════════════════════
+# Sprint 4 - Módulo A: Disponibilidad de barberos (CU-10)
+# ══════════════════════════════════════════
+
+DIAS_VALIDOS = ('LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM')
+
+
+def _parsear_hora(valor):
+    # Acepta 'HH:MM' o 'HH:MM:SS'
+    formato = '%H:%M:%S' if valor.count(':') == 2 else '%H:%M'
+    return datetime.strptime(valor, formato).time()
+
+
+def _disponibilidad_a_dict(bloque):
+    return {
+        'id': bloque.id_disponibilidad,
+        'id_barbero': bloque.id_barbero_id,
+        'dia_semana': bloque.dia_semana,
+        'hora_inicio': bloque.hora_inicio.strftime('%H:%M'),
+        'hora_fin': bloque.hora_fin.strftime('%H:%M'),
+    }
+
+
+# Tarea 4: hora_fin > hora_inicio y sin superposición entre bloques del mismo
+# barbero el mismo día (mismo criterio de superposición usado para turnos en el Sprint 2).
+def _validar_bloque_disponibilidad(id_barbero, dia_semana, hora_inicio, hora_fin, excluir_id=None):
+    if dia_semana not in DIAS_VALIDOS:
+        return f'El día tiene que ser uno de {", ".join(DIAS_VALIDOS)}.'
+
+    if hora_fin <= hora_inicio:
+        return 'La hora de fin tiene que ser mayor a la hora de inicio.'
+
+    superpuestos = Disponibilidad.objects.filter(
+        id_barbero=id_barbero,
+        dia_semana=dia_semana,
+        hora_inicio__lt=hora_fin,
+        hora_fin__gt=hora_inicio
+    )
+    if excluir_id:
+        superpuestos = superpuestos.exclude(id_disponibilidad=excluir_id)
+
+    if superpuestos.exists():
+        return 'Ese barbero ya tiene un bloque cargado que se superpone con ese horario ese día.'
+
+    return None
+
+
+# GET  /api/mi-barberia/barberos/<id>/disponibilidad/  -> tarea 3: bloques del barbero
+# POST /api/mi-barberia/barberos/<id>/disponibilidad/   -> tarea 1: alta de un bloque
+def disponibilidad_barbero(request, id):
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    try:
+        barbero = Barbero.objects.get(id_barbero=id)
+    except Barbero.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Barbero no encontrado.'}, status=404)
+
+    # Mismo chequeo de pertenencia que en el resto del panel (Sprint 3).
+    if barbero.id_barberia_id != barberia.id_barberia:
+        return JsonResponse({'ok': False, 'error': 'Ese barbero no pertenece a tu barbería.'}, status=403)
+
+    if request.method == 'GET':
+        bloques = Disponibilidad.objects.filter(id_barbero=barbero.id_barbero).order_by('dia_semana', 'hora_inicio')
+        return JsonResponse({
+            'ok': True,
+            'disponibilidad': [_disponibilidad_a_dict(b) for b in bloques]
+        })
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            obligatorios = ['dia_semana', 'hora_inicio', 'hora_fin']
+            for campo in obligatorios:
+                if not data.get(campo):
+                    return JsonResponse({
+                        'ok': False,
+                        'error': f'El campo {campo} es obligatorio.'
+                    }, status=400)
+
+            dia_semana = data['dia_semana'].upper()
+            hora_inicio = _parsear_hora(data['hora_inicio'])
+            hora_fin = _parsear_hora(data['hora_fin'])
+
+            error = _validar_bloque_disponibilidad(barbero.id_barbero, dia_semana, hora_inicio, hora_fin)
+            if error:
+                return JsonResponse({'ok': False, 'error': error}, status=400)
+
+            bloque = Disponibilidad.objects.create(
+                id_barbero_id=barbero.id_barbero,
+                dia_semana=dia_semana,
+                hora_inicio=hora_inicio,
+                hora_fin=hora_fin
+            )
+
+            return JsonResponse({'ok': True, 'id': bloque.id_disponibilidad}, status=201)
+
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+
+# PUT    /api/mi-barberia/disponibilidad/<id>/  -> tarea 2: edición de un bloque
+# DELETE /api/mi-barberia/disponibilidad/<id>/  -> tarea 2: baja de un bloque
+def mi_disponibilidad_detalle(request, id):
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    try:
+        bloque = Disponibilidad.objects.get(id_disponibilidad=id)
+    except Disponibilidad.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Bloque de disponibilidad no encontrado.'}, status=404)
+
+    # Validar pertenencia acá también, no solo en la consulta: mismo criterio
+    # que en mi_barbero_detalle.
+    if bloque.id_barbero.id_barberia_id != barberia.id_barberia:
+        return JsonResponse({'ok': False, 'error': 'Ese bloque no pertenece a tu barbería.'}, status=403)
+
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+
+            dia_semana = data.get('dia_semana', bloque.dia_semana).upper()
+            hora_inicio = _parsear_hora(data['hora_inicio']) if data.get('hora_inicio') else bloque.hora_inicio
+            hora_fin = _parsear_hora(data['hora_fin']) if data.get('hora_fin') else bloque.hora_fin
+
+            error = _validar_bloque_disponibilidad(
+                bloque.id_barbero_id, dia_semana, hora_inicio, hora_fin,
+                excluir_id=bloque.id_disponibilidad
+            )
+            if error:
+                return JsonResponse({'ok': False, 'error': error}, status=400)
+
+            bloque.dia_semana = dia_semana
+            bloque.hora_inicio = hora_inicio
+            bloque.hora_fin = hora_fin
+            bloque.save()
+
+            return JsonResponse({'ok': True, 'id': bloque.id_disponibilidad})
+
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+    if request.method == 'DELETE':
+        bloque.delete()
         return JsonResponse({'ok': True})
 
     return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
