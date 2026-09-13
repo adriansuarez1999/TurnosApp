@@ -1,62 +1,344 @@
 {% extends 'panel/panel_base.html' %}
 {% load static %}
 
-{% block title %}Mi barbería — Panel — BarberApp{% endblock %}
-{% block panel_titulo %}Mi barbería{% endblock %}
-{% block panel_subtitulo %}Editá los datos de tu negocio{% endblock %}
 
-{% block panel_content %}
-    <div class="panel-card panel-card--angosto" id="panel-mi-barberia" style="display:none;">
-
-      <div class="modal__alerta" id="alerta-mi-barberia"></div>
-
-      <div class="form-grupo">
-        <label for="mb-nombre">Nombre de la barbería</label>
-        <input type="text" id="mb-nombre">
-      </div>
-
-      <div class="form-grupo">
-        <label for="mb-direccion">Dirección</label>
-        <input type="text" id="mb-direccion">
-      </div>
-
-      <div class="form-grupo">
-        <label for="mb-zona">Zona</label>
-        <input type="text" id="mb-zona">
-      </div>
-
-      <div class="form-grupo">
-        <label for="mb-descripcion">
-          Descripción
-          <small class="texto-opcional">(opcional)</small>
-        </label>
-        <textarea id="mb-descripcion" rows="3"></textarea>
-      </div>
-
-      <div class="form-grupo">
-        <label>Logo</label>
-        <div class="subir-archivo-fila">
-          <div class="subir-archivo-preview" id="mb-logo-preview"><span>Sin logo</span></div>
-          <div>
-            <input type="file" id="mb-logo-archivo" accept="image/*" style="display:none;">
-            <button type="button" class="btn-agregar-foto" id="btn-mb-logo-subir">Cambiar logo</button>
-            <p class="texto-opcional" style="margin-top:0.4rem;">Se guarda apenas elegís la imagen.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="reserva__nav-botones">
-        <div></div>
-        <button class="btn-primario" id="btn-mi-barberia-guardar">Guardar cambios</button>
-      </div>
-
-    </div>
-
-    <div class="panel-card panel-card--angosto" id="panel-mi-barberia-cargando">
-      <p class="listing__estado">Cargando...</p>
-    </div>
+{% block title %}
+Mi barbería — BarberApp
 {% endblock %}
 
+
+{% block panel_titulo %}
+Mi barbería
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Administrá la información pública de tu negocio.
+{% endblock %}
+
+
+
+{% block panel_content %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CARGANDO
+════════════════════════════════════════════════════════════ -->
+
+<div
+  id="panel-mi-barberia-cargando"
+  class="py-4"
+>
+
+  <div
+    class="d-flex align-items-center gap-2 text-body-secondary"
+  >
+
+    <div
+      class="spinner-border spinner-border-sm"
+      role="status"
+    ></div>
+
+
+    <span>
+      Cargando información...
+    </span>
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PANEL
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="settings-section d-none"
+  id="panel-mi-barberia"
+>
+
+
+  <!-- ALERTA -->
+  <div
+    class="alert d-none"
+    id="alerta-mi-barberia"
+    role="alert"
+  >
+  </div>
+
+
+
+  <form id="form-mi-barberia">
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         INFORMACIÓN BÁSICA
+    ═════════════════════════════════════════════════════════ -->
+
+    <div class="settings-row">
+
+
+      <div class="settings-label">
+
+        <h2>
+          Información básica
+        </h2>
+
+
+        <p>
+          Nombre, ubicación y datos principales de tu barbería.
+        </p>
+
+      </div>
+
+
+
+      <div class="settings-content">
+
+        <div class="row g-3">
+
+
+          <!-- Nombre -->
+          <div class="col-12">
+
+            <label
+              for="mb-nombre"
+              class="form-label"
+            >
+              Nombre
+            </label>
+
+
+            <input
+              type="text"
+              class="form-control"
+              id="mb-nombre"
+              required
+            >
+
+          </div>
+
+
+
+          <!-- Dirección -->
+          <div class="col-md-8">
+
+            <label
+              for="mb-direccion"
+              class="form-label"
+            >
+              Dirección
+            </label>
+
+
+            <input
+              type="text"
+              class="form-control"
+              id="mb-direccion"
+              required
+            >
+
+          </div>
+
+
+
+          <!-- Zona -->
+          <div class="col-md-4">
+
+            <label
+              for="mb-zona"
+              class="form-label"
+            >
+              Zona
+            </label>
+
+
+            <input
+              type="text"
+              class="form-control"
+              id="mb-zona"
+              required
+            >
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         DESCRIPCIÓN
+    ═════════════════════════════════════════════════════════ -->
+
+    <div class="settings-row">
+
+
+      <div class="settings-label">
+
+        <h2>
+          Descripción
+        </h2>
+
+
+        <p>
+          Contale a los clientes qué caracteriza a tu negocio.
+        </p>
+
+      </div>
+
+
+
+      <div class="settings-content">
+
+
+        <label
+          for="mb-descripcion"
+          class="form-label"
+        >
+          Descripción pública
+        </label>
+
+
+        <textarea
+          class="form-control"
+          id="mb-descripcion"
+          rows="5"
+          placeholder="Contale a tus clientes sobre tu barbería..."
+        ></textarea>
+
+
+        <div class="form-text">
+          Este texto aparecerá en el perfil público de tu barbería.
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         LOGO
+    ═════════════════════════════════════════════════════════ -->
+
+    <div class="settings-row">
+
+
+      <div class="settings-label">
+
+        <h2>
+          Logo
+        </h2>
+
+
+        <p>
+          Imagen que identifica tu barbería.
+        </p>
+
+      </div>
+
+
+
+      <div class="settings-content">
+
+
+        <div
+          class="d-flex flex-column flex-sm-row align-items-sm-center gap-4"
+        >
+
+
+          <!-- Preview -->
+          <div class="barber-logo-preview">
+
+            <div
+              class="w-100 h-100 d-flex align-items-center justify-content-center text-body-secondary"
+              id="mb-logo-preview"
+            >
+              Sin logo
+            </div>
+
+          </div>
+
+
+
+          <!-- Acción -->
+          <div>
+
+
+            <input
+              type="file"
+              class="d-none"
+              id="mb-logo-archivo"
+              accept="image/*"
+            >
+
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              id="btn-mb-logo-subir"
+            >
+
+              <i class="bi bi-upload me-1"></i>
+
+              Cambiar imagen
+
+            </button>
+
+
+            <div class="form-text mt-2">
+              Recomendamos utilizar una imagen cuadrada.
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         GUARDAR
+    ═════════════════════════════════════════════════════════ -->
+
+    <div
+      class="d-flex justify-content-end py-4"
+    >
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        id="btn-mi-barberia-guardar"
+      >
+
+        Guardar cambios
+
+      </button>
+
+    </div>
+
+
+  </form>
+
+</div>
+
+{% endblock %}
+
+
+
 {% block extra_js %}
-  <script src="{% static 'js/mi-barberia.js' %}"></script>
+
+<script
+  src="{% static 'js/mi-barberia.js' %}"
+></script>
+
 {% endblock %}

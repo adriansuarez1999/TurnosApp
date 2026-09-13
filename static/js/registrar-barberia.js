@@ -1,70 +1,154 @@
-/* ═══════════════════════════════════════════════════════════
-   registrar-barberia.js
-   Alta de una barbería nueva (Sprint 3, Tarea 1).
-   MODO_SIMULADO en true porque el endpoint de Facundo todavía
-   no existe — apenas lo tenga, cambiamos el flag y probamos
-   contra el real sin tocar el resto del archivo.
-═══════════════════════════════════════════════════════════ */
+(() => {
+  /* ═══════════════════════════════════════════════════════════
+     registrar-barberia.js
 
-const API_REGISTRAR_BARBERIA = '/api/barberias/nueva/';
+     Alta de una barbería.
+  ═══════════════════════════════════════════════════════════ */
 
-// Modo simulado: true = sin backend (para desarrollo)
-//                false = conecta con Django real
-const MODO_SIMULADO_REGISTRAR_BARBERIA = false;
+  const API_REGISTRAR_BARBERIA = "/api/barberias/nueva/";
 
-document.getElementById('btn-registrar-barberia-enviar').addEventListener('click', async () => {
-  const nombre      = document.getElementById('rb-nombre').value.trim();
-  const direccion   = document.getElementById('rb-direccion').value.trim();
-  const zona        = document.getElementById('rb-zona').value.trim();
-  const telefono    = document.getElementById('rb-telefono').value.trim();
-  const descripcion = document.getElementById('rb-descripcion').value.trim();
-  const btn         = document.getElementById('btn-registrar-barberia-enviar');
-  const alerta      = document.getElementById('alerta-registrar-barberia');
+  const MODO_SIMULADO_REGISTRAR_BARBERIA = false;
+
+  /* ═══════════════════════════════════════════════════════════
+     REFERENCIAS
+  ═══════════════════════════════════════════════════════════ */
+
+  const formulario = document.getElementById("form-registrar-barberia");
+
+  const btn = document.getElementById("btn-registrar-barberia-enviar");
+
+  const alerta = document.getElementById("alerta-registrar-barberia");
+
+  /* ═══════════════════════════════════════════════════════════
+     ALERTAS
+  ═══════════════════════════════════════════════════════════ */
 
   function mostrarAlerta(mensaje, tipo) {
     alerta.textContent = mensaje;
-    alerta.className = 'modal__alerta ' + tipo;
+
+    alerta.className = `alert alert-${tipo}`;
+
+    alerta.classList.remove("d-none");
   }
 
-  if (!nombre || !direccion || !zona) {
-    mostrarAlerta('⚠️ Completá nombre, dirección y zona.', 'error');
-    return;
+  function limpiarAlerta() {
+    alerta.textContent = "";
+
+    alerta.className = "alert d-none";
   }
 
-  btn.disabled = true;
-  btn.textContent = 'Registrando...';
-  alerta.className = 'modal__alerta';
+  /* ═══════════════════════════════════════════════════════════
+     REGISTRAR
+  ═══════════════════════════════════════════════════════════ */
 
-  try {
-    let datos;
+  formulario.addEventListener(
+    "submit",
 
-    if (MODO_SIMULADO_REGISTRAR_BARBERIA) {
-      await new Promise(r => setTimeout(r, 800));
-      datos = { ok: true, id: 99, nombre };
-    } else {
-      const resp = await fetch(API_REGISTRAR_BARBERIA, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: JSON.stringify({ nombre, direccion, zona, telefono, descripcion }),
-      });
-      datos = await resp.json();
-    }
+    async (event) => {
+      event.preventDefault();
 
-    if (datos.ok) {
-      sessionStorage.setItem('barberapp_es_dueno', 'true');
-      mostrarAlerta('✅ ¡Barbería registrada! Te llevamos a tu panel...', 'exito');
-      setTimeout(() => { window.location.href = '/paginas/mi-barberia.html'; }, 1500);
-    } else {
-      mostrarAlerta('❌ ' + (datos.error || 'No se pudo registrar la barbería.'), 'error');
-    }
-  } catch (err) {
-    mostrarAlerta('⚠️ No se pudo conectar con el servidor.', 'error');
-    console.error(err);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Registrar barbería';
-  }
-});
+      limpiarAlerta();
+
+      const nombre = document.getElementById("rb-nombre").value.trim();
+
+      const direccion = document.getElementById("rb-direccion").value.trim();
+
+      const zona = document.getElementById("rb-zona").value.trim();
+
+      const telefono = document.getElementById("rb-telefono").value.trim();
+
+      const descripcion = document
+        .getElementById("rb-descripcion")
+        .value.trim();
+
+      if (!nombre || !direccion || !zona) {
+        mostrarAlerta("Completá nombre, dirección y zona.", "warning");
+
+        return;
+      }
+
+      btn.disabled = true;
+
+      btn.innerHTML = `
+
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          aria-hidden="true"
+        ></span>
+
+        Registrando...
+
+      `;
+
+      try {
+        let datos;
+
+        /* ── SIMULADO ─────────────────────────────────── */
+
+        if (MODO_SIMULADO_REGISTRAR_BARBERIA) {
+          await new Promise((resolve) => setTimeout(resolve, 800));
+
+          datos = {
+            ok: true,
+
+            id: 99,
+
+            nombre,
+          };
+        } else {
+
+        /* ── BACKEND DJANGO ───────────────────────────── */
+          const respuesta = await fetch(API_REGISTRAR_BARBERIA, {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+
+            body: JSON.stringify({
+              nombre,
+              direccion,
+              zona,
+              telefono,
+              descripcion,
+            }),
+          });
+
+          datos = await respuesta.json();
+        }
+
+        if (datos.ok) {
+          sessionStorage.setItem("barberapp_es_dueno", "true");
+
+          mostrarAlerta(
+            "Barbería registrada correctamente. Te llevamos a tu panel.",
+            "success",
+          );
+
+          setTimeout(
+            () => {
+              window.location.href = "/paginas/mi-barberia.html";
+            },
+
+            1200,
+          );
+        } else {
+          mostrarAlerta(
+            datos.error || "No se pudo registrar la barbería.",
+            "danger",
+          );
+        }
+      } catch (error) {
+        console.error(error);
+
+        mostrarAlerta("No se pudo conectar con el servidor.", "danger");
+      } finally {
+        btn.disabled = false;
+
+        btn.textContent = "Registrar barbería";
+      }
+    },
+  );
+})();

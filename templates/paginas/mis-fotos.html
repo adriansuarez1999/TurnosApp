@@ -1,24 +1,236 @@
 {% extends 'panel/panel_base.html' %}
 {% load static %}
 
-{% block title %}Fotos de portada — Panel — BarberApp{% endblock %}
-{% block panel_titulo %}Fotos de portada{% endblock %}
-{% block panel_subtitulo %}Estas fotos se muestran de fondo en el detalle de tu barbería{% endblock %}
 
-{% block panel_content %}
-    <div class="panel-card">
-      <div class="modal__alerta" id="alerta-fotos-barberia"></div>
-
-      <ul class="row row-cols-2 row-cols-sm-3 g-3 list-unstyled" id="lista-fotos-barberia"></ul>
-
-      <div class="form-grupo" style="margin-top:1.5rem;">
-        <label>Agregar foto</label>
-        <input type="file" id="nueva-foto-archivo" accept="image/*" style="display:none;">
-        <button type="button" class="btn-agregar-foto" id="btn-agregar-foto">Elegir foto</button>
-      </div>
-    </div>
+{% block title %}
+Fotos — BarberApp
 {% endblock %}
 
+
+{% block panel_titulo %}
+Fotos
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Administrá las imágenes que aparecen en el perfil público de tu barbería.
+{% endblock %}
+
+
+
+{% block panel_acciones %}
+
+<button
+  type="button"
+  class="btn btn-primary"
+  id="btn-agregar-foto"
+>
+  <i class="bi bi-plus-lg me-1"></i>
+  Agregar foto
+</button>
+
+{% endblock %}
+
+
+
+{% block panel_content %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ALERTA
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="alert d-none"
+  id="alerta-fotos-barberia"
+  role="alert"
+>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     INPUT ARCHIVO
+════════════════════════════════════════════════════════════ -->
+
+<input
+  type="file"
+  class="d-none"
+  id="nueva-foto-archivo"
+  accept="image/*"
+>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECCIÓN PRINCIPAL
+════════════════════════════════════════════════════════════ -->
+
+<div class="card">
+
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center"
+  >
+
+    <div>
+
+      <h2 class="h5 mb-1">
+        Fotos de portada
+      </h2>
+
+      <p class="text-body-secondary small mb-0">
+        Estas imágenes se muestran en el detalle de tu barbería.
+      </p>
+
+    </div>
+
+
+    <span
+      class="badge text-bg-secondary"
+      id="cantidad-fotos"
+    >
+      0
+    </span>
+
+  </div>
+
+
+
+  <div class="card-body">
+
+
+    <!-- Estado carga / vacío -->
+    <div
+      id="estado-fotos"
+    >
+
+      <div
+        class="d-flex align-items-center gap-2 text-body-secondary"
+      >
+
+        <div
+          class="spinner-border spinner-border-sm"
+          role="status"
+        ></div>
+
+        <span>
+          Cargando fotos...
+        </span>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Galería -->
+    <div
+      class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4 d-none"
+      id="lista-fotos-barberia"
+    >
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block modals %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL ELIMINAR FOTO
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="modal fade"
+  id="modal-eliminar-foto"
+  tabindex="-1"
+  aria-labelledby="titulo-eliminar-foto"
+  aria-hidden="true"
+>
+
+  <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content">
+
+
+      <div class="modal-header">
+
+        <h2
+          class="modal-title fs-5"
+          id="titulo-eliminar-foto"
+        >
+          Eliminar foto
+        </h2>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+
+      <div class="modal-body">
+
+        <p class="mb-0">
+          ¿Seguro que querés eliminar esta foto?
+        </p>
+
+
+        <div
+          class="alert alert-danger d-none mt-3 mb-0"
+          id="alerta-eliminar-foto"
+          role="alert"
+        >
+        </div>
+
+      </div>
+
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-danger"
+          id="btn-confirmar-eliminar-foto"
+        >
+          Eliminar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+
+
 {% block extra_js %}
-  <script src="{% static 'js/mis-fotos.js' %}"></script>
+
+<script
+  src="{% static 'js/mis-fotos.js' %}"
+></script>
+
 {% endblock %}

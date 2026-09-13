@@ -1,34 +1,568 @@
 {% extends 'panel/panel_base.html' %}
 {% load static %}
 
-{% block title %}Informes — Panel — BarberApp{% endblock %}
-{% block panel_titulo %}Informes{% endblock %}
-{% block panel_subtitulo %}Turnos e ingresos de tu barbería{% endblock %}
 
-{% block panel_content %}
-    <div class="panel-card panel-card--angosto" style="margin-bottom:1.5rem;">
-      <h3 class="reserva__titulo" style="margin-bottom:1rem;">Filtrar por fecha</h3>
-      <div class="form-fila-2">
-        <div class="form-grupo">
-          <label for="inf-desde">Desde</label>
-          <input type="date" id="inf-desde">
-        </div>
-        <div class="form-grupo">
-          <label for="inf-hasta">Hasta</label>
-          <input type="date" id="inf-hasta">
-        </div>
-      </div>
-      <div class="reserva__nav-botones">
-        <a href="#" id="btn-limpiar-filtro" class="btn-atras" style="text-align:center; text-decoration:none;">Limpiar</a>
-        <button class="btn-primario" id="btn-filtrar-informes">Filtrar</button>
-      </div>
-    </div>
-
-    <div id="informes-contenido">
-      <p class="listing__estado">Cargando...</p>
-    </div>
+{% block title %}
+Informes — BarberApp
 {% endblock %}
 
+
+{% block panel_titulo %}
+Informes
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Analizá los turnos y el rendimiento de tu barbería.
+{% endblock %}
+
+
+
+{% block panel_content %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FILTROS
+════════════════════════════════════════════════════════════ -->
+
+<div class="card mb-4">
+
+  <div class="card-body">
+
+    <div
+      class="d-flex flex-column flex-xl-row justify-content-between gap-3"
+    >
+
+      <div>
+
+        <h2 class="h5 mb-1">
+          Período del informe
+        </h2>
+
+        <p class="text-body-secondary small mb-0">
+          Filtrá los datos por un rango de fechas.
+        </p>
+
+      </div>
+
+
+      <div
+        class="d-flex flex-column flex-lg-row gap-2"
+      >
+
+
+        <!-- Desde -->
+        <div>
+
+          <label
+            for="inf-desde"
+            class="form-label small mb-1"
+          >
+            Desde
+          </label>
+
+          <input
+            type="date"
+            class="form-control"
+            id="inf-desde"
+          >
+
+        </div>
+
+
+
+        <!-- Hasta -->
+        <div>
+
+          <label
+            for="inf-hasta"
+            class="form-label small mb-1"
+          >
+            Hasta
+          </label>
+
+          <input
+            type="date"
+            class="form-control"
+            id="inf-hasta"
+          >
+
+        </div>
+
+
+
+        <!-- Botones -->
+        <div
+          class="d-flex align-items-end gap-2"
+        >
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="btn-limpiar-filtro"
+          >
+            Limpiar
+          </button>
+
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="btn-filtrar-informes"
+          >
+            Aplicar
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <hr>
+
+
+
+    <!-- Filtros rápidos -->
+    <div
+      class="d-flex flex-wrap gap-2"
+    >
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        id="btn-periodo-mes"
+      >
+        Este mes
+      </button>
+
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        id="btn-periodo-30"
+      >
+        Últimos 30 días
+      </button>
+
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        id="btn-periodo-todo"
+      >
+        Todo
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ALERTAS
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="alert d-none"
+  id="alerta-informes"
+  role="alert"
+>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CARGANDO
+════════════════════════════════════════════════════════════ -->
+
+<div
+  id="estado-informes"
+  class="py-4"
+>
+
+  <div
+    class="d-flex align-items-center gap-2 text-body-secondary"
+  >
+
+    <div
+      class="spinner-border spinner-border-sm"
+      role="status"
+    ></div>
+
+    <span>
+      Cargando informe...
+    </span>
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONTENIDO INFORMES
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="d-none"
+  id="informes-contenido"
+>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       MÉTRICAS
+  ═════════════════════════════════════════════════════════ -->
+
+  <div class="row g-3 mb-4">
+
+
+    <!-- Ingresos -->
+    <div class="col-md-4">
+
+      <div class="card h-100">
+
+        <div class="card-body">
+
+          <div
+            class="d-flex justify-content-between align-items-start"
+          >
+
+            <div>
+
+              <div
+                class="text-body-secondary small mb-1"
+              >
+                Ingresos totales
+              </div>
+
+
+              <div
+                class="fs-3 fw-semibold"
+                id="stat-ingresos"
+              >
+                $0
+              </div>
+
+            </div>
+
+
+            <div
+              class="fs-4 text-body-secondary"
+            >
+              <i class="bi bi-cash-stack"></i>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Turnos -->
+    <div class="col-md-4">
+
+      <div class="card h-100">
+
+        <div class="card-body">
+
+          <div
+            class="d-flex justify-content-between align-items-start"
+          >
+
+            <div>
+
+              <div
+                class="text-body-secondary small mb-1"
+              >
+                Turnos totales
+              </div>
+
+
+              <div
+                class="fs-3 fw-semibold"
+                id="stat-turnos"
+              >
+                0
+              </div>
+
+            </div>
+
+
+            <div
+              class="fs-4 text-body-secondary"
+            >
+              <i class="bi bi-calendar-check"></i>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Días con actividad -->
+    <div class="col-md-4">
+
+      <div class="card h-100">
+
+        <div class="card-body">
+
+          <div
+            class="d-flex justify-content-between align-items-start"
+          >
+
+            <div>
+
+              <div
+                class="text-body-secondary small mb-1"
+              >
+                Días con turnos
+              </div>
+
+
+              <div
+                class="fs-3 fw-semibold"
+                id="stat-dias"
+              >
+                0
+              </div>
+
+            </div>
+
+
+            <div
+              class="fs-4 text-body-secondary"
+            >
+              <i class="bi bi-calendar3"></i>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       GRÁFICOS
+  ═════════════════════════════════════════════════════════ -->
+
+  <div class="row g-4 mb-4">
+
+
+    <!-- Turnos por día -->
+    <div class="col-xl-8">
+
+      <div class="card h-100">
+
+        <div class="card-header bg-body">
+
+          <h2 class="h5 mb-1">
+            Turnos por día
+          </h2>
+
+          <p
+            class="text-body-secondary small mb-0"
+          >
+            Evolución de reservas durante el período seleccionado.
+          </p>
+
+        </div>
+
+
+        <div class="card-body">
+
+          <div
+            style="height: 320px;"
+          >
+
+            <canvas
+              id="grafico-turnos-dia"
+            ></canvas>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Estados -->
+    <div class="col-xl-4">
+
+      <div class="card h-100">
+
+        <div class="card-header bg-body">
+
+          <h2 class="h5 mb-1">
+            Estado de los turnos
+          </h2>
+
+          <p
+            class="text-body-secondary small mb-0"
+          >
+            Distribución por estado.
+          </p>
+
+        </div>
+
+
+        <div class="card-body">
+
+          <div
+            style="height: 320px;"
+          >
+
+            <canvas
+              id="grafico-turnos-estado"
+            ></canvas>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       RESUMEN POR ESTADO
+  ═════════════════════════════════════════════════════════ -->
+
+  <div class="card mb-4">
+
+    <div class="card-header bg-body">
+
+      <h2 class="h5 mb-1">
+        Resumen por estado
+      </h2>
+
+      <p
+        class="text-body-secondary small mb-0"
+      >
+        Cantidad total de turnos según su situación.
+      </p>
+
+    </div>
+
+
+    <div class="card-body">
+
+      <div
+        class="row g-3"
+        id="resumen-estados"
+      >
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       TABLA
+  ═════════════════════════════════════════════════════════ -->
+
+  <div class="card mb-5">
+
+    <div class="card-header bg-body">
+
+      <h2 class="h5 mb-1">
+        Detalle diario
+      </h2>
+
+      <p
+        class="text-body-secondary small mb-0"
+      >
+        Cantidad de turnos registrados por fecha.
+      </p>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+      <table
+        class="table table-hover align-middle mb-0"
+      >
+
+        <thead>
+
+          <tr>
+
+            <th
+              scope="col"
+              class="ps-4"
+            >
+              Fecha
+            </th>
+
+            <th
+              scope="col"
+              class="text-end pe-4"
+            >
+              Turnos
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody
+          id="tabla-turnos-dia"
+        >
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+
+
 {% block extra_js %}
-  <script src="{% static 'js/mis-informes.js' %}"></script>
+
+<!-- Chart.js -->
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js"
+></script>
+
+
+<script
+  src="{% static 'js/mis-informes.js' %}"
+></script>
+
 {% endblock %}

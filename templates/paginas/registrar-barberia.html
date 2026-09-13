@@ -1,65 +1,228 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Registrar mi barbería — BarberApp{% endblock %}
+{% block title %}
+Registrar mi barbería — BarberApp
+{% endblock %}
+
 
 {% block content %}
-    <section class="reserva">
-      <div class="container" style="max-width: 40rem;">
 
-        <a href="{% url 'index' %}" class="volver" style="color: rgba(17,17,17,0.5);">← Volver al inicio</a>
+<section class="py-4 py-lg-5 bg-body-tertiary">
 
-        <header class="listing__header" style="margin-top:1rem;">
-          <h2>Registrá tu barbería</h2>
-          <p>Cargá los datos de tu negocio para empezar a recibir reservas online</p>
-        </header>
+  <div class="container">
 
-        <div class="reserva__panel formulario-claro" style="display:block;">
+    <div class="row justify-content-center">
 
-          <div class="modal__alerta" id="alerta-registrar-barberia"></div>
+      <div class="col-lg-8 col-xl-7">
 
-          <div class="form-grupo">
-            <label for="rb-nombre">Nombre de la barbería</label>
-            <input type="text" id="rb-nombre" placeholder="Ej: Style Barber">
-          </div>
 
-          <div class="form-grupo">
-            <label for="rb-direccion">Dirección</label>
-            <input type="text" id="rb-direccion" placeholder="Calle y número">
-          </div>
+        <!-- Volver -->
+        <div class="mb-4">
 
-          <div class="form-grupo">
-            <label for="rb-zona">Zona</label>
-            <input type="text" id="rb-zona" placeholder="Ej: Centro, Barrio Norte...">
-          </div>
+          <a
+            href="{% url 'index' %}"
+            class="btn btn-outline-secondary btn-sm"
+          >
+            ← Volver al inicio
+          </a>
 
-          <div class="form-grupo">
-            <label for="rb-telefono">
-              Teléfono
-              <small class="texto-opcional">(opcional)</small>
-            </label>
-            <input type="tel" id="rb-telefono" placeholder="3644 123456">
-          </div>
+        </div>
 
-          <div class="form-grupo">
-            <label for="rb-descripcion">
-              Descripción
-              <small class="texto-opcional">(opcional)</small>
-            </label>
-            <textarea id="rb-descripcion" rows="3" placeholder="Contá brevemente de qué se trata tu barbería"></textarea>
-          </div>
 
-          <div class="reserva__nav-botones">
-            <div></div>
-            <button class="btn-primario" id="btn-registrar-barberia-enviar">Registrar barbería</button>
+
+        <!-- Encabezado -->
+        <div class="mb-4">
+
+          <h1 class="display-6 fw-bold mb-2">
+            Registrá tu barbería
+          </h1>
+
+          <p class="text-body-secondary mb-0">
+            Cargá los datos principales de tu negocio para empezar
+            a recibir reservas online.
+          </p>
+
+        </div>
+
+
+
+        <!-- Formulario -->
+        <div class="card">
+
+          <div class="card-body p-4">
+
+
+            <!-- Alerta -->
+            <div
+              class="alert d-none"
+              id="alerta-registrar-barberia"
+              role="alert"
+            >
+            </div>
+
+
+
+            <form id="form-registrar-barberia">
+
+
+              <!-- Nombre -->
+              <div class="mb-3">
+
+                <label
+                  for="rb-nombre"
+                  class="form-label"
+                >
+                  Nombre de la barbería
+                </label>
+
+
+                <input
+                  type="text"
+                  class="form-control"
+                  id="rb-nombre"
+                  placeholder="Ej: Style Barber"
+                  required
+                >
+
+              </div>
+
+
+
+              <!-- Dirección -->
+              <div class="mb-3">
+
+                <label
+                  for="rb-direccion"
+                  class="form-label"
+                >
+                  Dirección
+                </label>
+
+
+                <input
+                  type="text"
+                  class="form-control"
+                  id="rb-direccion"
+                  placeholder="Calle y número"
+                  required
+                >
+
+              </div>
+
+
+
+              <!-- Zona -->
+              <div class="mb-3">
+
+                <label
+                  for="rb-zona"
+                  class="form-label"
+                >
+                  Zona
+                </label>
+
+
+                <input
+                  type="text"
+                  class="form-control"
+                  id="rb-zona"
+                  placeholder="Ej: Centro, Barrio Norte..."
+                  required
+                >
+
+              </div>
+
+
+
+              <!-- Teléfono -->
+              <div class="mb-3">
+
+                <label
+                  for="rb-telefono"
+                  class="form-label"
+                >
+                  Teléfono
+                </label>
+
+
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="rb-telefono"
+                  placeholder="3644 123456"
+                >
+
+
+                <div class="form-text">
+                  Opcional.
+                </div>
+
+              </div>
+
+
+
+              <!-- Descripción -->
+              <div class="mb-4">
+
+                <label
+                  for="rb-descripcion"
+                  class="form-label"
+                >
+                  Descripción
+                </label>
+
+
+                <textarea
+                  class="form-control"
+                  id="rb-descripcion"
+                  rows="4"
+                  placeholder="Contá brevemente de qué se trata tu barbería"
+                ></textarea>
+
+
+                <div class="form-text">
+                  Opcional. Podés modificarla más adelante desde tu panel.
+                </div>
+
+              </div>
+
+
+
+              <!-- Botón -->
+              <div class="d-flex justify-content-end">
+
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="btn-registrar-barberia-enviar"
+                >
+                  Registrar barbería
+                </button>
+
+              </div>
+
+            </form>
+
           </div>
 
         </div>
 
+
       </div>
-    </section>
+
+    </div>
+
+  </div>
+
+</section>
+
 {% endblock %}
 
+
+
 {% block extra_js %}
-  <script src="{% static 'js/registrar-barberia.js' %}"></script>
+
+<script src="{% static 'js/registrar-barberia.js' %}"></script>
+
 {% endblock %}
