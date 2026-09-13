@@ -1,62 +1,38 @@
-/* ═══════════════════════════════════════════════════════════
-   detalle.js
+(() => {
+  /* ═══════════════════════════════════════════════════════════
+     detalle.js
 
-   Vista de detalle de barbería.
-═══════════════════════════════════════════════════════════ */
+     Perfil público de una barbería.
+  ═══════════════════════════════════════════════════════════ */
 
-const MODO_SIMULADO_DETALLE = false;
+  const MODO_SIMULADO_DETALLE = false;
 
+  const API_DETALLE = {
+    barberia: (id) => `/api/barberias/${id}/`,
 
-const API_DETALLE = {
+    barberos: (id) => `/api/barberos/?barberia=${id}`,
+  };
 
-  barberia:
-    id => `/api/barberias/${id}/`,
+  /* ═══════════════════════════════════════════════════════════
+     OBTENER ID
+  ═══════════════════════════════════════════════════════════ */
 
-  barberos:
-    id => `/api/barberos/?barberia=${id}`,
+  function obtenerIdDeURL() {
+    const params = new URLSearchParams(window.location.search);
 
-};
+    return params.get("id");
+  }
 
+  /* ═══════════════════════════════════════════════════════════
+     ESTADOS DE PANTALLA
+  ═══════════════════════════════════════════════════════════ */
 
+  function mostrarEstado(mensaje, tipo = "secondary") {
+    const cont = document.getElementById("detalle-contenido");
 
-/* ═══════════════════════════════════════════════════════════
-   OBTENER ID
-═══════════════════════════════════════════════════════════ */
+    cont.innerHTML = `
 
-function obtenerIdDeURL() {
-
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-
-  return params.get('id');
-
-}
-
-
-
-/* ═══════════════════════════════════════════════════════════
-   ESTADOS DE PANTALLA
-═══════════════════════════════════════════════════════════ */
-
-function mostrarEstado(
-  mensaje,
-  tipo = 'secondary'
-) {
-
-  const cont =
-    document.getElementById(
-      'detalle-contenido'
-    );
-
-
-  cont.innerHTML = `
-
-    <section class="py-5">
-
-      <div class="container">
+      <div class="container py-5">
 
         <div
           class="alert alert-${tipo}"
@@ -67,331 +43,232 @@ function mostrarEstado(
 
       </div>
 
-    </section>
-
-  `;
-
-}
-
-
-
-/* ═══════════════════════════════════════════════════════════
-   CARGAR DETALLE
-═══════════════════════════════════════════════════════════ */
-
-async function cargarDetalleBarberia() {
-
-  const id =
-    obtenerIdDeURL();
-
-
-  if (!id) {
-
-    mostrarEstado(
-      'No se especificó una barbería.',
-      'warning'
-    );
-
-    return;
-
+    `;
   }
 
+  /* ═══════════════════════════════════════════════════════════
+     CARGAR DETALLE
+  ═══════════════════════════════════════════════════════════ */
 
-  try {
+  async function cargarDetalleBarberia() {
+    const id = obtenerIdDeURL();
 
-    let barberia;
-    let barberos;
-
-
-    /* ── Simulación ─────────────────────────────────────── */
-
-    if (MODO_SIMULADO_DETALLE) {
-
-      await new Promise(
-        resolve =>
-          setTimeout(
-            resolve,
-            300
-          )
-      );
-
-
-      barberia =
-        BARBERIAS_MOCK.find(
-          b =>
-            String(b.id) ===
-            String(id)
-        );
-
-
-      barberos =
-        BARBEROS_MOCK.filter(
-          b =>
-            String(b.barberia) ===
-            String(id)
-        );
-
-    }
-
-
-    /* ── Backend Django ─────────────────────────────────── */
-
-    else {
-
-      const [
-        respBarberia,
-        respBarberos,
-
-      ] = await Promise.all([
-
-        fetch(
-          API_DETALLE.barberia(id)
-        ),
-
-        fetch(
-          API_DETALLE.barberos(id)
-        ),
-
-      ]);
-
-
-      if (!respBarberia.ok) {
-
-        throw new Error(
-          'Barbería no encontrada'
-        );
-
-      }
-
-
-      barberia =
-        await respBarberia.json();
-
-
-      barberos =
-        respBarberos.ok
-          ? await respBarberos.json()
-          : [];
-
-    }
-
-
-    if (!barberia) {
-
-      mostrarEstado(
-        'No se encontró la barbería solicitada.',
-        'warning'
-      );
+    if (!id) {
+      mostrarEstado("No se especificó una barbería.", "warning");
 
       return;
-
     }
 
+    try {
+      let barberia;
+      let barberos;
 
-    renderizarDetalle(
-      barberia,
-      barberos
-    );
+      /* ── Simulación ─────────────────────────────────────── */
 
+      if (MODO_SIMULADO_DETALLE) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        barberia = BARBERIAS_MOCK.find((b) => String(b.id) === String(id));
+
+        barberos = BARBEROS_MOCK.filter(
+          (b) => String(b.barberia) === String(id),
+        );
+      } else {
+
+      /* ── Backend Django ─────────────────────────────────── */
+        const [respBarberia, respBarberos] = await Promise.all([
+          fetch(API_DETALLE.barberia(id)),
+
+          fetch(API_DETALLE.barberos(id)),
+        ]);
+
+        if (!respBarberia.ok) {
+          throw new Error("Barbería no encontrada");
+        }
+
+        barberia = await respBarberia.json();
+
+        barberos = respBarberos.ok ? await respBarberos.json() : [];
+      }
+
+      if (!barberia) {
+        mostrarEstado("No se encontró la barbería solicitada.", "warning");
+
+        return;
+      }
+
+      renderizarDetalle(barberia, barberos);
+    } catch (error) {
+      console.error("Error al cargar el detalle:", error);
+
+      mostrarEstado("Ocurrió un error al cargar la barbería.", "danger");
+    }
   }
-
-
-  catch (error) {
-
-    console.error(
-      'Error al cargar el detalle:',
-      error
-    );
-
-
-    mostrarEstado(
-      'Ocurrió un error al cargar la barbería.',
-      'danger'
-    );
-
-  }
-
-}
-
-
-
-/* ═══════════════════════════════════════════════════════════
-   RENDER PRINCIPAL
-═══════════════════════════════════════════════════════════ */
-
-function renderizarDetalle(
-  barberia,
-  barberos
-) {
-
-  /* ── Datos principales ───────────────────────────────── */
-
-  document
-    .getElementById(
-      'detalle-nombre'
-    )
-    .textContent =
-      barberia.nombre;
-
-
-  const zona =
-    document.getElementById(
-      'detalle-zona'
-    );
-
-
-  if (barberia.zona) {
-
-    zona.textContent =
-      barberia.zona;
-
-  }
-
-  else {
-
-    zona.classList.add(
-      'd-none'
-    );
-
-  }
-
-
-  document
-    .getElementById(
-      'detalle-descripcion'
-    )
-    .textContent =
-      barberia.descripcion || '';
-
-
-  document.title =
-    `${barberia.nombre} — BarberApp`;
-
-
 
   /* ═══════════════════════════════════════════════════════════
-     FOTO PRINCIPAL
+     RENDER PRINCIPAL
   ═══════════════════════════════════════════════════════════ */
 
-  const fotoWrap =
-    document.getElementById(
-      'detalle-foto'
-    );
+  function renderizarDetalle(barberia, barberos) {
+    const servicios = barberia.servicios || [];
 
+    const fotos = barberia.fotos || [];
 
-  if (barberia.foto) {
+    /* ═════════════════════════════════════════════════════════
+       INFORMACIÓN PRINCIPAL
+    ═════════════════════════════════════════════════════════ */
 
-    fotoWrap.innerHTML = `
+    document.getElementById("detalle-nombre").textContent = barberia.nombre;
 
-      <img
-        src="${barberia.foto}"
-        alt="Foto de ${barberia.nombre}"
-        class="w-100 h-100 object-fit-cover"
-      >
+    document.getElementById("detalle-descripcion").textContent =
+      barberia.descripcion ||
+      "Conocé sus servicios y reservá tu próximo turno.";
 
-    `;
+    document.title = `${barberia.nombre} — BarberApp`;
 
+    /* Zona */
+
+    const zona = document.getElementById("detalle-zona");
+
+    if (barberia.zona) {
+      zona.innerHTML = `
+        <i class="bi bi-geo-alt me-1"></i>
+        ${barberia.zona}
+      `;
+    } else {
+      zona.classList.add("d-none");
+    }
+
+    /* Contadores */
+
+    document.getElementById("detalle-cantidad-servicios").textContent =
+      servicios.length;
+
+    document.getElementById("detalle-cantidad-barberos").textContent =
+      barberos?.length || 0;
+
+    /* ═════════════════════════════════════════════════════════
+       LOGO
+    ═════════════════════════════════════════════════════════ */
+
+    const fotoWrap = document.getElementById("detalle-foto");
+
+    if (barberia.foto) {
+      fotoWrap.innerHTML = `
+
+        <img
+          src="${barberia.foto}"
+          alt="Logo de ${barberia.nombre}"
+          class="w-100 h-100 object-fit-cover"
+        >
+
+      `;
+    } else {
+      fotoWrap.innerHTML = `
+
+        <i
+          class="bi bi-scissors"
+          aria-hidden="true"
+        ></i>
+
+      `;
+    }
+
+    /* ═════════════════════════════════════════════════════════
+       PORTADA / GALERÍA
+    ═════════════════════════════════════════════════════════ */
+
+    renderizarGaleria(barberia, fotos);
+
+    /* ═════════════════════════════════════════════════════════
+       SERVICIOS
+    ═════════════════════════════════════════════════════════ */
+
+    renderizarServicios(servicios);
+
+    /* ═════════════════════════════════════════════════════════
+       BARBEROS
+    ═════════════════════════════════════════════════════════ */
+
+    renderizarBarberos(barberos);
+
+    /* ═════════════════════════════════════════════════════════
+       RESERVAR
+    ═════════════════════════════════════════════════════════ */
+
+    document
+      .getElementById("btn-reservar-turno")
+      .addEventListener("click", () => {
+        window.location.href = `reservar.html?id=${barberia.id}`;
+      });
   }
-
-  else {
-
-    fotoWrap.innerHTML = `
-
-      <svg
-        width="48"
-        height="48"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        class="text-primary"
-      >
-
-        <path d="M6 3v12"></path>
-
-        <path
-          d="M18 9a3 3 0 1 0 0-6"
-        ></path>
-
-        <path
-          d="M6 21a3 3 0 1 0 0-6"
-        ></path>
-
-        <path
-          d="M15 6l-9 9"
-        ></path>
-
-        <path
-          d="M18 15l-3-3"
-        ></path>
-
-      </svg>
-
-    `;
-
-  }
-
-
 
   /* ═══════════════════════════════════════════════════════════
-     PORTADA / GALERÍA
+     GALERÍA
   ═══════════════════════════════════════════════════════════ */
 
-  const portada =
-    document.getElementById(
-      'detalle-portada'
-    );
+  function renderizarGaleria(barberia, fotos) {
+    const portada = document.getElementById("detalle-portada");
 
+    if (!fotos.length) {
+      portada.innerHTML = `
 
-  const seccionPortada =
-    document.getElementById(
-      'seccion-portada'
-    );
+        <div
+          class="barber-profile__cover-empty"
+        >
 
+          <i
+            class="bi bi-shop"
+            aria-hidden="true"
+          ></i>
 
-  const fotos =
-    barberia.fotos || [];
+          <span>
+            ${barberia.nombre}
+          </span>
 
+        </div>
 
-  if (fotos.length > 0) {
+      `;
+
+      return;
+    }
 
     portada.innerHTML = `
 
       <div
         id="carouselBarberia"
-        class="carousel slide w-100 h-100"
-        data-bs-ride="carousel"
+        class="carousel slide h-100"
       >
 
         <div
-          class="carousel-inner w-100 h-100"
+          class="carousel-inner h-100"
         >
 
-          ${fotos.map(
-            (url, index) => `
+          ${fotos
+            .map(
+              (url, index) => `
 
               <div
-                class="carousel-item h-100
-                ${index === 0 ? 'active' : ''}"
+                class="carousel-item h-100 ${index === 0 ? "active" : ""}"
               >
 
                 <img
                   src="${url}"
                   class="d-block w-100 h-100 object-fit-cover"
-                  alt="Imagen de ${barberia.nombre}"
+                  alt="Foto de ${barberia.nombre}"
                 >
 
               </div>
 
-            `
-          ).join('')}
+            `,
+            )
+            .join("")}
 
         </div>
 
 
         ${
           fotos.length > 1
-
             ? `
 
               <button
@@ -407,7 +284,7 @@ function renderizarDetalle(
                 ></span>
 
                 <span class="visually-hidden">
-                  Anterior
+                  Foto anterior
                 </span>
 
               </button>
@@ -426,161 +303,140 @@ function renderizarDetalle(
                 ></span>
 
                 <span class="visually-hidden">
-                  Siguiente
+                  Foto siguiente
                 </span>
 
               </button>
 
             `
-
-            : ''
+            : ""
         }
 
       </div>
 
     `;
-
   }
-
-  else {
-
-    seccionPortada.classList.add(
-      'd-none'
-    );
-
-  }
-
-
 
   /* ═══════════════════════════════════════════════════════════
      SERVICIOS
   ═══════════════════════════════════════════════════════════ */
 
-  const listaServicios =
-    document.getElementById(
-      'lista-servicios'
-    );
+  function renderizarServicios(servicios) {
+    const lista = document.getElementById("lista-servicios");
 
+    if (!servicios.length) {
+      lista.innerHTML = `
 
-  const servicios =
-    barberia.servicios || [];
-
-
-  if (servicios.length === 0) {
-
-    listaServicios.innerHTML = `
-
-      <li class="col-12">
-
-        <div
-          class="alert alert-secondary mb-0"
+        <li
+          class="list-group-item py-4 text-center text-body-secondary"
         >
+
+          <i
+            class="bi bi-info-circle me-1"
+          ></i>
+
           Esta barbería todavía no cargó servicios.
-        </div>
 
-      </li>
+        </li>
 
-    `;
+      `;
 
-  }
+      return;
+    }
 
-  else {
+    lista.innerHTML = servicios
+      .map(
+        (servicio) => `
 
-    listaServicios.innerHTML =
-      servicios.map(
-
-        servicio => `
-
-          <li class="col">
-
-            <div class="card h-100">
+            <li
+              class="list-group-item barber-profile__service"
+            >
 
               <div
-                class="card-body d-flex align-items-center justify-content-between gap-3"
+                class="d-flex align-items-center justify-content-between gap-3"
               >
 
                 <div>
 
-                  <h3
-                    class="h6 card-title mb-0"
-                  >
+                  <div class="fw-semibold">
                     ${servicio.nombre}
-                  </h3>
+                  </div>
+
+                  ${
+                    servicio.descripcion
+                      ? `
+                        <div
+                          class="text-body-secondary small mt-1"
+                        >
+                          ${servicio.descripcion}
+                        </div>
+                      `
+                      : ""
+                  }
 
                 </div>
 
 
                 <span
-                  class="badge text-bg-primary fs-6"
+                  class="barber-profile__price"
                 >
-                  $${servicio.precio.toLocaleString('es-AR')}
+                  $${Number(servicio.precio).toLocaleString("es-AR")}
                 </span>
 
               </div>
 
-            </div>
+            </li>
 
-          </li>
-
-        `
-
-      ).join('');
-
+          `,
+      )
+      .join("");
   }
-
-
 
   /* ═══════════════════════════════════════════════════════════
      BARBEROS
   ═══════════════════════════════════════════════════════════ */
 
-  const listaBarberos =
-    document.getElementById(
-      'lista-barberos'
-    );
+  function renderizarBarberos(barberos) {
+    const lista = document.getElementById("lista-barberos");
 
+    if (!barberos || barberos.length === 0) {
+      lista.innerHTML = `
 
-  if (!barberos || barberos.length === 0) {
-
-    listaBarberos.innerHTML = `
-
-      <li class="col-12">
-
-        <div
-          class="alert alert-secondary mb-0"
+        <li
+          class="list-group-item py-4 text-center text-body-secondary"
         >
+
+          <i
+            class="bi bi-info-circle me-1"
+          ></i>
+
           Todavía no hay barberos cargados.
-        </div>
 
-      </li>
+        </li>
 
-    `;
+      `;
 
-  }
+      return;
+    }
 
-  else {
+    lista.innerHTML = barberos
+      .map(
+        (barbero) => `
 
-    listaBarberos.innerHTML =
-      barberos.map(
-
-        barbero => `
-
-          <li class="col">
-
-            <div class="card h-100">
+            <li
+              class="list-group-item"
+            >
 
               <div
-                class="card-body d-flex align-items-center gap-3"
+                class="d-flex align-items-center gap-3"
               >
 
                 <div
-                  class="rounded-circle overflow-hidden bg-body-tertiary border d-flex align-items-center justify-content-center flex-shrink-0"
-                  style="width: 64px; height: 64px;"
+                  class="barber-profile__barber-photo"
                 >
 
                   ${
                     barbero.foto
-
                       ? `
 
                         <img
@@ -590,30 +446,12 @@ function renderizarDetalle(
                         >
 
                       `
-
                       : `
 
-                        <svg
-                          width="28"
-                          height="28"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          class="text-body-secondary"
-                        >
-
-                          <path
-                            d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                          ></path>
-
-                          <circle
-                            cx="12"
-                            cy="7"
-                            r="4"
-                          ></circle>
-
-                        </svg>
+                        <i
+                          class="bi bi-person"
+                          aria-hidden="true"
+                        ></i>
 
                       `
                   }
@@ -623,59 +461,30 @@ function renderizarDetalle(
 
                 <div>
 
-                  <h3
-                    class="h6 card-title mb-0"
-                  >
+                  <div class="fw-semibold">
                     ${barbero.nombre}
-                  </h3>
+                  </div>
 
-                  <span
+                  <div
                     class="text-body-secondary small"
                   >
                     Barbero
-                  </span>
+                  </div>
 
                 </div>
 
               </div>
 
-            </div>
+            </li>
 
-          </li>
-
-        `
-
-      ).join('');
-
+          `,
+      )
+      .join("");
   }
 
-
-
   /* ═══════════════════════════════════════════════════════════
-     RESERVAR
+     INICIO
   ═══════════════════════════════════════════════════════════ */
 
-  document
-    .getElementById(
-      'btn-reservar-turno'
-    )
-    .addEventListener(
-      'click',
-
-      () => {
-
-        window.location.href =
-          `reservar.html?id=${barberia.id}`;
-
-      }
-    );
-
-}
-
-
-
-/* ═══════════════════════════════════════════════════════════
-   INICIO
-═══════════════════════════════════════════════════════════ */
-
-cargarDetalleBarberia();
+  cargarDetalleBarberia();
+})();

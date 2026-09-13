@@ -1,9 +1,6 @@
 (() => {
   /* ═══════════════════════════════════════════════════════════
      mi-barberia.js
-
-     Panel del dueño.
-     GET / PUT /api/mi-barberia/
   ═══════════════════════════════════════════════════════════ */
 
   const API_MI_BARBERIA = "/api/mi-barberia/";
@@ -16,17 +13,25 @@
 
   const panelForm = document.getElementById("panel-mi-barberia");
 
-  const formulario = document.getElementById("form-mi-barberia");
-
   const alerta = document.getElementById("alerta-mi-barberia");
 
-  const btnGuardar = document.getElementById("btn-mi-barberia-guardar");
+  const inputNombre = document.getElementById("mb-nombre");
 
-  const btnSubirLogo = document.getElementById("btn-mb-logo-subir");
+  const inputDireccion = document.getElementById("mb-direccion");
+
+  const inputZona = document.getElementById("mb-zona");
+
+  const inputDescripcion = document.getElementById("mb-descripcion");
 
   const inputLogo = document.getElementById("mb-logo-archivo");
 
-  const previewLogo = document.getElementById("mb-logo-preview");
+  const btnSubirLogo = document.getElementById("btn-mb-logo-subir");
+
+  const btnGuardar = document.getElementById("btn-mi-barberia-guardar");
+
+  const btnGuardarMobile = document.getElementById(
+    "btn-mi-barberia-guardar-mobile",
+  );
 
   /* ═══════════════════════════════════════════════════════════
      ALERTAS
@@ -47,7 +52,7 @@
   }
 
   /* ═══════════════════════════════════════════════════════════
-     CARGAR BARBERÍA
+     CARGAR DATOS
   ═══════════════════════════════════════════════════════════ */
 
   async function cargarMiBarberia() {
@@ -62,15 +67,17 @@
         return;
       }
 
-      document.getElementById("mb-nombre").value = datos.nombre || "";
+      inputNombre.value = datos.nombre || "";
 
-      document.getElementById("mb-direccion").value = datos.direccion || "";
+      inputDireccion.value = datos.direccion || "";
 
-      document.getElementById("mb-zona").value = datos.zona || "";
+      inputZona.value = datos.zona || "";
 
-      document.getElementById("mb-descripcion").value = datos.descripcion || "";
+      inputDescripcion.value = datos.descripcion || "";
 
       mostrarPreviewLogo(datos.logo);
+
+      actualizarResumen();
 
       panelCargando.classList.add("d-none");
 
@@ -82,21 +89,15 @@
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     ERROR DE CARGA
-  ═══════════════════════════════════════════════════════════ */
-
   function mostrarErrorCarga(mensaje) {
     panelCargando.innerHTML = `
 
-      <div class="card-body">
+      <div
+        class="alert alert-danger mb-0"
+        role="alert"
+      >
 
-        <div
-          class="alert alert-danger mb-0"
-          role="alert"
-        >
-          ${mensaje}
-        </div>
+        ${mensaje}
 
       </div>
 
@@ -104,116 +105,209 @@
   }
 
   /* ═══════════════════════════════════════════════════════════
-     GUARDAR DATOS
+     RESUMEN
   ═══════════════════════════════════════════════════════════ */
 
-  formulario.addEventListener(
-    "submit",
+  function actualizarResumen() {
+    const nombre = inputNombre.value.trim();
 
-    async (event) => {
-      event.preventDefault();
+    const direccion = inputDireccion.value.trim();
 
-      limpiarAlerta();
+    const zona = inputZona.value.trim();
 
-      const payload = {
-        nombre: document.getElementById("mb-nombre").value.trim(),
+    document.getElementById("mb-header-nombre").textContent =
+      nombre || "Mi barbería";
 
-        direccion: document.getElementById("mb-direccion").value.trim(),
+    document.getElementById("mb-header-ubicacion").textContent =
+      construirUbicacion(direccion, zona);
 
-        zona: document.getElementById("mb-zona").value.trim(),
+    document.getElementById("mb-resumen-zona").textContent = zona || "—";
 
-        descripcion: document.getElementById("mb-descripcion").value.trim(),
-      };
+    document.getElementById("mb-resumen-direccion").textContent =
+      direccion || "—";
+  }
 
-      if (!payload.nombre || !payload.direccion || !payload.zona) {
-        mostrarAlerta("Nombre, dirección y zona son obligatorios.", "warning");
+  function construirUbicacion(direccion, zona) {
+    if (direccion && zona) {
+      return `${direccion} · ${zona}`;
+    }
+
+    return direccion || zona || "Ubicación sin completar";
+  }
+
+  /* Actualización visual mientras escribe */
+
+  inputNombre.addEventListener("input", actualizarResumen);
+
+  inputDireccion.addEventListener("input", actualizarResumen);
+
+  inputZona.addEventListener("input", actualizarResumen);
+
+  /* ═══════════════════════════════════════════════════════════
+     GUARDAR
+  ═══════════════════════════════════════════════════════════ */
+
+  async function guardarCambios() {
+    limpiarAlerta();
+
+    const payload = {
+      nombre: inputNombre.value.trim(),
+
+      direccion: inputDireccion.value.trim(),
+
+      zona: inputZona.value.trim(),
+
+      descripcion: inputDescripcion.value.trim(),
+    };
+
+    if (!payload.nombre || !payload.direccion || !payload.zona) {
+      mostrarAlerta("Nombre, dirección y zona son obligatorios.", "warning");
+
+      return;
+    }
+
+    cambiarEstadoBotonesGuardar(true);
+
+    try {
+      const respuesta = await fetch(API_MI_BARBERIA, {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json",
+
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+
+        body: JSON.stringify(payload),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.ok) {
+        mostrarAlerta(
+          datos.error || "No se pudieron guardar los cambios.",
+          "danger",
+        );
 
         return;
       }
 
-      btnGuardar.disabled = true;
+      actualizarResumen();
 
-      btnGuardar.innerHTML = `
+      mostrarAlerta("Los cambios se guardaron correctamente.", "success");
 
-        <span
-          class="spinner-border spinner-border-sm me-2"
-          aria-hidden="true"
-        ></span>
+      /*
+       * panel-base.js muestra el nombre de la barbería
+       * en el sidebar.
+       *
+       * Lo actualizamos también aquí para que el cambio
+       * se vea inmediatamente sin recargar.
+       */
 
-        Guardando...
+      const nombreSidebar = document.getElementById("panel-sidebar-barberia");
 
-      `;
-
-      try {
-        const respuesta = await fetch(API_MI_BARBERIA, {
-          method: "PUT",
-
-          headers: {
-            "Content-Type": "application/json",
-
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
-
-          body: JSON.stringify(payload),
-        });
-
-        const datos = await respuesta.json();
-
-        if (respuesta.ok && datos.ok) {
-          mostrarAlerta("Los cambios se guardaron correctamente.", "success");
-
-          actualizarNombreSidebar(payload.nombre);
-        } else {
-          mostrarAlerta(
-            datos.error || "No se pudieron guardar los cambios.",
-            "danger",
-          );
-        }
-      } catch (error) {
-        console.error(error);
-
-        mostrarAlerta("No se pudo conectar con el servidor.", "danger");
-      } finally {
-        btnGuardar.disabled = false;
-
-        btnGuardar.textContent = "Guardar cambios";
+      if (nombreSidebar) {
+        nombreSidebar.textContent = payload.nombre;
       }
-    },
-  );
+    } catch (error) {
+      console.error(error);
+
+      mostrarAlerta("No se pudo conectar con el servidor.", "danger");
+    } finally {
+      cambiarEstadoBotonesGuardar(false);
+    }
+  }
+
+  btnGuardar.addEventListener("click", guardarCambios);
+
+  if (btnGuardarMobile) {
+    btnGuardarMobile.addEventListener("click", guardarCambios);
+  }
+
+  function cambiarEstadoBotonesGuardar(guardando) {
+    const botones = [btnGuardar, btnGuardarMobile].filter(Boolean);
+
+    botones.forEach((boton) => {
+      boton.disabled = guardando;
+
+      boton.innerHTML = guardando
+        ? `
+
+              <span
+                class="spinner-border spinner-border-sm me-2"
+                aria-hidden="true"
+              ></span>
+
+              Guardando...
+
+            `
+        : `
+
+              <i
+                class="bi bi-floppy me-1"
+              ></i>
+
+              Guardar cambios
+
+            `;
+    });
+  }
 
   /* ═══════════════════════════════════════════════════════════
-     PREVIEW LOGO
+     LOGO
   ═══════════════════════════════════════════════════════════ */
 
   function mostrarPreviewLogo(url) {
-    if (!url) {
-      previewLogo.innerHTML = `
+    const preview = document.getElementById("mb-logo-preview");
 
-        <span
-          class="text-body-secondary"
+    const headerLogo = document.getElementById("mb-header-logo");
+
+    if (url) {
+      preview.innerHTML = `
+
+        <img
+          src="${url}"
+          alt="Logo de la barbería"
+          class="w-100 h-100 object-fit-cover"
         >
-          Sin logo
-        </span>
+
+      `;
+
+      headerLogo.innerHTML = `
+
+        <img
+          src="${url}"
+          alt=""
+          class="w-100 h-100 object-fit-cover"
+        >
 
       `;
 
       return;
     }
 
-    previewLogo.innerHTML = `
+    preview.innerHTML = `
 
-      <img
-        src="${url}"
-        alt="Logo de la barbería"
-        class="w-100 h-100 object-fit-cover"
+      <div
+        class="w-100 h-100 d-flex align-items-center justify-content-center text-primary"
       >
+
+        <i
+          class="bi bi-shop fs-1"
+        ></i>
+
+      </div>
+
+    `;
+
+    headerLogo.innerHTML = `
+
+      <i
+        class="bi bi-shop fs-3 text-primary"
+      ></i>
 
     `;
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     ABRIR SELECTOR DE ARCHIVO
-  ═══════════════════════════════════════════════════════════ */
 
   btnSubirLogo.addEventListener(
     "click",
@@ -222,10 +316,6 @@
       inputLogo.click();
     },
   );
-
-  /* ═══════════════════════════════════════════════════════════
-     SUBIR LOGO
-  ═══════════════════════════════════════════════════════════ */
 
   inputLogo.addEventListener(
     "change",
@@ -255,19 +345,19 @@
       try {
         const datos = await subirArchivo(
           API_MI_BARBERIA + "logo/",
-
           "logo",
-
           archivo,
         );
 
-        if (datos.ok) {
-          mostrarPreviewLogo(datos.logo);
-
-          mostrarAlerta("El logo se actualizó correctamente.", "success");
-        } else {
+        if (!datos.ok) {
           mostrarAlerta(datos.error || "No se pudo subir el logo.", "danger");
+
+          return;
         }
+
+        mostrarPreviewLogo(datos.logo);
+
+        mostrarAlerta("El logo se actualizó correctamente.", "success");
       } catch (error) {
         console.error(error);
 
@@ -275,7 +365,15 @@
       } finally {
         btnSubirLogo.disabled = false;
 
-        btnSubirLogo.textContent = "Cambiar logo";
+        btnSubirLogo.innerHTML = `
+
+          <i
+            class="bi bi-image me-1"
+          ></i>
+
+          Cambiar logo
+
+        `;
 
         event.target.value = "";
       }
@@ -283,25 +381,7 @@
   );
 
   /* ═══════════════════════════════════════════════════════════
-     ACTUALIZAR SIDEBAR
-  ═══════════════════════════════════════════════════════════ */
-
-  function actualizarNombreSidebar(nombre) {
-    const escritorio = document.getElementById("panel-sidebar-barberia");
-
-    const mobile = document.getElementById("panel-sidebar-barberia-mobile");
-
-    if (escritorio) {
-      escritorio.textContent = nombre;
-    }
-
-    if (mobile) {
-      mobile.textContent = nombre;
-    }
-  }
-
-  /* ═══════════════════════════════════════════════════════════
-     INICIAR
+     INICIO
   ═══════════════════════════════════════════════════════════ */
 
   cargarMiBarberia();
