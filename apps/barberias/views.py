@@ -720,3 +720,94 @@ def subir_foto_barbero(request, id):
 
     return JsonResponse({'ok': True, 'foto': barbero.foto})
 
+
+
+# ══════════════════════════════════════════
+# Sprint 4 - Módulo B: Bloqueo de clientes ausentes (CU-13)
+# Bloqueo GLOBAL: reutiliza usuario.estado (ACTIVO / BLOQUEADO / INACTIVO).
+# Si el equipo define que sea por barbería, esto hay que migrarlo a una
+# tabla intermedia — avisar antes de tocarlo a mitad de sprint.
+# ══════════════════════════════════════════
+
+def _cliente_a_dict(cliente, barberia):
+    turnos_en_esta_barberia = Turno.objects.filter(
+        id_cliente=cliente, id_barbero__id_barberia=barberia
+    )
+    return {
+        'id_usuario': cliente.id_usuario,
+        'nombre': cliente.nombre,
+        'apellido': cliente.apellido,
+        'email': cliente.email,
+        'telefono': cliente.telefono,
+        'estado': cliente.estado,
+        'turnos_totales': turnos_en_esta_barberia.count(),
+        'turnos_ausente': turnos_en_esta_barberia.filter(estado='AUSENTE').count(),
+    }
+
+
+# GET /api/mi-barberia/clientes/
+# Tarea 1: clientes que reservaron en la barbería propia, con su cantidad
+# de turnos AUSENTE, para identificar a quién conviene bloquear.
+@require_GET
+def mis_clientes(request):
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    ids_clientes = Turno.objects.filter(
+        id_barbero__id_barberia=barberia
+    ).values_list('id_cliente', flat=True).distinct()
+
+    clientes = Usuario.objects.filter(id_usuario__in=ids_clientes)
+
+    data = [_cliente_a_dict(c, barberia) for c in clientes]
+    data.sort(key=lambda c: c['turnos_ausente'], reverse=True)
+
+    return JsonResponse({'ok': True, 'clientes': data})
+
+
+def _cambiar_estado_cliente(request, id, nuevo_estado):
+    if request.method not in ('PATCH', 'POST'):
+        return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    # Pertenencia (mismo criterio del Sprint 3): el cliente tiene que haber
+    # reservado en ESTA barbería. No alcanza con que el id_usuario exista.
+    tiene_turno_aca = Turno.objects.filter(
+        id_cliente_id=id, id_barbero__id_barberia=barberia
+    ).exists()
+    if not tiene_turno_aca:
+        return JsonResponse({'ok': False, 'error': 'Ese cliente no tiene turnos en tu barbería.'}, status=403)
+
+    try:
+        cliente = Usuario.objects.get(id_usuario=id)
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Cliente no encontrado.'}, status=404)
+
+    cliente.estado = nuevo_estado
+    cliente.save()
+
+    return JsonResponse({'ok': True, 'id_usuario': cliente.id_usuario, 'estado': cliente.estado})
+
+
+# PATCH /api/mi-barberia/clientes/<id>/bloquear/
+# Tarea 2: bloqueo global (usuario.estado = 'BLOQUEADO')
+def bloquear_cliente(request, id):
+    return _cambiar_estado_cliente(request, id, 'BLOQUEADO')
+
+
+# PATCH /api/mi-barberia/clientes/<id>/desbloquear/
+# Tarea 3: acción inversa
+def desbloquear_cliente(request, id):
+    return _cambiar_estado_cliente(request, id, 'ACTIVO')

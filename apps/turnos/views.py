@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import json
 
-from apps.usuarios.models import Barbero, Servicio
+from apps.usuarios.models import Barbero, Servicio, Usuario
 from .models import Turno
 
 
@@ -15,6 +15,20 @@ def crear_turno(request):
     id_cliente = request.session.get('id_usuario')
     if not id_cliente:
         return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión para reservar un turno.'}, status=401)
+
+    # Sprint 4 - Módulo B, Tarea 4: un cliente bloqueado no puede reservar.
+    # Antes esto probablemente rompía con un 500 genérico al chocar con
+    # alguna otra validación; ahora es un error claro y explícito.
+    try:
+        cliente = Usuario.objects.get(id_usuario=id_cliente)
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'}, status=404)
+
+    if cliente.estado == 'BLOQUEADO':
+        return JsonResponse({
+            'ok': False,
+            'error': 'Tu cuenta está bloqueada por inasistencias a turnos anteriores. Contactá a la barbería para más información.'
+        }, status=403)
 
     try:
         data = json.loads(request.body)
