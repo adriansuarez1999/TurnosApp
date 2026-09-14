@@ -1,0 +1,684 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+
+{% block title %}
+Disponibilidad — BarberApp
+{% endblock %}
+
+
+{% block panel_titulo %}
+Disponibilidad
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Configurá los días y horarios de atención de cada barbero.
+{% endblock %}
+
+
+{% block panel_acciones %}
+
+<button
+  type="button"
+  class="btn btn-primary"
+  id="btn-nuevo-bloque"
+  disabled
+>
+  <i class="bi bi-plus-lg me-1"></i>
+  Agregar bloque
+</button>
+
+{% endblock %}
+
+
+
+{% block panel_content %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ALERTA GENERAL
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="alert d-none"
+  id="alerta-disponibilidad"
+  role="alert"
+>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SELECCIÓN DE BARBERO
+════════════════════════════════════════════════════════════ -->
+
+<div class="card mb-4">
+
+  <div class="card-body">
+
+    <div class="row align-items-end g-3">
+
+      <div class="col-12 col-lg-7">
+
+        <label
+          for="select-barbero-disponibilidad"
+          class="form-label fw-semibold"
+        >
+          Barbero
+        </label>
+
+        <select
+          class="form-select"
+          id="select-barbero-disponibilidad"
+          disabled
+        >
+          <option value="">
+            Cargando barberos...
+          </option>
+        </select>
+
+        <div class="form-text">
+          Seleccioná un profesional para consultar y modificar su disponibilidad semanal.
+        </div>
+
+      </div>
+
+
+      <div class="col-12 col-lg-5">
+
+        <div
+          class="border rounded-3 px-3 py-2 bg-body-tertiary"
+        >
+
+          <div class="small text-body-secondary">
+            Profesional seleccionado
+          </div>
+
+          <div
+            class="fw-semibold text-truncate"
+            id="nombre-barbero-seleccionado"
+          >
+            Ninguno
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DISPONIBILIDAD SEMANAL
+════════════════════════════════════════════════════════════ -->
+
+<div class="card">
+
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2"
+  >
+
+    <div>
+
+      <h2 class="h5 mb-1">
+        Disponibilidad semanal
+      </h2>
+
+      <p class="text-body-secondary small mb-0">
+        Los bloques definen cuándo puede atender el barbero seleccionado.
+      </p>
+
+    </div>
+
+
+    <span
+      class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"
+      id="cantidad-bloques"
+    >
+      0 bloques
+    </span>
+
+  </div>
+
+
+
+  <div class="card-body">
+
+
+    <!-- Estado inicial / carga -->
+    <div
+      id="estado-disponibilidad"
+      class="py-4"
+    >
+
+      <div class="text-center">
+
+        <i
+          class="bi bi-calendar-week fs-1 text-body-secondary"
+        ></i>
+
+        <h3 class="h5 mt-3">
+          Seleccioná un barbero
+        </h3>
+
+        <p class="text-body-secondary mb-0">
+          Su disponibilidad semanal aparecerá en esta sección.
+        </p>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Grilla semanal -->
+    <div
+      class="d-none"
+      id="grilla-disponibilidad"
+    >
+
+      <div class="row g-3">
+
+
+        <!-- LUNES -->
+        <div class="col-12">
+
+          <div class="border rounded-3 p-3">
+
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between gap-3"
+            >
+
+              <div
+                class="fw-semibold"
+                style="min-width: 7rem;"
+              >
+                Lunes
+              </div>
+
+              <div
+                class="flex-grow-1"
+                id="bloques-LUN"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- MARTES -->
+        <div class="col-12">
+
+          <div class="border rounded-3 p-3">
+
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between gap-3"
+            >
+
+              <div
+                class="fw-semibold"
+                style="min-width: 7rem;"
+              >
+                Martes
+              </div>
+
+              <div
+                class="flex-grow-1"
+                id="bloques-MAR"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- MIÉRCOLES -->
+        <div class="col-12">
+
+          <div class="border rounded-3 p-3">
+
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between gap-3"
+            >
+
+              <div
+                class="fw-semibold"
+                style="min-width: 7rem;"
+              >
+                Miércoles
+              </div>
+
+              <div
+                class="flex-grow-1"
+                id="bloques-MIE"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- JUEVES -->
+        <div class="col-12">
+
+          <div class="border rounded-3 p-3">
+
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between gap-3"
+            >
+
+              <div
+                class="fw-semibold"
+                style="min-width: 7rem;"
+              >
+                Jueves
+              </div>
+
+              <div
+                class="flex-grow-1"
+                id="bloques-JUE"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- VIERNES -->
+        <div class="col-12">
+
+          <div class="border rounded-3 p-3">
+
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between gap-3"
+            >
+
+              <div
+                class="fw-semibold"
+                style="min-width: 7rem;"
+              >
+                Viernes
+              </div>
+
+              <div
+                class="flex-grow-1"
+                id="bloques-VIE"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- SÁBADO -->
+        <div class="col-12">
+
+          <div class="border rounded-3 p-3">
+
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between gap-3"
+            >
+
+              <div
+                class="fw-semibold"
+                style="min-width: 7rem;"
+              >
+                Sábado
+              </div>
+
+              <div
+                class="flex-grow-1"
+                id="bloques-SAB"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- DOMINGO -->
+        <div class="col-12">
+
+          <div class="border rounded-3 p-3">
+
+            <div
+              class="d-flex flex-column flex-md-row justify-content-between gap-3"
+            >
+
+              <div
+                class="fw-semibold"
+                style="min-width: 7rem;"
+              >
+                Domingo
+              </div>
+
+              <div
+                class="flex-grow-1"
+                id="bloques-DOM"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+
+{% block modals %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL ALTA / EDICIÓN
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="modal fade"
+  id="modal-disponibilidad"
+  tabindex="-1"
+  aria-labelledby="modal-disponibilidad-titulo"
+  aria-hidden="true"
+>
+
+  <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content">
+
+      <form id="form-disponibilidad">
+
+        <div class="modal-header">
+
+          <div>
+
+            <h2
+              class="modal-title fs-5"
+              id="modal-disponibilidad-titulo"
+            >
+              Agregar disponibilidad
+            </h2>
+
+            <p
+              class="small text-body-secondary mb-0 mt-1"
+              id="modal-disponibilidad-subtitulo"
+            >
+              Definí un nuevo bloque de atención.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Cerrar"
+          ></button>
+
+        </div>
+
+
+
+        <div class="modal-body">
+
+          <input
+            type="hidden"
+            id="disponibilidad-id-editando"
+          >
+
+
+          <div
+            class="alert alert-danger d-none"
+            id="alerta-form-disponibilidad"
+            role="alert"
+          >
+          </div>
+
+
+
+          <div class="mb-3">
+
+            <label
+              for="disponibilidad-dia"
+              class="form-label"
+            >
+              Día
+            </label>
+
+            <select
+              class="form-select"
+              id="disponibilidad-dia"
+              required
+            >
+
+              <option value="LUN">Lunes</option>
+              <option value="MAR">Martes</option>
+              <option value="MIE">Miércoles</option>
+              <option value="JUE">Jueves</option>
+              <option value="VIE">Viernes</option>
+              <option value="SAB">Sábado</option>
+              <option value="DOM">Domingo</option>
+
+            </select>
+
+          </div>
+
+
+
+          <div class="row g-3">
+
+            <div class="col-12 col-sm-6">
+
+              <label
+                for="disponibilidad-inicio"
+                class="form-label"
+              >
+                Hora de inicio
+              </label>
+
+              <input
+                type="time"
+                class="form-control"
+                id="disponibilidad-inicio"
+                required
+              >
+
+            </div>
+
+
+            <div class="col-12 col-sm-6">
+
+              <label
+                for="disponibilidad-fin"
+                class="form-label"
+              >
+                Hora de fin
+              </label>
+
+              <input
+                type="time"
+                class="form-control"
+                id="disponibilidad-fin"
+                required
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="form-text mt-3">
+            Los bloques del mismo día no pueden superponerse.
+          </div>
+
+        </div>
+
+
+
+        <div class="modal-footer">
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btn-guardar-disponibilidad"
+          >
+            Guardar bloque
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL ELIMINAR
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="modal fade"
+  id="modal-eliminar-disponibilidad"
+  tabindex="-1"
+  aria-labelledby="modal-eliminar-disponibilidad-titulo"
+  aria-hidden="true"
+>
+
+  <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h2
+          class="modal-title fs-5"
+          id="modal-eliminar-disponibilidad-titulo"
+        >
+          Eliminar bloque horario
+        </h2>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+
+      <div class="modal-body">
+
+        <div
+          class="alert alert-danger d-none"
+          id="alerta-eliminar-disponibilidad"
+          role="alert"
+        >
+        </div>
+
+
+        <p class="mb-1">
+          ¿Querés eliminar este bloque de disponibilidad?
+        </p>
+
+        <p
+          class="fw-semibold mb-0"
+          id="texto-bloque-eliminar"
+        >
+        </p>
+
+      </div>
+
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-danger"
+          id="btn-confirmar-eliminar-disponibilidad"
+        >
+          Eliminar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/disponibilidad.js' %}"
+></script>
+
+{% endblock %}

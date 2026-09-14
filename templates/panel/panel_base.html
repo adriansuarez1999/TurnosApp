@@ -227,7 +227,22 @@
 
           </li>
 
+          <!-- Disponibilidad -->
+          <li class="nav-item">
 
+            <a
+              class="nav-link
+              {% if seccion_activa == 'disponibilidad' %}active{% endif %}"
+              href="{% url 'disponibilidad' %}"
+            >
+
+              <i class="bi bi-calendar-week"></i>
+
+              Disponibilidad
+
+            </a>
+
+          </li>
 
           <!-- Fotos -->
           <li class="nav-item">
