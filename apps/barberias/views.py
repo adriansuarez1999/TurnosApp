@@ -719,4 +719,3 @@ def subir_foto_barbero(request, id):
     barbero.save()
 
     return JsonResponse({'ok': True, 'foto': barbero.foto})
-
