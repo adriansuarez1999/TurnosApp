@@ -31,6 +31,9 @@ def pagina_mis_barberos(request):
 def pagina_disponibilidad(request):
     return render(request, 'paginas/disponibilidad.html', {'seccion_activa': 'disponibilidad'})
 
+def pagina_clientes(request):
+    return render(request, 'paginas/clientes.html', {'seccion_activa': 'clientes'})
+
 def pagina_mis_fotos(request):
     return render(request, 'paginas/mis-fotos.html', {'seccion_activa': 'fotos'})
 
@@ -52,6 +55,7 @@ urlpatterns = [
     path('paginas/mi-barberia.html', pagina_mi_barberia, name='mi_barberia'),
     path('paginas/mis-barberos.html', pagina_mis_barberos, name='mis_barberos'),
     path('paginas/disponibilidad.html', pagina_disponibilidad, name='disponibilidad'),
+    path('paginas/clientes.html', pagina_clientes, name='clientes'),
     path('paginas/mis-fotos.html', pagina_mis_fotos, name='mis_fotos'),
     path('paginas/mis-servicios.html', pagina_mis_servicios, name='mis_servicios'),
     path('paginas/mis-informes.html', pagina_mis_informes, name='mis_informes'),

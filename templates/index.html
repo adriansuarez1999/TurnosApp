@@ -272,49 +272,29 @@ BarberApp — Reservá tu turno
 
 
       <!-- ═══════════════════════════════════════════════════
-           BLOQUE PARA VIDEO
+          VIDEO BARBERAPP
       ════════════════════════════════════════════════════ -->
 
       <div class="col-lg-5 d-none d-lg-block">
 
         <div class="home-video">
 
-          <div class="home-video__decoration"></div>
-
-
-          <div class="home-video__content">
-
-            <button
-              type="button"
-              class="home-video__play"
-              aria-label="Reproducir video"
+          <video
+            class="home-video__media"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-label="Demostración de BarberApp"
+          >
+            <source
+              src="{% static 'videos/barberapp-home.mp4' %}"
+              type="video/mp4"
             >
 
-              <i class="bi bi-play-fill"></i>
-
-            </button>
-
-
-            <div class="home-video__text">
-
-              <span>
-                BarberApp para negocios
-              </span>
-
-
-              <strong>
-                Conocé cómo funciona
-              </strong>
-
-
-              <p>
-                Próximamente vas a poder ver cómo registrar
-                y administrar tu barbería.
-              </p>
-
-            </div>
-
-          </div>
+            Tu navegador no admite la reproducción de video.
+          </video>
 
         </div>
 
