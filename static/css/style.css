@@ -1829,3 +1829,41 @@ h6,
     max-width: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   VIDEO HOME
+═══════════════════════════════════════════════════════════ */
+
+.home-video {
+  position: relative;
+
+  width: 100%;
+  max-width: 620px;
+
+  margin-left: auto;
+
+  overflow: hidden;
+
+  border-radius: 1.25rem;
+
+  background: #ffffff;
+
+  border: 1px solid rgba(23, 77, 50, 0.12);
+
+  box-shadow: 0 22px 50px rgba(23, 53, 43, 0.16);
+}
+
+.home-video__media {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  aspect-ratio: 16 / 9;
+
+  object-fit: cover;
+
+  object-position: center;
+
+  background: #ffffff;
+}
