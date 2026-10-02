@@ -3,9 +3,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import json
-
+from decimal import Decimal
 from apps.barberias.models import Barberia
-from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad
+from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad , Promocion
 from .models import Turno
 
 
@@ -26,7 +26,6 @@ DIAS_SEMANA = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM']
 def _dia_semana_de(fecha):
     return DIAS_SEMANA[fecha.weekday()]
 
-
 def crear_turno(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
@@ -36,8 +35,6 @@ def crear_turno(request):
         return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión para reservar un turno.'}, status=401)
 
     # Sprint 4 - Módulo B, Tarea 4: un cliente bloqueado no puede reservar.
-    # Antes esto probablemente rompía con un 500 genérico al chocar con
-    # alguna otra validación; ahora es un error claro y explícito.
     try:
         cliente = Usuario.objects.get(id_usuario=id_cliente)
     except Usuario.DoesNotExist:
@@ -114,6 +111,21 @@ def crear_turno(request):
 
                 id_barbero = barbero.id_barbero
 
+            # ════════════════════════════════════════════════════════════════
+            # Sprint 5 - Módulo D (Tarea 5): Aplicar descuento de promoción
+            # ════════════════════════════════════════════════════════════════
+            monto_final = Decimal(str(servicio.precio))
+            promo = Promocion.objects.filter(
+                id_servicio=id_servicio,
+                activa=1,
+                fecha_inicio__lte=fecha_dt,
+                fecha_fin__gte=fecha_dt
+            ).first()
+
+            if promo:
+                descuento = (monto_final * promo.porcentaje_descuento) / Decimal('100')
+                monto_final = monto_final - descuento
+
             turno = Turno.objects.create(
                 id_cliente_id=id_cliente,
                 id_barbero_id=id_barbero,
@@ -122,7 +134,7 @@ def crear_turno(request):
                 hora_inicio=hora_inicio,
                 hora_fin=hora_fin,
                 estado='CONFIRMADO',
-                monto_total=servicio.precio,
+                monto_total=monto_final,
                 fecha_reserva=datetime.now(),
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
@@ -135,14 +147,16 @@ def crear_turno(request):
             'id_barbero': id_barbero,
             'hora_inicio': hora_inicio.strftime('%H:%M'),
             'hora_fin': hora_fin.strftime('%H:%M'),
-            'estado': turno.estado
+            'estado': turno.estado,
+            'monto_total': float(turno.monto_total)
         })
 
     except KeyError as e:
         return JsonResponse({'ok': False, 'error': f'Falta el campo {e}'}, status=400)
     except Exception as e:
         return JsonResponse({'ok': False, 'error': str(e)}, status=400)
-
+    
+    
 def _parsear_hora(valor):
     # Acepta 'HH:MM' o 'HH:MM:SS'
     formato = '%H:%M:%S' if valor.count(':') == 2 else '%H:%M'
