@@ -1,0 +1,465 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+
+{% block title %}
+Turnos por barbero — BarberApp
+{% endblock %}
+
+
+{% block panel_titulo %}
+Turnos por barbero
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Consultá la agenda semanal de cada profesional de tu barbería.
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+  .calendario-semanal {
+    display: grid;
+
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+
+    gap: 0.75rem;
+  }
+
+
+  .calendario-dia {
+    min-height: 145px;
+
+    width: 100%;
+
+    padding: 1rem;
+
+    text-align: left;
+
+    color: var(--bs-body-color);
+
+    background-color: var(--bs-body-bg);
+
+    border: 1px solid var(--bs-border-color);
+
+    border-radius: var(--bs-border-radius-lg);
+
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+
+  .calendario-dia:hover {
+    border-color: var(--bs-primary-border-subtle);
+
+    background-color: var(--bs-primary-bg-subtle);
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 0.25rem 0.75rem rgba(23, 77, 50, 0.06);
+  }
+
+
+  .calendario-dia.activo {
+    border-color: var(--bs-primary);
+
+    background-color: var(--bs-primary-bg-subtle);
+
+    box-shadow: 0 0 0 0.15rem rgba(36, 115, 69, 0.08);
+  }
+
+
+  .calendario-dia.hoy {
+    border-color: var(--bs-primary-border-subtle);
+  }
+
+
+  .calendario-dia-nombre {
+    font-size: 0.78rem;
+
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+
+    text-transform: uppercase;
+
+    color: var(--bs-secondary-color);
+  }
+
+
+  .calendario-dia-numero {
+    margin-top: 0.35rem;
+
+    font-size: 1.65rem;
+
+    font-weight: 600;
+
+    line-height: 1;
+  }
+
+
+  .calendario-dia-turnos {
+    margin-top: 1rem;
+  }
+
+
+  .turno-detalle-item {
+    border-color: var(--bs-border-color) !important;
+  }
+
+
+  @media (max-width: 1199.98px) {
+
+    .calendario-semanal {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+  }
+
+
+  @media (max-width: 767.98px) {
+
+    .calendario-semanal {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+  }
+
+
+  @media (max-width: 575.98px) {
+
+    .calendario-semanal {
+      grid-template-columns: 1fr;
+    }
+
+
+    .calendario-dia {
+      min-height: auto;
+    }
+
+  }
+
+
+  @media (prefers-reduced-motion: reduce) {
+
+    .calendario-dia {
+      transition: none;
+    }
+
+
+    .calendario-dia:hover {
+      transform: none;
+    }
+
+  }
+
+</style>
+
+{% endblock %}
+
+
+
+{% block panel_acciones %}
+
+<button
+  type="button"
+  class="btn btn-outline-secondary"
+  id="btn-semana-actual"
+  disabled
+>
+  <i class="bi bi-calendar-event me-1"></i>
+  Semana actual
+</button>
+
+{% endblock %}
+
+
+
+{% block panel_content %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ALERTA GENERAL
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="alert d-none"
+  id="alerta-turnos-barbero"
+  role="alert"
+>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SELECCIÓN DE BARBERO
+════════════════════════════════════════════════════════════ -->
+
+<div class="card mb-4">
+
+  <div class="card-body">
+
+    <div class="row align-items-end g-3">
+
+
+      <div class="col-12 col-lg-7">
+
+        <label
+          for="select-barbero-turnos"
+          class="form-label fw-semibold"
+        >
+          Barbero
+        </label>
+
+
+        <select
+          class="form-select"
+          id="select-barbero-turnos"
+          disabled
+        >
+
+          <option value="">
+            Cargando barberos...
+          </option>
+
+        </select>
+
+
+        <div class="form-text">
+          Seleccioná un profesional para consultar sus turnos.
+        </div>
+
+      </div>
+
+
+
+      <div class="col-12 col-lg-5">
+
+        <div
+          class="border rounded-3 px-3 py-2 bg-body-tertiary"
+        >
+
+          <div class="small text-body-secondary">
+            Profesional seleccionado
+          </div>
+
+
+          <div
+            class="fw-semibold text-truncate"
+            id="nombre-barbero-turnos"
+          >
+            Ninguno
+          </div>
+
+        </div>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CALENDARIO
+════════════════════════════════════════════════════════════ -->
+
+<div class="card mb-4">
+
+
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-3"
+  >
+
+
+    <div>
+
+      <h2 class="h5 mb-1">
+        Agenda semanal
+      </h2>
+
+
+      <p
+        class="text-body-secondary small mb-0"
+        id="texto-rango-semana"
+      >
+        Seleccioná un barbero para consultar su agenda.
+      </p>
+
+    </div>
+
+
+
+    <div
+      class="btn-group"
+      role="group"
+      aria-label="Navegación entre semanas"
+    >
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        id="btn-semana-anterior"
+        disabled
+      >
+
+        <i class="bi bi-chevron-left me-1"></i>
+
+        Anterior
+
+      </button>
+
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        id="btn-semana-siguiente"
+        disabled
+      >
+
+        Siguiente
+
+        <i class="bi bi-chevron-right ms-1"></i>
+
+      </button>
+
+    </div>
+
+
+  </div>
+
+
+
+  <div class="card-body">
+
+
+    <!-- Estado -->
+    <div
+      id="estado-calendario-turnos"
+      class="py-4"
+    >
+
+      <div class="text-center">
+
+        <i
+          class="bi bi-calendar3 fs-1 text-body-secondary"
+        ></i>
+
+
+        <h3 class="h5 mt-3">
+          Seleccioná un barbero
+        </h3>
+
+
+        <p class="text-body-secondary mb-0">
+          Sus turnos de la semana aparecerán en esta sección.
+        </p>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Grilla -->
+    <div
+      class="d-none"
+      id="contenedor-calendario-turnos"
+    >
+
+      <div
+        class="calendario-semanal"
+        id="grilla-turnos-semana"
+      >
+      </div>
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DETALLE DEL DÍA
+════════════════════════════════════════════════════════════ -->
+
+<div
+  class="card d-none"
+  id="card-detalle-dia"
+>
+
+
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2"
+  >
+
+
+    <div>
+
+      <h2
+        class="h5 mb-1"
+        id="titulo-detalle-dia"
+      >
+        Turnos del día
+      </h2>
+
+
+      <p
+        class="text-body-secondary small mb-0"
+        id="subtitulo-detalle-dia"
+      >
+      </p>
+
+    </div>
+
+
+    <span
+      class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"
+      id="cantidad-turnos-dia"
+    >
+      0 turnos
+    </span>
+
+
+  </div>
+
+
+
+  <div class="card-body">
+
+
+    <div
+      id="lista-turnos-dia"
+    >
+    </div>
+
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/turnos-barbero.js' %}"
+></script>
+
+{% endblock %}

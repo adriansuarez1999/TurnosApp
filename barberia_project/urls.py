@@ -8,62 +8,87 @@ from django.conf.urls.static import static
 
 @ensure_csrf_cookie
 def home(request):
-    return render(request, 'index.html')
+    return render(request, "index.html")
+
 
 def pagina_barberia(request):
-    return render(request, 'paginas/barberia.html')
+    return render(request, "paginas/barberia.html")
+
 
 def pagina_reservar(request):
-    return render(request, 'paginas/reservar.html')
+    return render(request, "paginas/reservar.html")
+
 
 def pagina_misturnos(request):
-    return render(request, 'paginas/misturnos.html')
+    return render(request, "paginas/misturnos.html")
+
 
 def pagina_registrar_barberia(request):
-    return render(request, 'paginas/registrar-barberia.html')
+    return render(request, "paginas/registrar-barberia.html")
+
 
 def pagina_mi_barberia(request):
-    return render(request, 'paginas/mi-barberia.html', {'seccion_activa': 'barberia'})
+    return render(request, "paginas/mi-barberia.html", {"seccion_activa": "barberia"})
+
 
 def pagina_mis_barberos(request):
-    return render(request, 'paginas/mis-barberos.html', {'seccion_activa': 'barberos'})
+    return render(request, "paginas/mis-barberos.html", {"seccion_activa": "barberos"})
+
 
 def pagina_disponibilidad(request):
-    return render(request, 'paginas/disponibilidad.html', {'seccion_activa': 'disponibilidad'})
+    return render(
+        request, "paginas/disponibilidad.html", {"seccion_activa": "disponibilidad"}
+    )
+
+
+def pagina_turnos_barbero(request):
+    return render(
+        request, "paginas/turnos-barbero.html", {"seccion_activa": "turnos_barbero"}
+    )
+
 
 def pagina_clientes(request):
-    return render(request, 'paginas/clientes.html', {'seccion_activa': 'clientes'})
+    return render(request, "paginas/clientes.html", {"seccion_activa": "clientes"})
+
 
 def pagina_mis_fotos(request):
-    return render(request, 'paginas/mis-fotos.html', {'seccion_activa': 'fotos'})
+    return render(request, "paginas/mis-fotos.html", {"seccion_activa": "fotos"})
+
 
 def pagina_mis_servicios(request):
-    return render(request, 'paginas/mis-servicios.html', {'seccion_activa': 'servicios'})
+    return render(
+        request, "paginas/mis-servicios.html", {"seccion_activa": "servicios"}
+    )
+
 
 def pagina_mis_informes(request):
-    return render(request, 'paginas/mis-informes.html', {'seccion_activa': 'informes'})
+    return render(request, "paginas/mis-informes.html", {"seccion_activa": "informes"})
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    path('', home, name='index'),
-    path('paginas/barberia.html', pagina_barberia, name='barberia'),
-    path('paginas/reservar.html', pagina_reservar, name='reservar'),
-    path('paginas/misturnos.html', pagina_misturnos, name='misturnos'),
-    path('paginas/registrar-barberia.html', pagina_registrar_barberia, name='registrar_barberia'),
-    path('paginas/mi-barberia.html', pagina_mi_barberia, name='mi_barberia'),
-    path('paginas/mis-barberos.html', pagina_mis_barberos, name='mis_barberos'),
-    path('paginas/disponibilidad.html', pagina_disponibilidad, name='disponibilidad'),
-    path('paginas/clientes.html', pagina_clientes, name='clientes'),
-    path('paginas/mis-fotos.html', pagina_mis_fotos, name='mis_fotos'),
-    path('paginas/mis-servicios.html', pagina_mis_servicios, name='mis_servicios'),
-    path('paginas/mis-informes.html', pagina_mis_informes, name='mis_informes'),
-
-    path('api/', include('apps.usuarios.urls')),
-    path('api/', include('apps.turnos.urls')),
-    path('api/', include('apps.barberias.urls')),
+    path("admin/", admin.site.urls),
+    path("", home, name="index"),
+    path("paginas/barberia.html", pagina_barberia, name="barberia"),
+    path("paginas/reservar.html", pagina_reservar, name="reservar"),
+    path("paginas/misturnos.html", pagina_misturnos, name="misturnos"),
+    path(
+        "paginas/registrar-barberia.html",
+        pagina_registrar_barberia,
+        name="registrar_barberia",
+    ),
+    path("paginas/mi-barberia.html", pagina_mi_barberia, name="mi_barberia"),
+    path("paginas/mis-barberos.html", pagina_mis_barberos, name="mis_barberos"),
+    path("paginas/disponibilidad.html", pagina_disponibilidad, name="disponibilidad"),
+    path("paginas/turnos-barbero.html", pagina_turnos_barbero, name="turnos_barbero"),
+    path("paginas/clientes.html", pagina_clientes, name="clientes"),
+    path("paginas/mis-fotos.html", pagina_mis_fotos, name="mis_fotos"),
+    path("paginas/mis-servicios.html", pagina_mis_servicios, name="mis_servicios"),
+    path("paginas/mis-informes.html", pagina_mis_informes, name="mis_informes"),
+    path("api/", include("apps.usuarios.urls")),
+    path("api/", include("apps.turnos.urls")),
+    path("api/", include("apps.barberias.urls")),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
