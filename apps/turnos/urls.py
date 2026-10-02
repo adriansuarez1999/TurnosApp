@@ -14,4 +14,7 @@ urlpatterns = [
     path('mi-barberia/clientes/', views.clientes_barberia),
     path('mi-barberia/clientes/<int:id>/bloquear/', views.bloquear_cliente),
     path('mi-barberia/clientes/<int:id>/desbloquear/', views.desbloquear_cliente),
+
+    # Sprint 5 - Módulo C: calendario de turnos por barbero
+    path('mi-barberia/barberos/<int:id>/turnos/', views.turnos_por_barbero),
 ]

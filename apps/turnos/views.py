@@ -399,3 +399,73 @@ def bloquear_cliente(request, id):
 # Tarea 3: acción inversa
 def desbloquear_cliente(request, id):
     return _cambiar_estado_cliente(request, id, 'ACTIVO')
+
+
+# ══════════════════════════════════════════
+# Sprint 5 - Módulo C: Calendario de turnos por barbero
+# Solo lectura: consulta turnos, nunca los crea ni los modifica.
+# ══════════════════════════════════════════
+
+def _turno_calendario_a_dict(turno):
+    return {
+        'id': turno.id_turno,
+        'cliente': f'{turno.id_cliente.nombre} {turno.id_cliente.apellido}',
+        'servicio': turno.id_servicio.nombre,
+        'fecha': str(turno.fecha),
+        'hora_inicio': turno.hora_inicio.strftime('%H:%M'),
+        'hora_fin': turno.hora_fin.strftime('%H:%M'),
+        'estado': turno.estado,
+        'monto': float(turno.monto_total),
+    }
+
+
+# GET /api/mi-barberia/barberos/<id>/turnos/?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
+# Tarea 1: turnos del barbero en el rango pedido (valida pertenencia).
+# Tarea 2: ordenados por fecha y hora_inicio.
+# Tarea 3: 400 si falta desde/hasta, si el formato es inválido o si desde > hasta.
+def turnos_por_barbero(request, id):
+    if request.method != 'GET':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
+
+    id_usuario = _usuario_logueado(request)
+    if not id_usuario:
+        return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
+
+    barberia = _barberia_del_dueno(id_usuario)
+    if not barberia:
+        return JsonResponse({'ok': False, 'error': 'No tenés una barbería registrada.'}, status=404)
+
+    try:
+        barbero = Barbero.objects.get(id_barbero=id)
+    except Barbero.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Barbero no encontrado.'}, status=404)
+
+    # Mismo chequeo de pertenencia que en el resto del panel.
+    if barbero.id_barberia_id != barberia.id_barberia:
+        return JsonResponse({'ok': False, 'error': 'Ese barbero no pertenece a tu barbería.'}, status=403)
+
+    desde = request.GET.get('desde')
+    hasta = request.GET.get('hasta')
+    if not desde or not hasta:
+        return JsonResponse({'ok': False, 'error': 'Los parámetros desde y hasta son obligatorios.'}, status=400)
+
+    try:
+        desde = datetime.strptime(desde, '%Y-%m-%d').date()
+        hasta = datetime.strptime(hasta, '%Y-%m-%d').date()
+    except ValueError:
+        return JsonResponse({'ok': False, 'error': 'Las fechas tienen que tener formato YYYY-MM-DD.'}, status=400)
+
+    if desde > hasta:
+        return JsonResponse({'ok': False, 'error': 'La fecha desde no puede ser posterior a hasta.'}, status=400)
+
+    turnos = Turno.objects.filter(
+        id_barbero=barbero.id_barbero,
+        fecha__gte=desde,
+        fecha__lte=hasta
+    ).select_related('id_cliente', 'id_servicio').order_by('fecha', 'hora_inicio')
+
+    return JsonResponse({
+        'ok': True,
+        'barbero': f'{barbero.id_usuario.nombre} {barbero.id_usuario.apellido}',
+        'turnos': [_turno_calendario_a_dict(t) for t in turnos]
+    })
