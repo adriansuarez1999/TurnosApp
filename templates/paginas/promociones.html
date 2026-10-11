@@ -1,0 +1,305 @@
+{% extends 'panel/panel_base.html' %}
+ 
+{% load static %}
+
+{% block title %}
+Promociones — BarberApp 
+{% endblock %} 
+
+{% block panel_titulo %} Promociones {%endblock %}
+
+{% block panel_subtitulo %} 
+Gestioná descuentos y promociones paralos servicios de tu barbería. 
+{% endblock %}
+
+{% block panel_acciones %}
+<button type="button" class="btn btn-primary" id="btn-nueva-promocion">
+  <i class="bi bi-plus-lg me-1"></i>
+  Nueva promoción
+</button>
+{% endblock %} 
+
+{% block panel_content %}
+
+<!-- ALERTA GENERAL -->
+<div class="alert d-none" id="alerta-promociones" role="alert"></div>
+
+<!-- CARD PRINCIPAL -->
+<div class="card">
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2"
+  >
+    <div>
+      <h2 class="h5 mb-1">Mis promociones</h2>
+
+      <p class="text-body-secondary small mb-0">
+        Promociones activas e inactivas de tu barbería.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      id="btn-recargar-promociones"
+    >
+      <i class="bi bi-arrow-clockwise me-1"></i>
+      Recargar
+    </button>
+  </div>
+
+  <div class="card-body">
+    <!-- Estado de carga -->
+    <div id="estado-promociones" class="py-4 text-center">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+
+      <span class="text-body-secondary"> Cargando promociones... </span>
+    </div>
+
+    <!-- Tabla -->
+    <div id="contenedor-promociones" class="d-none">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Promoción</th>
+
+              <th>Servicio</th>
+
+              <th>Descuento</th>
+
+              <th>Vigencia</th>
+
+              <th>Estado</th>
+
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tabla-promociones"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ALTA / EDICIÓN -->
+<div
+  class="modal fade"
+  id="modal-promocion"
+  tabindex="-1"
+  aria-labelledby="titulo-modal-promocion"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="titulo-modal-promocion">
+          Nueva promoción
+        </h2>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+
+      <form id="form-promocion">
+        <div class="modal-body">
+          <input type="hidden" id="promocion-id" />
+
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label for="promocion-nombre" class="form-label fw-semibold">
+              Nombre
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              id="promocion-nombre"
+              maxlength="100"
+              required
+            />
+
+            <div class="form-text">Ejemplo: Promo Octubre</div>
+          </div>
+
+          <!-- Servicio -->
+          <div class="mb-3">
+            <label for="promocion-servicio" class="form-label fw-semibold">
+              Servicio
+            </label>
+
+            <select class="form-select" id="promocion-servicio" required>
+              <option value="">Cargando servicios...</option>
+            </select>
+          </div>
+
+          <!-- Porcentaje -->
+          <div class="mb-3">
+            <label for="promocion-porcentaje" class="form-label fw-semibold">
+              Porcentaje de descuento
+            </label>
+
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control"
+                id="promocion-porcentaje"
+                min="1"
+                max="100"
+                step="1"
+                required
+              />
+
+              <span class="input-group-text"> % </span>
+            </div>
+          </div>
+
+          <!-- Fechas -->
+          <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+              <label
+                for="promocion-fecha-inicio"
+                class="form-label fw-semibold"
+              >
+                Fecha de inicio
+              </label>
+
+              <input
+                type="date"
+                class="form-control"
+                id="promocion-fecha-inicio"
+                required
+              />
+            </div>
+
+            <div class="col-12 col-md-6 mb-3">
+              <label for="promocion-fecha-fin" class="form-label fw-semibold">
+                Fecha de fin
+              </label>
+
+              <input
+                type="date"
+                class="form-control"
+                id="promocion-fecha-fin"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Estado -->
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              id="promocion-activa"
+              checked
+            />
+
+            <label class="form-check-label" for="promocion-activa">
+              Promoción activa
+            </label>
+          </div>
+
+          <!-- Error del formulario -->
+          <div
+            class="alert alert-danger d-none mt-3 mb-0"
+            id="error-form-promocion"
+            role="alert"
+          ></div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btn-guardar-promocion"
+          >
+            <span id="texto-guardar-promocion"> Guardar </span>
+
+            <span
+              class="spinner-border spinner-border-sm ms-2 d-none"
+              id="spinner-guardar-promocion"
+              role="status"
+            ></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ELIMINAR -->
+<div
+  class="modal fade"
+  id="modal-eliminar-promocion"
+  tabindex="-1"
+  aria-labelledby="titulo-modal-eliminar-promocion"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="titulo-modal-eliminar-promocion">
+          Eliminar promoción
+        </h2>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-2">¿Seguro que querés eliminar esta promoción?</p>
+
+        <p class="fw-semibold mb-0" id="nombre-promocion-eliminar"></p>
+
+        <div
+          class="alert alert-danger d-none mt-3 mb-0"
+          id="error-eliminar-promocion"
+          role="alert"
+        ></div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-danger"
+          id="btn-confirmar-eliminar-promocion"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} 
+{% block extra_js %}
+
+<script src="{% static 'js/promociones.js' %}"></script>
+
+{% endblock %}
