@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 @ensure_csrf_cookie
@@ -65,6 +66,13 @@ def pagina_mis_informes(request):
     return render(request, "paginas/mis-informes.html", {"seccion_activa": "informes"})
 
 
+@ensure_csrf_cookie
+def pagina_promociones(request):
+    return render(
+        request, "paginas/promociones.html", {"seccion_activa": "promociones"}
+    )
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name="index"),
@@ -83,6 +91,7 @@ urlpatterns = [
     path("paginas/clientes.html", pagina_clientes, name="clientes"),
     path("paginas/mis-fotos.html", pagina_mis_fotos, name="mis_fotos"),
     path("paginas/mis-servicios.html", pagina_mis_servicios, name="mis_servicios"),
+    path("paginas/promociones.html", pagina_promociones, name="promociones"),
     path("paginas/mis-informes.html", pagina_mis_informes, name="mis_informes"),
     path("api/", include("apps.usuarios.urls")),
     path("api/", include("apps.turnos.urls")),

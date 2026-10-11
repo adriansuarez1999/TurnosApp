@@ -313,7 +313,22 @@
 
           </li>
 
+          <!-- Promociones -->
+          <li class="nav-item">
 
+            <a
+              class="nav-link
+              {% if seccion_activa == 'promociones' %}active{% endif %}"
+              href="{% url 'promociones' %}"
+            >
+
+              <i class="bi bi-percent"></i>
+
+              Promociones
+
+            </a>
+
+          </li>
 
           <!-- Informes -->
           <li class="nav-item">

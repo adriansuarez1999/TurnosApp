@@ -21,6 +21,8 @@ const estadoReserva = {
 
   servicioSeleccionado: null,
 
+  promocionAplicable: null,
+
   barberoSeleccionado: null,
 
   barberoEsCualquiera: false,
@@ -219,7 +221,7 @@ function renderizarServicios() {
   });
 }
 
-function seleccionarServicio(id) {
+async function seleccionarServicio(id) {
   estadoReserva.servicioSeleccionado = estadoReserva.servicios.find(
     (servicio) => String(servicio.id) === String(id),
   );
@@ -234,9 +236,47 @@ function seleccionarServicio(id) {
 
   limpiarHorario();
 
+  await cargarPromocionServicio();
+
   actualizarResumen();
 
   intentarCargarHorarios();
+}
+
+async function cargarPromocionServicio() {
+  estadoReserva.promocionAplicable = null;
+
+  if (!estadoReserva.servicioSeleccionado || !estadoReserva.fecha) {
+    actualizarResumen();
+
+    return;
+  }
+
+  try {
+    const idServicio = estadoReserva.servicioSeleccionado.id;
+
+    const params = new URLSearchParams({
+      fecha: estadoReserva.fecha,
+    });
+
+    const respuesta = await fetch(
+      `/api/servicios/${idServicio}/promocion/?${params.toString()}`,
+    );
+
+    if (!respuesta.ok) {
+      throw new Error("No se pudo consultar la promoción");
+    }
+
+    const datos = await respuesta.json();
+
+    estadoReserva.promocionAplicable = datos;
+  } catch (error) {
+    console.error(error);
+
+    estadoReserva.promocionAplicable = null;
+  }
+
+  actualizarResumen();
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -365,10 +405,12 @@ function configurarFechaMinima() {
 inputFecha.addEventListener(
   "change",
 
-  () => {
+  async () => {
     estadoReserva.fecha = inputFecha.value;
 
     limpiarHorario();
+
+    await cargarPromocionServicio();
 
     actualizarResumen();
 
@@ -570,10 +612,36 @@ function actualizarResumen() {
   document.getElementById("resumen-horario").textContent =
     estadoReserva.horarioSeleccionado || "—";
 
-  document.getElementById("resumen-total").textContent =
-    estadoReserva.servicioSeleccionado
+  const resumenTotal = document.getElementById("resumen-total");
+
+  if (
+    estadoReserva.promocionAplicable &&
+    estadoReserva.promocionAplicable.tiene_promocion
+  ) {
+    resumenTotal.innerHTML = `
+    <span
+      class="text-body-secondary text-decoration-line-through me-2"
+    >
+      $${estadoReserva.promocionAplicable.precio_original.toLocaleString("es-AR")}
+    </span>
+
+    <span
+      class="fw-bold text-success"
+    >
+      $${estadoReserva.promocionAplicable.precio_final.toLocaleString("es-AR")}
+    </span>
+
+    <span
+      class="badge text-bg-success ms-2"
+    >
+      -${estadoReserva.promocionAplicable.promocion.porcentaje_descuento}%
+    </span>
+  `;
+  } else {
+    resumenTotal.textContent = estadoReserva.servicioSeleccionado
       ? `$${estadoReserva.servicioSeleccionado.precio.toLocaleString("es-AR")}`
       : "—";
+  }
 
   actualizarBotonConfirmar();
 }

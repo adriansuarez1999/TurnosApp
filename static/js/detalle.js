@@ -74,8 +74,7 @@
           (b) => String(b.barberia) === String(id),
         );
       } else {
-
-      /* ── Backend Django ─────────────────────────────────── */
+        /* ── Backend Django ─────────────────────────────────── */
         const [respBarberia, respBarberos] = await Promise.all([
           fetch(API_DETALLE.barberia(id)),
 
@@ -326,70 +325,187 @@
 
     if (!servicios.length) {
       lista.innerHTML = `
+      <li
+        class="list-group-item py-4 text-center text-body-secondary"
+      >
+        <i
+          class="bi bi-info-circle me-1"
+        ></i>
 
-        <li
-          class="list-group-item py-4 text-center text-body-secondary"
-        >
-
-          <i
-            class="bi bi-info-circle me-1"
-          ></i>
-
-          Esta barbería todavía no cargó servicios.
-
-        </li>
-
-      `;
+        Esta barbería todavía no cargó servicios.
+      </li>
+    `;
 
       return;
     }
 
     lista.innerHTML = servicios
-      .map(
-        (servicio) => `
+      .map((servicio) => {
+        const promo = servicio.promocion;
 
-            <li
-              class="list-group-item barber-profile__service"
-            >
+        return `
+        <li
+          class="list-group-item barber-profile__service"
+        >
+
+          <div
+            class="d-flex justify-content-between align-items-start gap-3 flex-wrap"
+          >
+
+            <div class="flex-grow-1">
 
               <div
-                class="d-flex align-items-center justify-content-between gap-3"
+                class="d-flex align-items-center gap-2 flex-wrap"
               >
 
-                <div>
-
-                  <div class="fw-semibold">
-                    ${servicio.nombre}
-                  </div>
-
-                  ${
-                    servicio.descripcion
-                      ? `
-                        <div
-                          class="text-body-secondary small mt-1"
-                        >
-                          ${servicio.descripcion}
-                        </div>
-                      `
-                      : ""
-                  }
-
+                <div class="fw-semibold">
+                  ${servicio.nombre}
                 </div>
 
-
-                <span
-                  class="barber-profile__price"
-                >
-                  $${Number(servicio.precio).toLocaleString("es-AR")}
-                </span>
+                ${
+                  promo
+                    ? `
+                      <span
+                        class="badge text-bg-success"
+                      >
+                        -${Number(promo.porcentaje_descuento)}%
+                      </span>
+                    `
+                    : ""
+                }
 
               </div>
 
-            </li>
+              ${
+                servicio.descripcion
+                  ? `
+                    <div
+                      class="text-body-secondary small mt-1"
+                    >
+                      ${servicio.descripcion}
+                    </div>
+                  `
+                  : ""
+              }
 
-          `,
-      )
+              ${
+                promo
+                  ? `
+                    <div
+                      class="mt-2"
+                    >
+
+                      <div
+                        class="small fw-semibold text-success"
+                      >
+                        ${promo.nombre}
+                      </div>
+
+                      <div
+                        class="small text-body-secondary"
+                      >
+                        La promoción termina en:
+                      </div>
+
+                      <div
+                        class="fw-semibold text-success"
+                        data-promo-contador
+                        data-fecha-fin="${promo.fecha_fin_datetime}"
+                      >
+                        Calculando...
+                      </div>
+
+                    </div>
+                  `
+                  : ""
+              }
+
+            </div>
+
+
+            <div class="text-end">
+
+              ${
+                promo
+                  ? `
+                    <div
+                      class="text-body-secondary text-decoration-line-through small"
+                    >
+                      $${Number(promo.precio_original).toLocaleString("es-AR")}
+                    </div>
+
+                    <div
+                      class="barber-profile__price text-success fw-bold"
+                    >
+                      $${Number(promo.precio_final).toLocaleString("es-AR")}
+                    </div>
+                  `
+                  : `
+                    <span
+                      class="barber-profile__price"
+                    >
+                      $${Number(servicio.precio).toLocaleString("es-AR")}
+                    </span>
+                  `
+              }
+
+            </div>
+
+          </div>
+
+        </li>
+      `;
+      })
       .join("");
+
+    iniciarContadoresPromociones();
+  }
+
+  function iniciarContadoresPromociones() {
+    actualizarContadoresPromociones();
+
+    if (window.intervaloPromociones) {
+      clearInterval(window.intervaloPromociones);
+    }
+
+    window.intervaloPromociones = setInterval(
+      actualizarContadoresPromociones,
+      1000,
+    );
+  }
+
+  function actualizarContadoresPromociones() {
+    const contadores = document.querySelectorAll("[data-promo-contador]");
+
+    contadores.forEach((contador) => {
+      const fechaFin = new Date(contador.dataset.fechaFin);
+
+      const ahora = new Date();
+
+      const diferencia = fechaFin.getTime() - ahora.getTime();
+
+      if (diferencia <= 0) {
+        contador.textContent = "Promoción finalizada";
+
+        contador.classList.add("text-body-secondary");
+
+        return;
+      }
+
+      const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+
+      const horas = Math.floor((diferencia / (1000 * 60 * 60)) % 24);
+
+      const minutos = Math.floor((diferencia / (1000 * 60)) % 60);
+
+      const segundos = Math.floor((diferencia / 1000) % 60);
+
+      contador.textContent =
+        `${dias}d ` +
+        `${String(horas).padStart(2, "0")}h ` +
+        `${String(minutos).padStart(2, "0")}m ` +
+        `${String(segundos).padStart(2, "0")}s`;
+    });
   }
 
   /* ═══════════════════════════════════════════════════════════
