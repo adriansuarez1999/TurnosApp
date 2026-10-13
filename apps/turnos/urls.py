@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_barbero, views_calificacion
 
 
 urlpatterns = [
@@ -17,4 +17,14 @@ urlpatterns = [
 
     # Sprint 5 - Módulo C: calendario de turnos por barbero
     path('mi-barberia/barberos/<int:id>/turnos/', views.turnos_por_barbero),
+
+    # Sprint 6 - Módulo B: agenda del barbero (el id sale de la sesión)
+    path('mi-agenda/turnos/', views_barbero.mi_agenda_turnos),
+    path('mi-agenda/turnos/<int:id>/finalizar/', views_barbero.finalizar_turno),
+    path('mi-agenda/turnos/<int:id>/ausente/', views_barbero.ausente_turno),
+    path('mi-agenda/turnos/<int:id>/cancelar/', views_barbero.cancelar_turno_barbero),
+    path('mi-agenda/clientes/<int:id>/historial/', views_barbero.historial_cliente),
+
+    # Sprint 6 - Módulo D: calificación del cliente
+    path('turnos/<int:id>/calificar/', views_calificacion.calificar_turno),
 ]
