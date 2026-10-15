@@ -1,0 +1,684 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+
+{% block title %}
+Mi agenda — BarberApp
+{% endblock %}
+
+
+{% block panel_titulo %}
+Mi agenda
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Consultá tus turnos y gestioná cada atención.
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+  .agenda-semanal {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .agenda-dia {
+    min-height: 145px;
+    width: 100%;
+    padding: 1rem;
+
+    text-align: left;
+
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .agenda-dia:hover {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+    transform: translateY(-1px);
+  }
+
+  .agenda-dia.activo {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+  }
+
+  .agenda-dia.hoy {
+    border-color: var(--bs-primary);
+  }
+
+  .agenda-dia-nombre {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+  }
+
+  .agenda-dia-numero {
+    margin-top: 0.35rem;
+    font-size: 1.65rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .agenda-dia-turnos {
+    margin-top: 1rem;
+  }
+
+  .turno-agenda {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    padding: 1rem;
+  }
+
+  .cliente-link {
+    padding: 0;
+    border: 0;
+    background: none;
+
+    color: var(--bs-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .cliente-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 1199.98px) {
+
+    .agenda-semanal {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+  }
+
+  @media (max-width: 767.98px) {
+
+    .agenda-semanal {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+  }
+
+  @media (max-width: 575.98px) {
+
+    .agenda-semanal {
+      grid-template-columns: 1fr;
+    }
+
+    .agenda-dia {
+      min-height: auto;
+    }
+
+  }
+
+</style>
+
+{% endblock %}
+
+
+
+{% block panel_acciones %}
+
+<button
+  type="button"
+  class="btn btn-outline-secondary"
+  id="btn-semana-actual"
+>
+  <i class="bi bi-calendar-event me-1"></i>
+  Semana actual
+</button>
+
+{% endblock %}
+
+
+
+{% block panel_content %}
+
+
+<div
+  class="alert d-none"
+  id="alerta-agenda"
+  role="alert"
+>
+</div>
+
+
+
+<!-- CALENDARIO -->
+
+<div class="card mb-4">
+
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-3"
+  >
+
+    <div>
+
+      <h2 class="h5 mb-1">
+        Agenda semanal
+      </h2>
+
+      <p
+        class="text-body-secondary small mb-0"
+        id="texto-rango-semana"
+      >
+        Cargando semana...
+      </p>
+
+    </div>
+
+
+    <div
+      class="btn-group"
+      role="group"
+    >
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        id="btn-semana-anterior"
+      >
+        <i class="bi bi-chevron-left me-1"></i>
+        Anterior
+      </button>
+
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        id="btn-semana-siguiente"
+      >
+        Siguiente
+        <i class="bi bi-chevron-right ms-1"></i>
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card-body">
+
+    <div
+      id="estado-agenda"
+      class="py-4 text-center"
+    >
+
+      <div
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+      ></div>
+
+      <span class="text-body-secondary">
+        Cargando turnos...
+      </span>
+
+    </div>
+
+
+    <div
+      class="d-none"
+      id="contenedor-agenda"
+    >
+
+      <div
+        class="agenda-semanal"
+        id="grilla-agenda"
+      >
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- DETALLE DEL DÍA -->
+
+<div
+  class="card d-none"
+  id="card-detalle-dia"
+>
+
+  <div
+    class="card-header bg-body d-flex justify-content-between align-items-center flex-wrap gap-2"
+  >
+
+    <div>
+
+      <h2
+        class="h5 mb-1"
+        id="titulo-detalle-dia"
+      >
+        Turnos del día
+      </h2>
+
+      <p
+        class="text-body-secondary small mb-0"
+        id="subtitulo-detalle-dia"
+      >
+      </p>
+
+    </div>
+
+
+    <span
+      class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"
+      id="cantidad-turnos-dia"
+    >
+      0 turnos
+    </span>
+
+  </div>
+
+
+  <div class="card-body">
+
+    <div
+      class="vstack gap-3"
+      id="lista-turnos-dia"
+    >
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- MODAL CONFIRMAR ACCIÓN -->
+
+<div
+  class="modal fade"
+  id="modal-accion-turno"
+  tabindex="-1"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal-dialog modal-dialog-centered"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h2
+          class="modal-title fs-5"
+          id="titulo-modal-accion"
+        >
+          Confirmar acción
+        </h2>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <p
+          class="mb-3"
+          id="texto-modal-accion"
+        >
+        </p>
+
+
+        <div
+          class="d-none"
+          id="contenedor-motivo-cancelacion"
+        >
+
+          <label
+            for="motivo-cancelacion"
+            class="form-label fw-semibold"
+          >
+            Motivo
+            <span class="text-body-secondary fw-normal">
+              (opcional)
+            </span>
+          </label>
+
+          <textarea
+            class="form-control"
+            id="motivo-cancelacion"
+            rows="3"
+            maxlength="255"
+          ></textarea>
+
+        </div>
+
+
+        <div
+          class="alert alert-danger d-none mt-3 mb-0"
+          id="error-accion-turno"
+        >
+        </div>
+
+      </div>
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Volver
+        </button>
+
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-confirmar-accion"
+        >
+          Confirmar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- MODAL HISTORIAL CLIENTE -->
+
+<div
+  class="modal fade"
+  id="modal-historial-cliente"
+  tabindex="-1"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal-dialog modal-dialog-centered"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2 class="modal-title fs-5">
+            Historial del cliente
+          </h2>
+
+          <div
+            class="text-body-secondary small"
+            id="nombre-cliente-historial"
+          >
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <div
+          class="text-center py-3"
+          id="estado-historial"
+        >
+          Cargando...
+        </div>
+
+
+        <div
+          class="row g-3 d-none"
+          id="datos-historial"
+        >
+
+          <div class="col-6">
+
+            <div
+              class="border rounded-3 p-3 h-100"
+            >
+              <div class="small text-body-secondary">
+                Turnos totales
+              </div>
+
+              <div
+                class="fs-4 fw-semibold"
+                id="historial-total"
+              >
+                0
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="col-6">
+
+            <div
+              class="border rounded-3 p-3 h-100"
+            >
+              <div class="small text-body-secondary">
+                Finalizados
+              </div>
+
+              <div
+                class="fs-4 fw-semibold text-success"
+                id="historial-finalizados"
+              >
+                0
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="col-6">
+
+            <div
+              class="border rounded-3 p-3 h-100"
+            >
+              <div class="small text-body-secondary">
+                Ausencias
+              </div>
+
+              <div
+                class="fs-4 fw-semibold text-warning"
+                id="historial-ausencias"
+              >
+                0
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="col-6">
+
+            <div
+              class="border rounded-3 p-3 h-100"
+            >
+              <div class="small text-body-secondary">
+                Cancelados
+              </div>
+
+              <div
+                class="fs-4 fw-semibold text-danger"
+                id="historial-cancelados"
+              >
+                0
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- MODAL COBRO -->
+
+<div
+  class="modal fade"
+  id="modal-cobro"
+  tabindex="-1"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal-dialog modal-dialog-centered"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h2 class="modal-title fs-5">
+          Registrar cobro
+        </h2>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <div class="mb-3">
+
+          <label class="form-label fw-semibold">
+            Monto
+          </label>
+
+          <input
+            type="text"
+            class="form-control"
+            id="monto-cobro"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="mb-3">
+
+          <label
+            for="metodo-cobro"
+            class="form-label fw-semibold"
+          >
+            Método de pago
+          </label>
+
+          <select
+            class="form-select"
+            id="metodo-cobro"
+          >
+
+            <option value="EFECTIVO">
+              Efectivo
+            </option>
+
+            <option value="TRANSFERENCIA">
+              Transferencia
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div
+          class="alert alert-danger d-none mb-0"
+          id="error-cobro"
+        >
+        </div>
+
+      </div>
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-confirmar-cobro"
+        >
+          Registrar cobro
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/mi-agenda.js' %}"
+></script>
+
+{% endblock %}

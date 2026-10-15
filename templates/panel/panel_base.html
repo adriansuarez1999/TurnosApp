@@ -13,44 +13,31 @@
     content="width=device-width, initial-scale=1"
   >
 
-
   <title>
     {% block title %}
       Panel — BarberApp
     {% endblock %}
   </title>
 
-
-  <!-- ═══════════════════════════════════════════════════════
-       BOOTSTRAP
-  ═════════════════════════════════════════════════════════ -->
-
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
 
-
-  <!-- Bootstrap Icons -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
   >
 
-
-  <!-- Colores BarberApp -->
   <link
     rel="stylesheet"
     href="{% static 'css/bootstrap-bridge.css' %}"
   >
 
-
-  <!-- Dashboard -->
   <link
     rel="stylesheet"
     href="{% static 'css/dashboard.css' %}"
   >
-
 
   {% block extra_css %}
   {% endblock %}
@@ -58,21 +45,16 @@
 </head>
 
 
+<body
+  data-panel-mode="{{ modo_panel|default:'admin' }}"
+>
 
-<body>
-
-
-<!-- ═══════════════════════════════════════════════════════════
-     HEADER
-════════════════════════════════════════════════════════════ -->
 
 <header
   class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow"
   data-bs-theme="dark"
 >
 
-
-  <!-- Marca -->
   <a
     class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white"
     href="{% url 'index' %}"
@@ -81,8 +63,105 @@
   </a>
 
 
-  <!-- Controles -->
-  <ul class="navbar-nav flex-row ms-auto">
+  <div
+    class="d-flex align-items-center gap-2 ms-auto"
+    id="panel-mode-tabs"
+  >
+
+    <a
+      href="{% url 'mi_barberia' %}"
+      class="btn btn-sm btn-outline-light d-none"
+      id="panel-tab-admin"
+    >
+      <i class="bi bi-grid me-1"></i>
+      Administración
+    </a>
+
+
+    <a
+      href="{% url 'mi_agenda' %}"
+      class="btn btn-sm btn-outline-light d-none"
+      id="panel-tab-agenda"
+    >
+      <i class="bi bi-calendar-check me-1"></i>
+      Mi agenda
+    </a>
+
+  </div>
+
+
+  <!-- NOTIFICACIONES -->
+
+  <div
+    class="dropdown d-none ms-2"
+    id="contenedor-notificaciones"
+  >
+
+    <button
+      class="btn btn-sm btn-outline-light position-relative"
+      type="button"
+      id="btn-notificaciones"
+      data-bs-toggle="dropdown"
+      data-bs-auto-close="outside"
+      aria-expanded="false"
+      aria-label="Notificaciones"
+    >
+
+      <i class="bi bi-bell"></i>
+
+      <span
+        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+        id="badge-notificaciones"
+      >
+        0
+      </span>
+
+    </button>
+
+
+    <div
+      class="dropdown-menu dropdown-menu-end p-0 shadow"
+      style="width: min(380px, 92vw);"
+    >
+
+      <div
+        class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom"
+      >
+
+        <strong>
+          Notificaciones
+        </strong>
+
+        <button
+          type="button"
+          class="btn btn-link btn-sm text-decoration-none p-0 d-none"
+          id="btn-marcar-todas-leidas"
+        >
+          Marcar todas como leídas
+        </button>
+
+      </div>
+
+
+      <div
+        id="lista-notificaciones"
+        style="max-height: 420px; overflow-y: auto;"
+      >
+
+        <div
+          class="text-center text-body-secondary py-4"
+        >
+          Cargando...
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <ul class="navbar-nav flex-row">
 
     <li class="nav-item text-nowrap">
 
@@ -98,7 +177,6 @@
   </ul>
 
 
-  <!-- Mobile -->
   <button
     class="navbar-toggler d-md-none collapsed me-2"
     type="button"
@@ -114,15 +192,10 @@
 </header>
 
 
-
 <div class="container-fluid">
 
   <div class="row">
 
-
-    <!-- ═══════════════════════════════════════════════════════
-         SIDEBAR
-    ═════════════════════════════════════════════════════════ -->
 
     <div
       class="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary offcanvas-md offcanvas-start"
@@ -130,7 +203,6 @@
       id="sidebarMenu"
       aria-labelledby="sidebarMenuLabel"
     >
-
 
       <div class="offcanvas-header">
 
@@ -140,7 +212,6 @@
         >
           BarberApp
         </h5>
-
 
         <button
           type="button"
@@ -153,21 +224,18 @@
       </div>
 
 
-
       <div
         class="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto"
       >
 
-
-        <!-- Barbería actual -->
         <div class="px-3 pb-3">
 
           <div
             class="small text-body-secondary mb-1"
+            id="panel-sidebar-label"
           >
-            Administrando
+            Cargando
           </div>
-
 
           <div
             class="fw-semibold text-truncate"
@@ -179,183 +247,180 @@
         </div>
 
 
-
         <hr class="my-2">
 
 
+        <!-- ADMINISTRACIÓN -->
 
-        <!-- ═══════════════════════════════════════════════════
-             MENÚ
-        ═════════════════════════════════════════════════════ -->
+        <div
+          id="sidebar-admin"
+          class="d-none"
+        >
 
-        <ul class="nav flex-column">
+          <ul class="nav flex-column">
 
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'barberia' %}active{% endif %}"
+                href="{% url 'mi_barberia' %}"
+              >
+                <i class="bi bi-house-door"></i>
+                Mi barbería
+              </a>
+            </li>
 
-          <!-- Mi barbería -->
-          <li class="nav-item">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'barberos' %}active{% endif %}"
+                href="{% url 'mis_barberos' %}"
+              >
+                <i class="bi bi-people"></i>
+                Mis barberos
+              </a>
+            </li>
 
-            <a
-              class="nav-link
-              {% if seccion_activa == 'barberia' %}active{% endif %}"
-              href="{% url 'mi_barberia' %}"
-            >
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'disponibilidad' %}active{% endif %}"
+                href="{% url 'disponibilidad' %}"
+              >
+                <i class="bi bi-calendar-week"></i>
+                Disponibilidad
+              </a>
+            </li>
 
-              <i class="bi bi-house-door"></i>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'turnos_barbero' %}active{% endif %}"
+                href="{% url 'turnos_barbero' %}"
+              >
+                <i class="bi bi-calendar3"></i>
+                Turnos por barbero
+              </a>
+            </li>
 
-              Mi barbería
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'clientes' %}active{% endif %}"
+                href="{% url 'clientes' %}"
+              >
+                <i class="bi bi-person-lines-fill"></i>
+                Clientes
+              </a>
+            </li>
 
-            </a>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'fotos' %}active{% endif %}"
+                href="{% url 'mis_fotos' %}"
+              >
+                <i class="bi bi-images"></i>
+                Fotos
+              </a>
+            </li>
 
-          </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'servicios' %}active{% endif %}"
+                href="{% url 'mis_servicios' %}"
+              >
+                <i class="bi bi-scissors"></i>
+                Servicios
+              </a>
+            </li>
 
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'promociones' %}active{% endif %}"
+                href="{% url 'promociones' %}"
+              >
+                <i class="bi bi-percent"></i>
+                Promociones
+              </a>
+            </li>
 
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'informes' %}active{% endif %}"
+                href="{% url 'mis_informes' %}"
+              >
+                <i class="bi bi-bar-chart-line"></i>
+                Informes
+              </a>
+            </li>
 
-          <!-- Barberos -->
-          <li class="nav-item">
+          </ul>
 
-            <a
-              class="nav-link
-              {% if seccion_activa == 'barberos' %}active{% endif %}"
-              href="{% url 'mis_barberos' %}"
-            >
-
-              <i class="bi bi-people"></i>
-
-              Mis barberos
-
-            </a>
-
-          </li>
-
-          <!-- Disponibilidad -->
-          <li class="nav-item">
-
-            <a
-              class="nav-link
-              {% if seccion_activa == 'disponibilidad' %}active{% endif %}"
-              href="{% url 'disponibilidad' %}"
-            >
-
-              <i class="bi bi-calendar-week"></i>
-
-              Disponibilidad
-
-            </a>
-
-          </li>
-
-          <!-- Turnos por barbero -->
-          <li class="nav-item">
-
-            <a
-              class="nav-link
-              {% if seccion_activa == 'turnos_barbero' %}active{% endif %}"
-              href="{% url 'turnos_barbero' %}"
-            >
-
-              <i class="bi bi-calendar3"></i>
-
-              Turnos por barbero
-
-            </a>
-
-          </li>
-
-          <!-- Clientes -->
-          <li class="nav-item">
-
-            <a
-              class="nav-link {% if seccion_activa == 'clientes' %}active{% endif %}"
-              href="{% url 'clientes' %}"
-            >
-
-              <i class="bi bi-person-lines-fill"></i>
-
-              Clientes
-
-            </a>
-
-          </li>
-
-          <!-- Fotos -->
-          <li class="nav-item">
-
-            <a
-              class="nav-link
-              {% if seccion_activa == 'fotos' %}active{% endif %}"
-              href="{% url 'mis_fotos' %}"
-            >
-
-              <i class="bi bi-images"></i>
-
-              Fotos
-
-            </a>
-
-          </li>
+        </div>
 
 
+        <!-- MI AGENDA -->
 
-          <!-- Servicios -->
-          <li class="nav-item">
+        <div
+          id="sidebar-agenda"
+          class="d-none"
+        >
 
-            <a
-              class="nav-link
-              {% if seccion_activa == 'servicios' %}active{% endif %}"
-              href="{% url 'mis_servicios' %}"
-            >
+          <ul class="nav flex-column">
 
-              <i class="bi bi-scissors"></i>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'agenda' %}active{% endif %}"
+                href="{% url 'mi_agenda' %}"
+              >
+                <i class="bi bi-calendar-check"></i>
+                Agenda
+              </a>
+            </li>
 
-              Servicios
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'mi_disponibilidad' %}active{% endif %}"
+                href="{% url 'mi_disponibilidad' %}"
+              >
+                <i class="bi bi-calendar-week"></i>
+                Disponibilidad
+              </a>
+            </li>
 
-            </a>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'mi_estadisticas' %}active{% endif %}"
+                href="{% url 'mi_estadisticas' %}"
+              >
+                <i class="bi bi-bar-chart-line"></i>
+                Estadísticas
+              </a>
+            </li>
 
-          </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'mis_calificaciones' %}active{% endif %}"
+                href="{% url 'mis_calificaciones' %}"
+              >
+                <i class="bi bi-star"></i>
+                Calificaciones
+              </a>
+            </li>
 
-          <!-- Promociones -->
-          <li class="nav-item">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion_activa == 'mi_perfil' %}active{% endif %}"
+                href="{% url 'mi_perfil' %}"
+              >
+                <i class="bi bi-person-circle"></i>
+                Perfil
+              </a>
+            </li>
 
-            <a
-              class="nav-link
-              {% if seccion_activa == 'promociones' %}active{% endif %}"
-              href="{% url 'promociones' %}"
-            >
+          </ul>
 
-              <i class="bi bi-percent"></i>
-
-              Promociones
-
-            </a>
-
-          </li>
-
-          <!-- Informes -->
-          <li class="nav-item">
-
-            <a
-              class="nav-link
-              {% if seccion_activa == 'informes' %}active{% endif %}"
-              href="{% url 'mis_informes' %}"
-            >
-
-              <i class="bi bi-bar-chart-line"></i>
-
-              Informes
-
-            </a>
-
-          </li>
-
-        </ul>
-
+        </div>
 
 
         <hr class="my-3">
 
 
-
-        <!-- Secundario -->
         <ul class="nav flex-column mb-auto">
 
           <li class="nav-item">
@@ -364,75 +429,52 @@
               class="nav-link"
               href="{% url 'index' %}"
             >
-
               <i class="bi bi-arrow-left"></i>
-
               Volver a BarberApp
-
             </a>
 
           </li>
 
         </ul>
 
-
       </div>
 
     </div>
 
 
-
-    <!-- ═══════════════════════════════════════════════════════
-         CONTENIDO PRINCIPAL
-    ═════════════════════════════════════════════════════════ -->
-
     <main
       class="dashboard-main col-md-9 ms-sm-auto col-lg-10 px-md-4"
     >
 
-
-      <!-- Encabezado -->
       <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom"
       >
 
-
         <div>
 
           <h1 class="h2 mb-1">
-
             {% block panel_titulo %}
             {% endblock %}
-
           </h1>
 
-
           <p class="text-body-secondary mb-0">
-
             {% block panel_subtitulo %}
             {% endblock %}
-
           </p>
 
         </div>
 
 
-
         <div class="btn-toolbar mb-2 mb-md-0">
-
           {% block panel_acciones %}
           {% endblock %}
-
         </div>
 
       </div>
 
 
-
-      <!-- Contenido de cada sección -->
       {% block panel_content %}
       {% endblock %}
-
 
     </main>
 
@@ -441,37 +483,28 @@
 </div>
 
 
-
-<!-- ═══════════════════════════════════════════════════════════
-     MODALES DE CADA PÁGINA
-════════════════════════════════════════════════════════════ -->
-
 {% block modals %}
 {% endblock %}
 
-
-
-<!-- ═══════════════════════════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════════════════════════════ -->
 
 <script
   src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
 ></script>
 
-
 <script
   src="{% static 'js/mock-data.js' %}"
 ></script>
-
 
 <script
   src="{% static 'js/turnos-utils.js' %}"
 ></script>
 
-
 <script
   src="{% static 'js/panel-base.js' %}"
+></script>
+
+<script
+  src="{% static 'js/notificaciones.js' %}"
 ></script>
 
 

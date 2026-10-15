@@ -1,0 +1,263 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+
+{% block title %}
+Mis estadísticas — BarberApp
+{% endblock %}
+
+
+{% block panel_titulo %}
+Mis estadísticas
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Consultá tu actividad y rendimiento por período.
+{% endblock %}
+
+
+{% block panel_content %}
+
+
+<div
+  class="alert d-none"
+  id="alerta-estadisticas"
+>
+</div>
+
+
+<div class="card mb-4">
+
+  <div class="card-body">
+
+    <form
+      class="row g-3 align-items-end"
+      id="form-filtro-estadisticas"
+    >
+
+      <div class="col-12 col-md-4">
+
+        <label
+          for="estadisticas-desde"
+          class="form-label fw-semibold"
+        >
+          Desde
+        </label>
+
+        <input
+          type="date"
+          class="form-control"
+          id="estadisticas-desde"
+        >
+
+      </div>
+
+
+      <div class="col-12 col-md-4">
+
+        <label
+          for="estadisticas-hasta"
+          class="form-label fw-semibold"
+        >
+          Hasta
+        </label>
+
+        <input
+          type="date"
+          class="form-control"
+          id="estadisticas-hasta"
+        >
+
+      </div>
+
+
+      <div class="col-12 col-md-4">
+
+        <div class="d-flex gap-2">
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            <i class="bi bi-funnel me-1"></i>
+            Aplicar
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="btn-limpiar-filtro"
+          >
+            Todo
+          </button>
+
+        </div>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<div
+  id="estado-estadisticas"
+  class="text-center py-4"
+>
+
+  <div
+    class="spinner-border spinner-border-sm me-2"
+  ></div>
+
+  Cargando estadísticas...
+
+</div>
+
+
+<div
+  class="d-none"
+  id="contenido-estadisticas"
+>
+
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+      <div class="card h-100">
+
+        <div class="card-body">
+
+          <div class="text-body-secondary small">
+            Turnos atendidos
+          </div>
+
+          <div
+            class="display-6 fw-semibold"
+            id="stat-atendidos"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+      <div class="card h-100">
+
+        <div class="card-body">
+
+          <div class="text-body-secondary small">
+            Ausencias
+          </div>
+
+          <div
+            class="display-6 fw-semibold text-warning"
+            id="stat-ausencias"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+      <div class="card h-100">
+
+        <div class="card-body">
+
+          <div class="text-body-secondary small">
+            Cancelados
+          </div>
+
+          <div
+            class="display-6 fw-semibold text-danger"
+            id="stat-cancelados"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+      <div class="card h-100">
+
+        <div class="card-body">
+
+          <div class="text-body-secondary small">
+            Ingresos generados
+          </div>
+
+          <div
+            class="fs-3 fw-semibold text-success"
+            id="stat-ingresos"
+          >
+            $0
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="card-header bg-body">
+
+      <h2 class="h5 mb-1">
+        Servicios más pedidos
+      </h2>
+
+      <p class="text-body-secondary small mb-0">
+        Se consideran los turnos finalizados del período.
+      </p>
+
+    </div>
+
+
+    <div class="card-body">
+
+      <div
+        id="lista-servicios-estadisticas"
+      >
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/mi-estadisticas.js' %}"
+></script>
+
+{% endblock %}

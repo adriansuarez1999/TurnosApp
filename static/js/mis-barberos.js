@@ -1,27 +1,13 @@
 (() => {
-  /* ═══════════════════════════════════════════════════════════
-     mis-barberos.js
-
-     CRUD de barberos del panel del dueño.
-
-     GET
-     POST
-     PUT
-
-     /api/mi-barberia/barberos/
-  ═══════════════════════════════════════════════════════════ */
-
   const API_MIS_BARBEROS = "/api/mi-barberia/barberos/";
+
+  const API_AGREGARME_BARBERO = "/api/mi-barberia/barberos/yo/";
 
   let barberosActuales = [];
 
   let barberoFotoPendiente = null;
 
   let cambioEstadoPendiente = null;
-
-  /* ═══════════════════════════════════════════════════════════
-     REFERENCIAS
-  ═══════════════════════════════════════════════════════════ */
 
   const lista = document.getElementById("lista-mis-barberos");
 
@@ -32,8 +18,6 @@
   const cantidadBarberos = document.getElementById("cantidad-barberos");
 
   const alertaGeneral = document.getElementById("alerta-barberos");
-
-  /* FORM */
 
   const formulario = document.getElementById("form-barbero");
 
@@ -61,15 +45,21 @@
 
   const btnNuevoBarbero = document.getElementById("btn-nuevo-barbero");
 
+  const btnAgregarmeBarbero = document.getElementById("btn-agregarme-barbero");
+
+  const btnConfirmarAgregarmeBarbero = document.getElementById(
+    "btn-confirmar-agregarme-barbero",
+  );
+
+  const alertaAgregarmeBarbero = document.getElementById(
+    "alerta-agregarme-barbero",
+  );
+
   const modalTitulo = document.getElementById("modal-barbero-titulo");
 
   const modalSubtitulo = document.getElementById("modal-barbero-subtitulo");
 
-  /* FOTO */
-
   const inputFoto = document.getElementById("input-foto-barbero");
-
-  /* ESTADO */
 
   const textoConfirmarEstado = document.getElementById(
     "texto-confirmar-estado",
@@ -79,10 +69,6 @@
 
   const alertaEstado = document.getElementById("alerta-estado-barbero");
 
-  /* ═══════════════════════════════════════════════════════════
-     MODALES
-  ═══════════════════════════════════════════════════════════ */
-
   const modalBarbero = bootstrap.Modal.getOrCreateInstance(
     document.getElementById("modal-barbero"),
   );
@@ -91,9 +77,9 @@
     document.getElementById("modal-estado-barbero"),
   );
 
-  /* ═══════════════════════════════════════════════════════════
-     ALERTAS
-  ═══════════════════════════════════════════════════════════ */
+  const modalAgregarmeBarbero = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById("modal-agregarme-barbero"),
+  );
 
   function mostrarAlerta(elemento, mensaje, tipo) {
     elemento.textContent = mensaje;
@@ -108,10 +94,6 @@
 
     elemento.className = "alert d-none";
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     CARGAR BARBEROS
-  ═══════════════════════════════════════════════════════════ */
 
   async function cargarBarberos() {
     mostrarCarga();
@@ -139,10 +121,6 @@
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     CARGA
-  ═══════════════════════════════════════════════════════════ */
-
   function mostrarCarga() {
     cantidadBarberos.textContent = "0";
 
@@ -151,7 +129,6 @@
     estadoBarberos.classList.remove("d-none");
 
     estadoBarberos.innerHTML = `
-
       <div
         class="d-flex align-items-center gap-2 text-body-secondary"
       >
@@ -166,7 +143,6 @@
         </span>
 
       </div>
-
     `;
   }
 
@@ -178,20 +154,14 @@
     estadoBarberos.classList.remove("d-none");
 
     estadoBarberos.innerHTML = `
-
       <div
         class="alert alert-danger mb-0"
         role="alert"
       >
         ${mensaje}
       </div>
-
     `;
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     RENDER TABLA
-  ═══════════════════════════════════════════════════════════ */
 
   function renderizarBarberos() {
     cantidadBarberos.textContent = barberosActuales.length;
@@ -204,7 +174,6 @@
       estadoBarberos.classList.remove("d-none");
 
       estadoBarberos.innerHTML = `
-
         <div
           class="text-center py-4"
         >
@@ -213,11 +182,9 @@
             class="bi bi-people fs-1 text-body-secondary"
           ></i>
 
-
           <h3 class="h5 mt-3">
             Todavía no agregaste barberos
           </h3>
-
 
           <p
             class="text-body-secondary mb-3"
@@ -225,21 +192,19 @@
             Agregá el primer integrante de tu equipo.
           </p>
 
-
           <button
             type="button"
             class="btn btn-primary"
             id="btn-primer-barbero"
           >
-
-            <i class="bi bi-person-plus me-1"></i>
+            <i
+              class="bi bi-person-plus me-1"
+            ></i>
 
             Agregar barbero
-
           </button>
 
         </div>
-
       `;
 
       document
@@ -260,19 +225,12 @@
     conectarEventosTabla();
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     FILA
-  ═══════════════════════════════════════════════════════════ */
-
   function crearFilaBarbero(barbero) {
     const activo = barbero.estado !== "INACTIVO";
 
     return `
-
       <tr>
 
-
-        <!-- BARBERO -->
         <td class="ps-4">
 
           <div
@@ -290,20 +248,16 @@
               ${
                 barbero.foto
                   ? `
-
                     <img
                       src="${barbero.foto}"
                       alt="Foto de ${barbero.nombre}"
                       class="w-100 h-100 object-fit-cover"
                     >
-
                   `
                   : `
-
                     <i
                       class="bi bi-person text-body-secondary fs-5"
                     ></i>
-
                   `
               }
 
@@ -313,12 +267,9 @@
             <div>
 
               <div class="fw-semibold">
-
                 ${barbero.nombre}
                 ${barbero.apellido}
-
               </div>
-
 
               <div
                 class="small text-body-secondary"
@@ -333,14 +284,11 @@
         </td>
 
 
-
-        <!-- CONTACTO -->
         <td>
 
           <div>
             ${barbero.email}
           </div>
-
 
           <div
             class="small text-body-secondary"
@@ -351,44 +299,34 @@
         </td>
 
 
-
-        <!-- ESPECIALIDAD -->
         <td>
 
           ${
             barbero.especialidad
               ? barbero.especialidad
               : `
-
                 <span
                   class="text-body-secondary"
                 >
                   Sin especificar
                 </span>
-
               `
           }
 
         </td>
 
 
-
-        <!-- ESTADO -->
         <td>
 
           <span
             class="badge ${activo ? "text-bg-success" : "text-bg-secondary"}"
           >
-
             ${activo ? "Activo" : "Inactivo"}
-
           </span>
 
         </td>
 
 
-
-        <!-- ACCIONES -->
         <td class="text-end pe-4">
 
           <div class="dropdown">
@@ -407,7 +345,6 @@
               class="dropdown-menu dropdown-menu-end"
             >
 
-
               <li>
 
                 <button
@@ -415,15 +352,14 @@
                   class="dropdown-item btn-editar-barbero"
                   data-id="${barbero.id_barbero}"
                 >
-
-                  <i class="bi bi-pencil me-2"></i>
+                  <i
+                    class="bi bi-pencil me-2"
+                  ></i>
 
                   Editar
-
                 </button>
 
               </li>
-
 
 
               <li>
@@ -433,23 +369,19 @@
                   class="dropdown-item btn-foto-barbero"
                   data-id="${barbero.id_barbero}"
                 >
-
-                  <i class="bi bi-camera me-2"></i>
+                  <i
+                    class="bi bi-camera me-2"
+                  ></i>
 
                   Cambiar foto
-
                 </button>
 
               </li>
 
 
-
               <li>
-
                 <hr class="dropdown-divider">
-
               </li>
-
 
 
               <li>
@@ -481,53 +413,127 @@
 
         </td>
 
-
       </tr>
-
     `;
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     EVENTOS DE TABLA
-  ═══════════════════════════════════════════════════════════ */
-
   function conectarEventosTabla() {
     lista.querySelectorAll(".btn-editar-barbero").forEach((boton) => {
-      boton.addEventListener(
-        "click",
-
-        () => {
-          abrirEdicionBarbero(boton.dataset.id);
-        },
-      );
+      boton.addEventListener("click", () => {
+        abrirEdicionBarbero(boton.dataset.id);
+      });
     });
 
     lista.querySelectorAll(".btn-foto-barbero").forEach((boton) => {
-      boton.addEventListener(
-        "click",
+      boton.addEventListener("click", () => {
+        barberoFotoPendiente = boton.dataset.id;
 
-        () => {
-          barberoFotoPendiente = boton.dataset.id;
-
-          inputFoto.click();
-        },
-      );
+        inputFoto.click();
+      });
     });
 
     lista.querySelectorAll(".btn-estado-barbero").forEach((boton) => {
-      boton.addEventListener(
-        "click",
-
-        () => {
-          abrirConfirmacionEstado(boton.dataset.id, boton.dataset.estado);
-        },
-      );
+      boton.addEventListener("click", () => {
+        abrirConfirmacionEstado(boton.dataset.id, boton.dataset.estado);
+      });
     });
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     NUEVO BARBERO
-  ═══════════════════════════════════════════════════════════ */
+  function actualizarBotonAgregarme() {
+    const esBarbero = sessionStorage.getItem("barberapp_es_barbero") === "true";
+
+    btnAgregarmeBarbero.classList.toggle("d-none", esBarbero);
+  }
+
+  btnAgregarmeBarbero.addEventListener("click", () => {
+    limpiarAlerta(alertaAgregarmeBarbero);
+
+    modalAgregarmeBarbero.show();
+  });
+
+  btnConfirmarAgregarmeBarbero.addEventListener("click", async () => {
+    limpiarAlerta(alertaAgregarmeBarbero);
+
+    btnConfirmarAgregarmeBarbero.disabled = true;
+
+    btnConfirmarAgregarmeBarbero.innerHTML = `
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            aria-hidden="true"
+          ></span>
+
+          Agregando...
+        `;
+
+    try {
+      const respuesta = await fetch(API_AGREGARME_BARBERO, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+
+        body: JSON.stringify({}),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || !datos.ok) {
+        mostrarAlerta(
+          alertaAgregarmeBarbero,
+          datos.error || "No se pudo crear tu perfil de barbero.",
+          "danger",
+        );
+
+        return;
+      }
+
+      sessionStorage.setItem("barberapp_es_barbero", "true");
+
+      sessionStorage.setItem(
+        "barberapp_id_barbero",
+        String(datos.id_barbero || ""),
+      );
+
+      const tabAgenda = document.getElementById("panel-tab-agenda");
+
+      if (tabAgenda) {
+        tabAgenda.classList.remove("d-none");
+      }
+
+      btnAgregarmeBarbero.classList.add("d-none");
+
+      modalAgregarmeBarbero.hide();
+
+      mostrarAlerta(
+        alertaGeneral,
+        "Tu perfil de barbero fue creado correctamente. Ya podés entrar a Mi agenda.",
+        "success",
+      );
+
+      await cargarBarberos();
+    } catch (error) {
+      console.error(error);
+
+      mostrarAlerta(
+        alertaAgregarmeBarbero,
+        "No se pudo conectar con el servidor.",
+        "danger",
+      );
+    } finally {
+      btnConfirmarAgregarmeBarbero.disabled = false;
+
+      btnConfirmarAgregarmeBarbero.textContent = "Confirmar";
+    }
+  });
+
+  document
+    .getElementById("modal-agregarme-barbero")
+    .addEventListener("hidden.bs.modal", () => {
+      limpiarAlerta(alertaAgregarmeBarbero);
+    });
 
   function abrirNuevoBarbero() {
     limpiarFormulario();
@@ -550,10 +556,6 @@
   }
 
   btnNuevoBarbero.addEventListener("click", abrirNuevoBarbero);
-
-  /* ═══════════════════════════════════════════════════════════
-     EDITAR BARBERO
-  ═══════════════════════════════════════════════════════════ */
 
   function abrirEdicionBarbero(id) {
     const barbero = barberosActuales.find(
@@ -596,10 +598,6 @@
     modalBarbero.show();
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     LIMPIAR FORM
-  ═══════════════════════════════════════════════════════════ */
-
   function limpiarFormulario() {
     formulario.reset();
 
@@ -614,204 +612,178 @@
     limpiarAlerta(alertaForm);
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     GUARDAR
-  ═══════════════════════════════════════════════════════════ */
+  formulario.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  formulario.addEventListener(
-    "submit",
+    limpiarAlerta(alertaForm);
 
-    async (event) => {
-      event.preventDefault();
+    const idEditando = inputIdEdit.value;
 
-      limpiarAlerta(alertaForm);
+    const esEdicion = Boolean(idEditando);
 
-      const idEditando = inputIdEdit.value;
+    const nombre = inputNombre.value.trim();
 
-      const esEdicion = Boolean(idEditando);
+    const apellido = inputApellido.value.trim();
 
-      const nombre = inputNombre.value.trim();
+    const email = inputEmail.value.trim();
 
-      const apellido = inputApellido.value.trim();
+    const password = inputPassword.value;
 
-      const email = inputEmail.value.trim();
+    const telefono = inputTelefono.value.trim();
 
-      const password = inputPassword.value;
+    const especialidad = inputEspecialidad.value.trim();
 
-      const telefono = inputTelefono.value.trim();
+    if (!nombre || !apellido || !email || !telefono) {
+      mostrarAlerta(
+        alertaForm,
+        "Nombre, apellido, email y teléfono son obligatorios.",
+        "warning",
+      );
 
-      const especialidad = inputEspecialidad.value.trim();
+      return;
+    }
 
-      if (!nombre || !apellido || !email || !telefono) {
-        mostrarAlerta(
-          alertaForm,
-          "Nombre, apellido, email y teléfono son obligatorios.",
-          "warning",
-        );
+    if (!esEdicion && password.length < 6) {
+      mostrarAlerta(
+        alertaForm,
+        "La contraseña debe tener al menos 6 caracteres.",
+        "warning",
+      );
 
-        return;
-      }
+      return;
+    }
 
-      if (!esEdicion && password.length < 6) {
-        mostrarAlerta(
-          alertaForm,
-          "La contraseña debe tener al menos 6 caracteres.",
-          "warning",
-        );
+    btnGuardar.disabled = true;
 
-        return;
-      }
-
-      btnGuardar.disabled = true;
-
-      btnGuardar.innerHTML = `
-
+    btnGuardar.innerHTML = `
         <span
           class="spinner-border spinner-border-sm me-2"
           aria-hidden="true"
         ></span>
 
         ${esEdicion ? "Guardando..." : "Agregando..."}
-
       `;
 
-      try {
-        const url = esEdicion
-          ? `${API_MIS_BARBEROS}${idEditando}/`
-          : API_MIS_BARBEROS;
+    try {
+      const url = esEdicion
+        ? `${API_MIS_BARBEROS}${idEditando}/`
+        : API_MIS_BARBEROS;
 
-        const method = esEdicion ? "PUT" : "POST";
+      const method = esEdicion ? "PUT" : "POST";
 
-        const payload = esEdicion
-          ? {
-              nombre,
-              apellido,
-              telefono,
-              especialidad,
-            }
-          : {
-              nombre,
-              apellido,
-              email,
-              telefono,
-              password,
-              especialidad,
-            };
+      const payload = esEdicion
+        ? {
+            nombre,
+            apellido,
+            telefono,
+            especialidad,
+          }
+        : {
+            nombre,
+            apellido,
+            email,
+            telefono,
+            password,
+            especialidad,
+          };
 
-        const respuesta = await fetch(url, {
-          method,
+      const respuesta = await fetch(url, {
+        method,
 
-          headers: {
-            "Content-Type": "application/json",
+        headers: {
+          "Content-Type": "application/json",
 
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
 
-          body: JSON.stringify(payload),
-        });
+        body: JSON.stringify(payload),
+      });
 
-        const datos = await respuesta.json();
+      const datos = await respuesta.json();
 
-        if (!respuesta.ok || !datos.ok) {
-          mostrarAlerta(
-            alertaForm,
-            datos.error || "No se pudo guardar el barbero.",
-            "danger",
-          );
-
-          return;
-        }
-
-        modalBarbero.hide();
-
-        mostrarAlerta(
-          alertaGeneral,
-
-          esEdicion
-            ? "Los datos del barbero se actualizaron correctamente."
-            : "El barbero fue agregado correctamente.",
-
-          "success",
-        );
-
-        await cargarBarberos();
-      } catch (error) {
-        console.error(error);
-
+      if (!respuesta.ok || !datos.ok) {
         mostrarAlerta(
           alertaForm,
-          "No se pudo conectar con el servidor.",
+          datos.error || "No se pudo guardar el barbero.",
           "danger",
         );
-      } finally {
-        btnGuardar.disabled = false;
 
-        btnGuardar.textContent = esEdicion
-          ? "Guardar cambios"
-          : "Agregar barbero";
-      }
-    },
-  );
-
-  /* ═══════════════════════════════════════════════════════════
-     CAMBIAR FOTO
-  ═══════════════════════════════════════════════════════════ */
-
-  inputFoto.addEventListener(
-    "change",
-
-    async (event) => {
-      const archivo = event.target.files[0];
-
-      if (!archivo || !barberoFotoPendiente) {
         return;
       }
 
-      try {
-        const datos = await subirArchivo(
-          `${API_MIS_BARBEROS}${barberoFotoPendiente}/foto/`,
+      modalBarbero.hide();
 
-          "foto",
+      mostrarAlerta(
+        alertaGeneral,
+        esEdicion
+          ? "Los datos del barbero se actualizaron correctamente."
+          : "El barbero fue agregado correctamente.",
+        "success",
+      );
 
-          archivo,
-        );
+      await cargarBarberos();
+    } catch (error) {
+      console.error(error);
 
-        if (!datos.ok) {
-          mostrarAlerta(
-            alertaGeneral,
-            datos.error || "No se pudo actualizar la foto.",
-            "danger",
-          );
+      mostrarAlerta(
+        alertaForm,
+        "No se pudo conectar con el servidor.",
+        "danger",
+      );
+    } finally {
+      btnGuardar.disabled = false;
 
-          return;
-        }
+      btnGuardar.textContent = esEdicion
+        ? "Guardar cambios"
+        : "Agregar barbero";
+    }
+  });
 
+  inputFoto.addEventListener("change", async (event) => {
+    const archivo = event.target.files[0];
+
+    if (!archivo || !barberoFotoPendiente) {
+      return;
+    }
+
+    try {
+      const datos = await subirArchivo(
+        `${API_MIS_BARBEROS}${barberoFotoPendiente}/foto/`,
+        "foto",
+        archivo,
+      );
+
+      if (!datos.ok) {
         mostrarAlerta(
           alertaGeneral,
-          "La foto del barbero se actualizó correctamente.",
-          "success",
-        );
-
-        await cargarBarberos();
-      } catch (error) {
-        console.error(error);
-
-        mostrarAlerta(
-          alertaGeneral,
-          "No se pudo conectar con el servidor.",
+          datos.error || "No se pudo actualizar la foto.",
           "danger",
         );
-      } finally {
-        inputFoto.value = "";
 
-        barberoFotoPendiente = null;
+        return;
       }
-    },
-  );
 
-  /* ═══════════════════════════════════════════════════════════
-     CAMBIAR ESTADO
-  ═══════════════════════════════════════════════════════════ */
+      mostrarAlerta(
+        alertaGeneral,
+        "La foto del barbero se actualizó correctamente.",
+        "success",
+      );
+
+      await cargarBarberos();
+    } catch (error) {
+      console.error(error);
+
+      mostrarAlerta(
+        alertaGeneral,
+        "No se pudo conectar con el servidor.",
+        "danger",
+      );
+    } finally {
+      inputFoto.value = "";
+
+      barberoFotoPendiente = null;
+    }
+  });
 
   function abrirConfirmacionEstado(id, estadoActual) {
     const barbero = barberosActuales.find(
@@ -826,7 +798,6 @@
 
     cambioEstadoPendiente = {
       id,
-
       estadoActual,
     };
 
@@ -848,122 +819,96 @@
     modalEstado.show();
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     CONFIRMAR ESTADO
-  ═══════════════════════════════════════════════════════════ */
+  btnConfirmarEstado.addEventListener("click", async () => {
+    if (!cambioEstadoPendiente) {
+      return;
+    }
 
-  btnConfirmarEstado.addEventListener(
-    "click",
+    const { id, estadoActual } = cambioEstadoPendiente;
 
-    async () => {
-      if (!cambioEstadoPendiente) {
-        return;
-      }
+    const nuevoEstado = estadoActual === "INACTIVO" ? "ACTIVO" : "INACTIVO";
 
-      const { id, estadoActual } = cambioEstadoPendiente;
+    btnConfirmarEstado.disabled = true;
 
-      const nuevoEstado = estadoActual === "INACTIVO" ? "ACTIVO" : "INACTIVO";
+    const textoOriginal = btnConfirmarEstado.textContent;
 
-      btnConfirmarEstado.disabled = true;
-
-      const textoOriginal = btnConfirmarEstado.textContent;
-
-      btnConfirmarEstado.innerHTML = `
-
+    btnConfirmarEstado.innerHTML = `
         <span
           class="spinner-border spinner-border-sm me-2"
           aria-hidden="true"
         ></span>
 
         Procesando...
-
       `;
 
-      try {
-        const respuesta = await fetch(
-          `${API_MIS_BARBEROS}${id}/`,
+    try {
+      const respuesta = await fetch(`${API_MIS_BARBEROS}${id}/`, {
+        method: "PUT",
 
-          {
-            method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
 
-            headers: {
-              "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
 
-              "X-CSRFToken": getCookie("csrftoken"),
-            },
+        body: JSON.stringify({
+          estado: nuevoEstado,
+        }),
+      });
 
-            body: JSON.stringify({
-              estado: nuevoEstado,
-            }),
-          },
-        );
+      const datos = await respuesta.json();
 
-        const datos = await respuesta.json();
-
-        if (!respuesta.ok || !datos.ok) {
-          mostrarAlerta(
-            alertaEstado,
-
-            datos.error || "No se pudo cambiar el estado.",
-
-            "danger",
-          );
-
-          return;
-        }
-
-        modalEstado.hide();
-
-        mostrarAlerta(
-          alertaGeneral,
-
-          nuevoEstado === "ACTIVO"
-            ? "El barbero fue reactivado correctamente."
-            : "El barbero fue dado de baja correctamente.",
-
-          "success",
-        );
-
-        cambioEstadoPendiente = null;
-
-        await cargarBarberos();
-      } catch (error) {
-        console.error(error);
-
+      if (!respuesta.ok || !datos.ok) {
         mostrarAlerta(
           alertaEstado,
-          "No se pudo conectar con el servidor.",
+          datos.error || "No se pudo cambiar el estado.",
           "danger",
         );
-      } finally {
-        btnConfirmarEstado.disabled = false;
 
-        btnConfirmarEstado.textContent = textoOriginal;
+        return;
       }
-    },
-  );
 
-  /* ═══════════════════════════════════════════════════════════
-     LIMPIEZA DE MODALES
-  ═══════════════════════════════════════════════════════════ */
+      modalEstado.hide();
+
+      mostrarAlerta(
+        alertaGeneral,
+        nuevoEstado === "ACTIVO"
+          ? "El barbero fue reactivado correctamente."
+          : "El barbero fue dado de baja correctamente.",
+        "success",
+      );
+
+      cambioEstadoPendiente = null;
+
+      await cargarBarberos();
+    } catch (error) {
+      console.error(error);
+
+      mostrarAlerta(
+        alertaEstado,
+        "No se pudo conectar con el servidor.",
+        "danger",
+      );
+    } finally {
+      btnConfirmarEstado.disabled = false;
+
+      btnConfirmarEstado.textContent = textoOriginal;
+    }
+  });
 
   document
     .getElementById("modal-barbero")
     .addEventListener("hidden.bs.modal", limpiarFormulario);
 
-  document.getElementById("modal-estado-barbero").addEventListener(
-    "hidden.bs.modal",
-
-    () => {
+  document
+    .getElementById("modal-estado-barbero")
+    .addEventListener("hidden.bs.modal", () => {
       cambioEstadoPendiente = null;
 
       limpiarAlerta(alertaEstado);
-    },
-  );
+    });
 
-  /* ═══════════════════════════════════════════════════════════
-     INICIAR
-  ═══════════════════════════════════════════════════════════ */
+  actualizarBotonAgregarme();
 
   cargarBarberos();
 })();

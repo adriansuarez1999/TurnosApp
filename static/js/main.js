@@ -1,37 +1,14 @@
 (() => {
-  /* ═══════════════════════════════════════════════════════════
-     main.js
-
-     Funcionalidad específica del Home:
-     - Login
-     - Registro
-     - Modales
-     - Navegación de Home
-     - Registrar barbería
-  ═══════════════════════════════════════════════════════════ */
-
   const API = {
     login: "/api/login/",
-
     registro: "/api/registro/",
   };
 
   const MODO_SIMULADO = false;
 
-  /* ═══════════════════════════════════════════════════════════
-     ELEMENTOS
-  ═══════════════════════════════════════════════════════════ */
-
   const modalLoginElemento = document.getElementById("modal-login");
 
   const modalRegistroElemento = document.getElementById("modal-registro");
-
-  /*
-    main.js solamente debería cargarse en index.html.
-
-    Igual dejamos esta protección para evitar errores
-    si alguna vez se carga accidentalmente en otra página.
-  */
 
   if (!modalLoginElemento || !modalRegistroElemento) {
     return;
@@ -41,10 +18,6 @@
 
   const alertaRegistro = document.getElementById("alerta-registro");
 
-  /* ═══════════════════════════════════════════════════════════
-     MODALES BOOTSTRAP
-  ═══════════════════════════════════════════════════════════ */
-
   const modalLogin = bootstrap.Modal.getOrCreateInstance(modalLoginElemento);
 
   const modalRegistro = bootstrap.Modal.getOrCreateInstance(
@@ -53,13 +26,11 @@
 
   function abrirLogin() {
     limpiarAlerta(alertaLogin);
-
     modalLogin.show();
   }
 
   function abrirRegistro() {
     limpiarAlerta(alertaRegistro);
-
     modalRegistro.show();
   }
 
@@ -70,10 +41,6 @@
   function cerrarRegistro() {
     modalRegistro.hide();
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     BOTONES NAVBAR
-  ═══════════════════════════════════════════════════════════ */
 
   const btnAccederHome = document.getElementById("btn-acceder");
 
@@ -87,10 +54,6 @@
     btnCrearCuentaHome.addEventListener("click", abrirRegistro);
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     BOTONES CERRAR
-  ═══════════════════════════════════════════════════════════ */
-
   const cerrarLoginBtn = document.getElementById("cerrar-login");
 
   const cerrarRegistroBtn = document.getElementById("cerrar-registro");
@@ -103,61 +66,41 @@
     cerrarRegistroBtn.addEventListener("click", cerrarRegistro);
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     CAMBIAR ENTRE LOGIN Y REGISTRO
-  ═══════════════════════════════════════════════════════════ */
-
   const irARegistro = document.getElementById("ir-a-registro");
 
   const irALogin = document.getElementById("ir-a-login");
 
   if (irARegistro) {
-    irARegistro.addEventListener(
-      "click",
+    irARegistro.addEventListener("click", () => {
+      cerrarLogin();
 
-      () => {
-        cerrarLogin();
-
-        modalLoginElemento.addEventListener(
-          "hidden.bs.modal",
-
-          () => {
-            abrirRegistro();
-          },
-
-          {
-            once: true,
-          },
-        );
-      },
-    );
+      modalLoginElemento.addEventListener(
+        "hidden.bs.modal",
+        () => {
+          abrirRegistro();
+        },
+        {
+          once: true,
+        },
+      );
+    });
   }
 
   if (irALogin) {
-    irALogin.addEventListener(
-      "click",
+    irALogin.addEventListener("click", () => {
+      cerrarRegistro();
 
-      () => {
-        cerrarRegistro();
-
-        modalRegistroElemento.addEventListener(
-          "hidden.bs.modal",
-
-          () => {
-            abrirLogin();
-          },
-
-          {
-            once: true,
-          },
-        );
-      },
-    );
+      modalRegistroElemento.addEventListener(
+        "hidden.bs.modal",
+        () => {
+          abrirLogin();
+        },
+        {
+          once: true,
+        },
+      );
+    });
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     ALERTAS
-  ═══════════════════════════════════════════════════════════ */
 
   function mostrarAlerta(elemento, mensaje, tipo = "error") {
     elemento.textContent = mensaje;
@@ -186,109 +129,108 @@
     elemento.classList.remove("alert-danger", "alert-success", "alert-info");
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     LOGIN
-  ═══════════════════════════════════════════════════════════ */
-
   const btnLoginEnviar = document.getElementById("btn-login-enviar");
 
   if (btnLoginEnviar) {
-    btnLoginEnviar.addEventListener(
-      "click",
+    btnLoginEnviar.addEventListener("click", async () => {
+      const email = document.getElementById("login-email").value.trim();
 
-      async () => {
-        const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value;
 
-        const password = document.getElementById("login-password").value;
+      if (!email || !password) {
+        mostrarAlerta(alertaLogin, "Completá todos los campos.");
 
-        if (!email || !password) {
-          mostrarAlerta(alertaLogin, "Completá todos los campos.");
+        return;
+      }
 
-          return;
+      btnLoginEnviar.disabled = true;
+
+      btnLoginEnviar.textContent = "Ingresando...";
+
+      limpiarAlerta(alertaLogin);
+
+      try {
+        let datos;
+
+        if (MODO_SIMULADO) {
+          await new Promise((resolve) => setTimeout(resolve, 700));
+
+          datos = {
+            ok: true,
+            nombre: "Usuario",
+            es_dueno: true,
+            id_barberia: 1,
+            es_barbero: true,
+            id_barbero: 1,
+          };
+        } else {
+          const respuesta = await fetch(API.login, {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+          });
+
+          datos = await respuesta.json();
         }
 
-        btnLoginEnviar.disabled = true;
+        if (datos.ok) {
+          sessionStorage.setItem("barberapp_usuario", datos.nombre);
 
-        btnLoginEnviar.textContent = "Ingresando...";
+          sessionStorage.setItem(
+            "barberapp_es_dueno",
+            datos.es_dueno ? "true" : "false",
+          );
 
-        limpiarAlerta(alertaLogin);
+          sessionStorage.setItem(
+            "barberapp_es_barbero",
+            datos.es_barbero ? "true" : "false",
+          );
 
-        try {
-          let datos;
+          sessionStorage.setItem(
+            "barberapp_id_barberia",
+            datos.id_barberia ?? "",
+          );
 
-          if (MODO_SIMULADO) {
-            await new Promise((resolve) => setTimeout(resolve, 700));
+          sessionStorage.setItem(
+            "barberapp_id_barbero",
+            datos.id_barbero ?? "",
+          );
 
-            datos = {
-              ok: true,
+          cerrarLogin();
 
-              nombre: "Usuario",
-
-              es_dueno: false,
-            };
-          } else {
-            const respuesta = await fetch(API.login, {
-              method: "POST",
-
-              headers: {
-                "Content-Type": "application/json",
-
-                "X-CSRFToken": getCookie("csrftoken"),
-              },
-
-              body: JSON.stringify({
-                email,
-                password,
-              }),
-            });
-
-            datos = await respuesta.json();
-          }
-
-          if (datos.ok) {
-            sessionStorage.setItem("barberapp_usuario", datos.nombre);
-
-            sessionStorage.setItem(
-              "barberapp_es_dueno",
-
-              datos.es_dueno ? "true" : "false",
-            );
-
-            cerrarLogin();
-
-            if (window.BarberAppNav) {
-              window.BarberAppNav.mostrarUsuarioLogueado(
-                datos.nombre,
-                datos.es_dueno,
-              );
-            }
-          } else {
-            mostrarAlerta(
-              alertaLogin,
-
-              datos.error || "Email o contraseña incorrectos.",
+          if (window.BarberAppNav) {
+            window.BarberAppNav.mostrarUsuarioLogueado(
+              datos.nombre,
+              datos.es_dueno,
+              datos.es_barbero,
             );
           }
-        } catch (error) {
-          console.error(error);
-
+        } else {
           mostrarAlerta(
             alertaLogin,
-
-            "No se pudo conectar con el servidor.",
+            datos.error || "Email o contraseña incorrectos.",
           );
-        } finally {
-          btnLoginEnviar.disabled = false;
-
-          btnLoginEnviar.textContent = "Ingresar";
         }
-      },
-    );
-  }
+      } catch (error) {
+        console.error(error);
 
-  /* ═══════════════════════════════════════════════════════════
-     LOGIN CON ENTER
-  ═══════════════════════════════════════════════════════════ */
+        mostrarAlerta(alertaLogin, "No se pudo conectar con el servidor.");
+      } finally {
+        btnLoginEnviar.disabled = false;
+
+        btnLoginEnviar.textContent = "Ingresar";
+      }
+    });
+  }
 
   const loginEmail = document.getElementById("login-email");
 
@@ -299,157 +241,127 @@
       return;
     }
 
-    input.addEventListener(
-      "keydown",
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
 
-      (event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-
-          btnLoginEnviar.click();
-        }
-      },
-    );
+        btnLoginEnviar.click();
+      }
+    });
   });
-
-  /* ═══════════════════════════════════════════════════════════
-     REGISTRO
-  ═══════════════════════════════════════════════════════════ */
 
   const btnRegistroEnviar = document.getElementById("btn-registro-enviar");
 
   if (btnRegistroEnviar) {
-    btnRegistroEnviar.addEventListener(
-      "click",
+    btnRegistroEnviar.addEventListener("click", async () => {
+      const nombre = document.getElementById("reg-nombre").value.trim();
 
-      async () => {
-        const nombre = document.getElementById("reg-nombre").value.trim();
+      const apellido = document.getElementById("reg-apellido").value.trim();
 
-        const apellido = document.getElementById("reg-apellido").value.trim();
+      const email = document.getElementById("reg-email").value.trim();
 
-        const email = document.getElementById("reg-email").value.trim();
+      const telefono = document.getElementById("reg-telefono").value.trim();
 
-        const telefono = document.getElementById("reg-telefono").value.trim();
+      const password = document.getElementById("reg-password").value;
 
-        const password = document.getElementById("reg-password").value;
+      if (!nombre || !apellido || !email || !password) {
+        mostrarAlerta(alertaRegistro, "Completá los campos obligatorios.");
 
-        if (!nombre || !apellido || !email || !password) {
-          mostrarAlerta(alertaRegistro, "Completá los campos obligatorios.");
+        return;
+      }
 
-          return;
-        }
+      if (password.length < 6) {
+        mostrarAlerta(
+          alertaRegistro,
+          "La contraseña debe tener al menos 6 caracteres.",
+        );
 
-        if (password.length < 6) {
-          mostrarAlerta(
-            alertaRegistro,
-            "La contraseña debe tener al menos 6 caracteres.",
-          );
+        return;
+      }
 
-          return;
-        }
+      if (!email.includes("@")) {
+        mostrarAlerta(alertaRegistro, "Ingresá un email válido.");
 
-        if (!email.includes("@")) {
-          mostrarAlerta(alertaRegistro, "Ingresá un email válido.");
+        return;
+      }
 
-          return;
-        }
+      btnRegistroEnviar.disabled = true;
 
-        btnRegistroEnviar.disabled = true;
+      btnRegistroEnviar.textContent = "Creando cuenta...";
 
-        btnRegistroEnviar.textContent = "Creando cuenta...";
+      limpiarAlerta(alertaRegistro);
 
-        limpiarAlerta(alertaRegistro);
+      try {
+        let datos;
 
-        try {
-          let datos;
+        if (MODO_SIMULADO) {
+          await new Promise((resolve) => setTimeout(resolve, 800));
 
-          if (MODO_SIMULADO) {
-            await new Promise((resolve) => setTimeout(resolve, 800));
+          datos = {
+            ok: true,
+            nombre,
+          };
+        } else {
+          const respuesta = await fetch(API.registro, {
+            method: "POST",
 
-            datos = {
-              ok: true,
+            headers: {
+              "Content-Type": "application/json",
 
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+
+            body: JSON.stringify({
               nombre,
-            };
-          } else {
-            const respuesta = await fetch(API.registro, {
-              method: "POST",
+              apellido,
+              email,
+              telefono,
+              password,
+            }),
+          });
 
-              headers: {
-                "Content-Type": "application/json",
+          datos = await respuesta.json();
+        }
 
-                "X-CSRFToken": getCookie("csrftoken"),
-              },
-
-              body: JSON.stringify({
-                nombre,
-                apellido,
-                email,
-                telefono,
-                password,
-              }),
-            });
-
-            datos = await respuesta.json();
-          }
-
-          if (datos.ok) {
-            mostrarAlerta(
-              alertaRegistro,
-
-              "¡Cuenta creada! Iniciá sesión.",
-
-              "exito",
-            );
-
-            setTimeout(
-              () => {
-                cerrarRegistro();
-
-                modalRegistroElemento.addEventListener(
-                  "hidden.bs.modal",
-
-                  () => {
-                    loginEmail.value = email;
-
-                    abrirLogin();
-                  },
-
-                  {
-                    once: true,
-                  },
-                );
-              },
-
-              1200,
-            );
-          } else {
-            mostrarAlerta(
-              alertaRegistro,
-
-              datos.error || "Error al crear la cuenta.",
-            );
-          }
-        } catch (error) {
-          console.error(error);
-
+        if (datos.ok) {
           mostrarAlerta(
             alertaRegistro,
-
-            "No se pudo conectar con el servidor.",
+            "¡Cuenta creada! Iniciá sesión.",
+            "exito",
           );
-        } finally {
-          btnRegistroEnviar.disabled = false;
 
-          btnRegistroEnviar.textContent = "Crear mi cuenta";
+          setTimeout(() => {
+            cerrarRegistro();
+
+            modalRegistroElemento.addEventListener(
+              "hidden.bs.modal",
+              () => {
+                loginEmail.value = email;
+
+                abrirLogin();
+              },
+              {
+                once: true,
+              },
+            );
+          }, 1200);
+        } else {
+          mostrarAlerta(
+            alertaRegistro,
+            datos.error || "Error al crear la cuenta.",
+          );
         }
-      },
-    );
-  }
+      } catch (error) {
+        console.error(error);
 
-  /* ═══════════════════════════════════════════════════════════
-     BARBERÍAS
-  ═══════════════════════════════════════════════════════════ */
+        mostrarAlerta(alertaRegistro, "No se pudo conectar con el servidor.");
+      } finally {
+        btnRegistroEnviar.disabled = false;
+
+        btnRegistroEnviar.textContent = "Crear mi cuenta";
+      }
+    });
+  }
 
   function irABarberias() {
     const listado = document.querySelector(".listing");
@@ -464,21 +376,17 @@
   const navBarberias = document.getElementById("nav-barberias");
 
   if (navBarberias) {
-    navBarberias.addEventListener(
-      "click",
+    navBarberias.addEventListener("click", (event) => {
+      const listado = document.querySelector(".listing");
 
-      (event) => {
-        const listado = document.querySelector(".listing");
+      if (!listado) {
+        return;
+      }
 
-        if (!listado) {
-          return;
-        }
+      event.preventDefault();
 
-        event.preventDefault();
-
-        irABarberias();
-      },
-    );
+      irABarberias();
+    });
   }
 
   const pillBarberias = document.getElementById("pill-barberias");
@@ -496,52 +404,34 @@
   const pillMisTurnos = document.getElementById("pill-mis-turnos");
 
   if (pillMisTurnos) {
-    pillMisTurnos.addEventListener(
-      "click",
-
-      () => {
-        window.location.href = "/paginas/misturnos.html";
-      },
-    );
+    pillMisTurnos.addEventListener("click", () => {
+      window.location.href = "/paginas/misturnos.html";
+    });
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     REGISTRAR BARBERÍA
-  ═══════════════════════════════════════════════════════════ */
 
   const btnRegistrarBarberia = document.getElementById(
     "btn-registrar-barberia",
   );
 
   if (btnRegistrarBarberia) {
-    btnRegistrarBarberia.addEventListener(
-      "click",
+    btnRegistrarBarberia.addEventListener("click", () => {
+      const usuarioLogueado = sessionStorage.getItem("barberapp_usuario");
 
-      () => {
-        const usuarioLogueado = sessionStorage.getItem("barberapp_usuario");
+      if (!usuarioLogueado) {
+        mostrarAlerta(
+          alertaLogin,
+          "Iniciá sesión primero para registrar tu barbería.",
+          "info",
+        );
 
-        if (!usuarioLogueado) {
-          mostrarAlerta(
-            alertaLogin,
+        modalLogin.show();
 
-            "Iniciá sesión primero para registrar tu barbería.",
+        return;
+      }
 
-            "info",
-          );
-
-          modalLogin.show();
-
-          return;
-        }
-
-        window.location.href = "/paginas/registrar-barberia.html";
-      },
-    );
+      window.location.href = "/paginas/registrar-barberia.html";
+    });
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     ABRIR MODAL PEDIDO DESDE OTRA PÁGINA
-  ═══════════════════════════════════════════════════════════ */
 
   const parametrosURL = new URLSearchParams(window.location.search);
 

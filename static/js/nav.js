@@ -1,13 +1,4 @@
 (() => {
-  /* ═══════════════════════════════════════════════════════════
-     nav.js
-
-     Estado global del navbar.
-     Se carga en todas las páginas mediante nav_completa.html.
-  ═══════════════════════════════════════════════════════════ */
-
-  /* REFERENCIAS */
-
   const navAuth = document.querySelector(".nav__auth");
 
   const navLogueado = document.getElementById("nav-logueado");
@@ -16,17 +7,15 @@
 
   const navPanelLink = document.getElementById("nav-panel-link");
 
+  const navAgendaLink = document.getElementById("nav-agenda-link");
+
   const btnSalir = document.getElementById("btn-salir");
 
   const btnAccederNav = document.getElementById("btn-acceder");
 
   const btnCrearCuentaNav = document.getElementById("btn-crear-cuenta");
 
-  /* ═══════════════════════════════════════════════════════════
-     USUARIO LOGUEADO
-  ═══════════════════════════════════════════════════════════ */
-
-  function mostrarUsuarioLogueado(nombre, esDueno) {
+  function mostrarUsuarioLogueado(nombre, esDueno, esBarbero) {
     if (!navAuth || !navLogueado || !navNombre) {
       return;
     }
@@ -40,11 +29,11 @@
     if (navPanelLink) {
       navPanelLink.style.display = esDueno ? "inline-flex" : "none";
     }
-  }
 
-  /* ═══════════════════════════════════════════════════════════
-     USUARIO SIN SESIÓN
-  ═══════════════════════════════════════════════════════════ */
+    if (navAgendaLink) {
+      navAgendaLink.style.display = esBarbero ? "inline-flex" : "none";
+    }
+  }
 
   function mostrarNavSinSesion() {
     if (!navAuth || !navLogueado) {
@@ -59,14 +48,14 @@
       navPanelLink.style.display = "none";
     }
 
+    if (navAgendaLink) {
+      navAgendaLink.style.display = "none";
+    }
+
     if (navNombre) {
       navNombre.textContent = "";
     }
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     RESTAURAR SESIÓN
-  ═══════════════════════════════════════════════════════════ */
 
   function restaurarNavbar() {
     const usuarioGuardado = sessionStorage.getItem("barberapp_usuario");
@@ -74,8 +63,15 @@
     const esDuenoGuardado =
       sessionStorage.getItem("barberapp_es_dueno") === "true";
 
+    const esBarberoGuardado =
+      sessionStorage.getItem("barberapp_es_barbero") === "true";
+
     if (usuarioGuardado) {
-      mostrarUsuarioLogueado(usuarioGuardado, esDuenoGuardado);
+      mostrarUsuarioLogueado(
+        usuarioGuardado,
+        esDuenoGuardado,
+        esBarberoGuardado,
+      );
     } else {
       mostrarNavSinSesion();
     }
@@ -83,94 +79,65 @@
 
   restaurarNavbar();
 
-  /* ═══════════════════════════════════════════════════════════
-     LOGOUT
-  ═══════════════════════════════════════════════════════════ */
-
   if (btnSalir) {
-    btnSalir.addEventListener(
-      "click",
+    btnSalir.addEventListener("click", async () => {
+      try {
+        await fetch("/api/logout/", {
+          method: "POST",
 
-      async () => {
-        try {
-          await fetch("/api/logout/", {
-            method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+        });
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+      }
 
-            headers: {
-              "X-CSRFToken": getCookie("csrftoken"),
-            },
-          });
-        } catch (error) {
-          console.error("Error al cerrar sesión:", error);
-        }
+      sessionStorage.removeItem("barberapp_usuario");
 
-        sessionStorage.removeItem("barberapp_usuario");
+      sessionStorage.removeItem("barberapp_es_dueno");
 
-        sessionStorage.removeItem("barberapp_es_dueno");
+      sessionStorage.removeItem("barberapp_es_barbero");
 
-        mostrarNavSinSesion();
+      sessionStorage.removeItem("barberapp_id_barberia");
 
-        window.location.href = "/";
-      },
-    );
+      sessionStorage.removeItem("barberapp_id_barbero");
+
+      sessionStorage.removeItem("barberapp_panel_modo");
+
+      mostrarNavSinSesion();
+
+      window.location.href = "/";
+    });
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     ACCEDER DESDE PÁGINAS QUE NO SON HOME
-  ═══════════════════════════════════════════════════════════ */
 
   if (btnAccederNav) {
-    btnAccederNav.addEventListener(
-      "click",
+    btnAccederNav.addEventListener("click", () => {
+      const modalLogin = document.getElementById("modal-login");
 
-      () => {
-        /*
-          Si existe modal-login significa que estamos
-          en el Home.
+      if (modalLogin) {
+        return;
+      }
 
-          En ese caso main.js se encarga de abrirlo.
-        */
-
-        const modalLogin = document.getElementById("modal-login");
-
-        if (modalLogin) {
-          return;
-        }
-
-        window.location.href = "/?auth=login";
-      },
-    );
+      window.location.href = "/?auth=login";
+    });
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     CREAR CUENTA DESDE OTRAS PÁGINAS
-  ═══════════════════════════════════════════════════════════ */
 
   if (btnCrearCuentaNav) {
-    btnCrearCuentaNav.addEventListener(
-      "click",
+    btnCrearCuentaNav.addEventListener("click", () => {
+      const modalRegistro = document.getElementById("modal-registro");
 
-      () => {
-        const modalRegistro = document.getElementById("modal-registro");
+      if (modalRegistro) {
+        return;
+      }
 
-        if (modalRegistro) {
-          return;
-        }
-
-        window.location.href = "/?auth=registro";
-      },
-    );
+      window.location.href = "/?auth=registro";
+    });
   }
-
-  /* ═══════════════════════════════════════════════════════════
-     FUNCIONES DISPONIBLES PARA OTROS SCRIPTS
-  ═══════════════════════════════════════════════════════════ */
 
   window.BarberAppNav = {
     mostrarUsuarioLogueado,
-
     mostrarNavSinSesion,
-
     restaurarNavbar,
   };
 })();
