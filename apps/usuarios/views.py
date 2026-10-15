@@ -2,7 +2,7 @@ from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
-from .models import Usuario, Servicio, Promocion
+from .models import Usuario, Servicio, Promocion, Barbero
 from apps.barberias.models import Barberia
 from django.shortcuts import render
 import json
@@ -11,6 +11,18 @@ from decimal import Decimal
 
 def home(request):
     return render(request, "index.html")
+
+
+# Sprint 6 - Módulo A: helper reutilizable del panel del barbero.
+# Devuelve el Barbero del usuario logueado, o None si no hay sesión o el
+# usuario no es barbero. Se consulta la base cada vez (no se confía en lo
+# guardado en la sesión) para que un alta/baja como barbero se note enseguida.
+# Los endpoints del barbero NUNCA reciben un id de barbero: usan este helper.
+def _barbero_logueado(request):
+    id_usuario = request.session.get("id_usuario")
+    if not id_usuario:
+        return None
+    return Barbero.objects.filter(id_usuario=id_usuario).first()
 
 
 # ══════════════════════════════════════════
@@ -43,6 +55,15 @@ def login(request):
                 barberia_propia.id_barberia if barberia_propia else None
             )
 
+            # Sprint 6 - Módulo A: la sesión reconoce si el usuario es barbero.
+            # Igual que con el dueño, se decide por relación (existe un Barbero
+            # con id_usuario = este usuario), no por usuario.rol.
+            barbero_propio = Barbero.objects.filter(id_usuario=user.id_usuario).first()
+            request.session["es_barbero"] = barbero_propio is not None
+            request.session["id_barbero"] = (
+                barbero_propio.id_barbero if barbero_propio else None
+            )
+
             return JsonResponse(
                 {
                     "ok": True,
@@ -51,6 +72,10 @@ def login(request):
                     "es_dueno": barberia_propia is not None,
                     "id_barberia": (
                         barberia_propia.id_barberia if barberia_propia else None
+                    ),
+                    "es_barbero": barbero_propio is not None,
+                    "id_barbero": (
+                        barbero_propio.id_barbero if barbero_propio else None
                     ),
                 }
             )

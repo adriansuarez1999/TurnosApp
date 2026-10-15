@@ -5,7 +5,7 @@ from django.db import transaction
 import json
 from decimal import Decimal
 from apps.barberias.models import Barberia
-from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad , Promocion
+from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad , Promocion, Calificacion
 from .models import Turno
 
 
@@ -303,6 +303,11 @@ def mis_turnos(request):
                 fecha__lt=hoy
             ).order_by('-fecha', '-hora_inicio')
 
+            # Sprint 6 - Módulo D: para mostrar "Calificar" solo en los turnos sin calificar.
+            calificados = set(Calificacion.objects.filter(
+                id_cliente=id_cliente
+            ).values_list('id_turno', flat=True))
+
             def serializar(turno):
                 return {
                     'id': turno.id_turno,
@@ -312,6 +317,7 @@ def mis_turnos(request):
                     'fecha': str(turno.fecha),
                     'hora': turno.hora_inicio.strftime('%H:%M'),
                     'estado': turno.estado,
+                    'calificado': turno.id_turno in calificados,
                 }
 
             lista = [serializar(t) for t in proximos] + [serializar(t) for t in pasados]
@@ -482,4 +488,4 @@ def turnos_por_barbero(request, id):
         'ok': True,
         'barbero': f'{barbero.id_usuario.nombre} {barbero.id_usuario.apellido}',
         'turnos': [_turno_calendario_a_dict(t) for t in turnos]
-    })
+    })
