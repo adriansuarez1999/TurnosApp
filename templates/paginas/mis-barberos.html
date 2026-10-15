@@ -19,14 +19,27 @@ Gestioná el equipo de profesionales de tu barbería.
 
 {% block panel_acciones %}
 
-<button
-  type="button"
-  class="btn btn-primary"
-  id="btn-nuevo-barbero"
->
-  <i class="bi bi-person-plus me-1"></i>
-  Agregar barbero
-</button>
+<div class="d-flex gap-2 flex-wrap">
+
+  <button
+    type="button"
+    class="btn btn-outline-primary d-none"
+    id="btn-agregarme-barbero"
+  >
+    <i class="bi bi-person-check me-1"></i>
+    Agregarme como barbero
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-primary"
+    id="btn-nuevo-barbero"
+  >
+    <i class="bi bi-person-plus me-1"></i>
+    Agregar barbero
+  </button>
+
+</div>
 
 {% endblock %}
 
@@ -35,10 +48,6 @@ Gestioná el equipo de profesionales de tu barbería.
 {% block panel_content %}
 
 
-<!-- ═══════════════════════════════════════════════════════════
-     ALERTA GENERAL
-════════════════════════════════════════════════════════════ -->
-
 <div
   class="alert d-none"
   id="alerta-barberos"
@@ -46,11 +55,6 @@ Gestioná el equipo de profesionales de tu barbería.
 >
 </div>
 
-
-
-<!-- ═══════════════════════════════════════════════════════════
-     EQUIPO
-════════════════════════════════════════════════════════════ -->
 
 <div class="card">
 
@@ -85,7 +89,6 @@ Gestioná el equipo de profesionales de tu barbería.
   <div class="card-body p-0">
 
 
-    <!-- Estado de carga -->
     <div
       class="p-4"
       id="estado-barberos"
@@ -110,7 +113,6 @@ Gestioná el equipo de profesionales de tu barbería.
 
 
 
-    <!-- Tabla -->
     <div
       class="table-responsive d-none"
       id="contenedor-tabla-barberos"
@@ -174,10 +176,6 @@ Gestioná el equipo de profesionales de tu barbería.
 
 {% block modals %}
 
-<!-- ═══════════════════════════════════════════════════════════
-     MODAL ALTA / EDICIÓN
-════════════════════════════════════════════════════════════ -->
-
 <div
   class="modal fade"
   id="modal-barbero"
@@ -237,7 +235,6 @@ Gestioná el equipo de profesionales de tu barbería.
           >
 
 
-          <!-- Alerta -->
           <div
             class="alert d-none"
             id="alerta-form-barbero"
@@ -250,7 +247,6 @@ Gestioná el equipo de profesionales de tu barbería.
           <div class="row g-3">
 
 
-            <!-- Nombre -->
             <div class="col-md-6">
 
               <label
@@ -271,7 +267,6 @@ Gestioná el equipo de profesionales de tu barbería.
 
 
 
-            <!-- Apellido -->
             <div class="col-md-6">
 
               <label
@@ -292,7 +287,6 @@ Gestioná el equipo de profesionales de tu barbería.
 
 
 
-            <!-- Email -->
             <div class="col-md-6">
 
               <label
@@ -321,7 +315,6 @@ Gestioná el equipo de profesionales de tu barbería.
 
 
 
-            <!-- Teléfono -->
             <div class="col-md-6">
 
               <label
@@ -342,7 +335,6 @@ Gestioná el equipo de profesionales de tu barbería.
 
 
 
-            <!-- Password -->
             <div
               class="col-md-6"
               id="grupo-bb-password"
@@ -371,7 +363,6 @@ Gestioná el equipo de profesionales de tu barbería.
 
 
 
-            <!-- Especialidad -->
             <div class="col-md-6">
 
               <label
@@ -430,10 +421,6 @@ Gestioná el equipo de profesionales de tu barbería.
 </div>
 
 
-
-<!-- ═══════════════════════════════════════════════════════════
-     MODAL CAMBIAR ESTADO
-════════════════════════════════════════════════════════════ -->
 
 <div
   class="modal fade"
@@ -518,7 +505,81 @@ Gestioná el equipo de profesionales de tu barbería.
 
 
 
-<!-- Input general para cambiar foto -->
+<div
+  class="modal fade"
+  id="modal-agregarme-barbero"
+  tabindex="-1"
+  aria-labelledby="modal-agregarme-barbero-titulo"
+  aria-hidden="true"
+>
+
+  <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h2
+          class="modal-title fs-5"
+          id="modal-agregarme-barbero-titulo"
+        >
+          Agregarme como barbero
+        </h2>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <p class="mb-3">
+          Se va a crear tu perfil de barbero dentro de esta barbería usando tu misma cuenta.
+        </p>
+
+        <p class="text-body-secondary small mb-3">
+          Después vas a poder usar la pestaña <strong>Mi agenda</strong> sin volver a iniciar sesión.
+        </p>
+
+        <div
+          class="alert alert-danger d-none mb-0"
+          id="alerta-agregarme-barbero"
+          role="alert"
+        ></div>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="btn-confirmar-agregarme-barbero"
+        >
+          Confirmar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
 
 <input
   type="file"

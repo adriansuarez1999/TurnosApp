@@ -1,0 +1,155 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+
+{% block title %}
+Mis calificaciones — BarberApp
+{% endblock %}
+
+
+{% block panel_titulo %}
+Mis calificaciones
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Consultá las valoraciones que recibiste de tus clientes.
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+  .promedio-icono {
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    transform: translateX(-12px);
+  }
+
+  .promedio-numero {
+    font-size: 4rem;
+    line-height: 1;
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+
+</style>
+
+{% endblock %}
+
+
+{% block panel_content %}
+
+
+<div
+  id="estado-calificaciones"
+  class="text-center py-5"
+>
+
+  <div
+    class="spinner-border spinner-border-sm me-2"
+  ></div>
+
+  Cargando calificaciones...
+
+</div>
+
+
+<div
+  class="d-none"
+  id="contenido-calificaciones"
+>
+
+  <div class="row g-4">
+
+    <div class="col-12 col-lg-4">
+
+      <div class="card h-100">
+
+        <div
+          class="card-body text-center d-flex flex-column justify-content-center align-items-center"
+        >
+
+          <div class="text-body-secondary">
+            Promedio actual
+          </div>
+
+
+          <div class="promedio-icono text-warning mt-3">
+            <i class="bi bi-star-fill"></i>
+          </div>
+
+
+          <div
+            class="promedio-numero"
+            id="promedio-calificaciones"
+          >
+            0.00
+          </div>
+
+
+          <div
+            class="text-body-secondary mt-3"
+          >
+
+            <span
+              id="cantidad-calificaciones"
+            >
+              0
+            </span>
+
+            calificaciones
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="col-12 col-lg-8">
+
+      <div class="card">
+
+        <div class="card-header bg-body">
+
+          <h2 class="h5 mb-0">
+            Opiniones recibidas
+          </h2>
+
+        </div>
+
+
+        <div class="card-body">
+
+          <div
+            class="vstack gap-3"
+            id="lista-calificaciones"
+          >
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/mis-calificaciones.js' %}"
+></script>
+
+{% endblock %}
