@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, views_dueno_barbero
 
 urlpatterns = [
     path("barberias/", views.listar_barberias),
@@ -10,6 +10,7 @@ urlpatterns = [
     # Panel del dueño
     path("mi-barberia/", views.mi_barberia),
     path("mi-barberia/barberos/", views.mis_barberos),
+    path("mi-barberia/barberos/yo/", views_dueno_barbero.agregarme_como_barbero),
     path("mi-barberia/barberos/<int:id>/", views.mi_barbero_detalle),
     # Sprint 4 - Módulo A: disponibilidad de barberos
     path("mi-barberia/barberos/<int:id>/disponibilidad/", views.disponibilidad_barbero),

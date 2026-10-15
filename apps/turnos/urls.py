@@ -1,6 +1,14 @@
 from django.urls import path
 
-from . import views, views_barbero, views_calificacion
+from . import (
+    views,
+    views_barbero,
+    views_calificacion,
+    views_cobro,
+    views_perfil,
+    views_estadisticas,
+    views_notificaciones,
+)
 
 
 urlpatterns = [
@@ -27,4 +35,23 @@ urlpatterns = [
 
     # Sprint 6 - Módulo D: calificación del cliente
     path('turnos/<int:id>/calificar/', views_calificacion.calificar_turno),
+
+    # Sprint 6 - Módulo B (Gonzalo): cobro al finalizar un turno
+    path('mi-agenda/turnos/<int:id>/cobro/', views_cobro.registrar_cobro),
+
+    # Sprint 6 - Módulo C (Gonzalo): disponibilidad y perfil propios
+    path('mi-agenda/disponibilidad/', views_perfil.mi_disponibilidad),
+    path('mi-agenda/disponibilidad/<int:id>/', views_perfil.mi_disponibilidad_detalle),
+    path('mi-agenda/perfil/', views_perfil.mi_perfil),
+    path('mi-agenda/perfil/foto/', views_perfil.mi_perfil_foto),
+    path('mi-agenda/perfil/password/', views_perfil.mi_password),
+
+    # Sprint 6 - Módulo D (Gonzalo): estadísticas y calificaciones propias
+    path('mi-agenda/estadisticas/', views_estadisticas.mis_estadisticas),
+    path('mi-agenda/calificaciones/', views_estadisticas.mis_calificaciones),
+
+    # Sprint 6 - Módulo E (Gonzalo): notificaciones dentro de la app
+    path('notificaciones/', views_notificaciones.mis_notificaciones),
+    path('notificaciones/leidas/', views_notificaciones.marcar_todas_leidas),
+    path('notificaciones/<int:id>/leida/', views_notificaciones.marcar_leida),
 ]
