@@ -1,0 +1,508 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+
+{% block title %}
+Mi perfil — BarberApp
+{% endblock %}
+
+
+{% block panel_titulo %}
+Mi perfil
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Actualizá tus datos profesionales y la seguridad de tu cuenta.
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+  .perfil-foto {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--bs-border-color);
+  }
+
+  .perfil-foto-placeholder {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--bs-tertiary-bg);
+    border: 3px solid var(--bs-border-color);
+
+    font-size: 3rem;
+    color: var(--bs-secondary-color);
+  }
+
+  .campo-solo-lectura {
+    background-color: var(--bs-tertiary-bg) !important;
+    cursor: not-allowed;
+  }
+
+</style>
+
+{% endblock %}
+
+
+{% block panel_content %}
+
+
+<div
+  class="alert d-none"
+  id="alerta-perfil"
+  role="alert"
+>
+</div>
+
+
+<div
+  id="estado-perfil"
+  class="text-center py-5"
+>
+
+  <div
+    class="spinner-border spinner-border-sm me-2"
+    role="status"
+  ></div>
+
+  <span class="text-body-secondary">
+    Cargando perfil...
+  </span>
+
+</div>
+
+
+<div
+  class="row g-4 d-none"
+  id="contenido-perfil"
+>
+
+
+  <!-- DATOS -->
+
+  <div class="col-12 col-xl-8">
+
+    <div class="card mb-4">
+
+      <div class="card-header bg-body">
+
+        <h2 class="h5 mb-1">
+          Datos personales
+        </h2>
+
+        <p class="text-body-secondary small mb-0">
+          Nombre, apellido y email son datos de la cuenta y no se modifican desde esta sección.
+        </p>
+
+      </div>
+
+
+      <div class="card-body">
+
+        <form id="form-perfil">
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+
+              <label
+                for="perfil-nombre"
+                class="form-label fw-semibold"
+              >
+                Nombre
+              </label>
+
+              <input
+                type="text"
+                class="form-control campo-solo-lectura"
+                id="perfil-nombre"
+                readonly
+              >
+
+              <div class="form-text">
+                Dato de la cuenta.
+              </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+              <label
+                for="perfil-apellido"
+                class="form-label fw-semibold"
+              >
+                Apellido
+              </label>
+
+              <input
+                type="text"
+                class="form-control campo-solo-lectura"
+                id="perfil-apellido"
+                readonly
+              >
+
+              <div class="form-text">
+                Dato de la cuenta.
+              </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+              <label
+                for="perfil-email"
+                class="form-label fw-semibold"
+              >
+                Email
+              </label>
+
+              <input
+                type="email"
+                class="form-control campo-solo-lectura"
+                id="perfil-email"
+                readonly
+              >
+
+              <div class="form-text">
+                El email de acceso no se modifica desde el perfil del barbero.
+              </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+              <label
+                for="perfil-telefono"
+                class="form-label fw-semibold"
+              >
+                Teléfono
+              </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="perfil-telefono"
+                maxlength="20"
+                required
+              >
+
+            </div>
+
+
+            <div class="col-12">
+
+              <label
+                for="perfil-especialidad"
+                class="form-label fw-semibold"
+              >
+                Especialidad
+              </label>
+
+              <input
+                type="text"
+                class="form-control"
+                id="perfil-especialidad"
+                maxlength="100"
+                placeholder="Ej.: degradados, barba, cortes clásicos..."
+              >
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="alert alert-danger d-none mt-3"
+            id="error-perfil"
+          >
+          </div>
+
+
+          <div class="mt-4">
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="btn-guardar-perfil"
+            >
+              <i class="bi bi-check-lg me-1"></i>
+              Guardar cambios
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+
+    <!-- CONTRASEÑA -->
+
+    <div class="card">
+
+      <div class="card-header bg-body">
+
+        <h2 class="h5 mb-1">
+          Cambiar contraseña
+        </h2>
+
+        <p class="text-body-secondary small mb-0">
+          La nueva contraseña debe tener al menos 6 caracteres.
+        </p>
+
+      </div>
+
+
+      <div class="card-body">
+
+        <form id="form-password">
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+
+              <label
+                for="password-actual"
+                class="form-label fw-semibold"
+              >
+                Contraseña actual
+              </label>
+
+              <input
+                type="password"
+                class="form-control"
+                id="password-actual"
+                autocomplete="current-password"
+                required
+              >
+
+            </div>
+
+
+            <div class="col-md-6">
+
+              <label
+                for="password-nueva"
+                class="form-label fw-semibold"
+              >
+                Nueva contraseña
+              </label>
+
+              <input
+                type="password"
+                class="form-control"
+                id="password-nueva"
+                minlength="6"
+                autocomplete="new-password"
+                required
+              >
+
+            </div>
+
+
+            <div class="col-md-6">
+
+              <label
+                for="password-confirmar"
+                class="form-label fw-semibold"
+              >
+                Repetir nueva contraseña
+              </label>
+
+              <input
+                type="password"
+                class="form-control"
+                id="password-confirmar"
+                minlength="6"
+                autocomplete="new-password"
+                required
+              >
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="alert alert-danger d-none mt-3"
+            id="error-password"
+          >
+          </div>
+
+
+          <div class="mt-4">
+
+            <button
+              type="submit"
+              class="btn btn-outline-primary"
+              id="btn-cambiar-password"
+            >
+              <i class="bi bi-key me-1"></i>
+              Cambiar contraseña
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- FOTO -->
+
+  <div class="col-12 col-xl-4">
+
+    <div class="card">
+
+      <div class="card-header bg-body">
+
+        <h2 class="h5 mb-0">
+          Foto de perfil
+        </h2>
+
+      </div>
+
+
+      <div class="card-body text-center">
+
+        <div
+          class="d-flex justify-content-center mb-3"
+          id="contenedor-foto"
+        >
+
+          <div
+            class="perfil-foto-placeholder"
+            id="foto-placeholder"
+          >
+            <i class="bi bi-person"></i>
+          </div>
+
+          <img
+            src=""
+            alt="Foto de perfil"
+            class="perfil-foto d-none"
+            id="foto-perfil"
+          >
+
+        </div>
+
+
+        <div
+          class="mb-3"
+        >
+
+          <div
+            class="fw-semibold"
+            id="nombre-perfil-lateral"
+          >
+          </div>
+
+          <div
+            class="text-body-secondary small"
+            id="especialidad-perfil-lateral"
+          >
+          </div>
+
+        </div>
+
+
+        <div
+          class="border rounded-3 p-3 mb-3"
+        >
+
+          <div class="small text-body-secondary">
+            Calificación promedio
+          </div>
+
+          <div
+            class="fs-4 fw-semibold"
+          >
+
+            <i class="bi bi-star-fill text-warning"></i>
+
+            <span id="promedio-calificacion">
+              0.0
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <form id="form-foto">
+
+          <input
+            type="file"
+            class="form-control mb-3"
+            id="input-foto"
+            accept="image/*"
+            required
+          >
+
+
+          <div
+            class="form-text text-start mb-3"
+          >
+            Imagen JPG, PNG u otro formato de imagen. Máximo 5 MB.
+          </div>
+
+
+          <div
+            class="alert alert-danger d-none"
+            id="error-foto"
+          >
+          </div>
+
+
+          <button
+            type="submit"
+            class="btn btn-outline-primary w-100"
+            id="btn-subir-foto"
+          >
+            <i class="bi bi-camera me-1"></i>
+            Actualizar foto
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/mi-perfil.js' %}"
+></script>
+
+{% endblock %}

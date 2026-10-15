@@ -1,0 +1,370 @@
+{% extends 'panel/panel_base.html' %}
+{% load static %}
+
+
+{% block title %}
+Mi disponibilidad — BarberApp
+{% endblock %}
+
+
+{% block panel_titulo %}
+Mi disponibilidad
+{% endblock %}
+
+
+{% block panel_subtitulo %}
+Definí los días y horarios en los que atendés.
+{% endblock %}
+
+
+{% block panel_acciones %}
+
+<button
+  type="button"
+  class="btn btn-primary"
+  id="btn-nuevo-bloque"
+>
+  <i class="bi bi-plus-lg me-1"></i>
+  Agregar horario
+</button>
+
+{% endblock %}
+
+
+{% block panel_content %}
+
+
+<div
+  class="alert d-none"
+  id="alerta-disponibilidad"
+  role="alert"
+>
+</div>
+
+
+<div class="card">
+
+  <div class="card-header bg-body">
+
+    <h2 class="h5 mb-1">
+      Horarios semanales
+    </h2>
+
+    <p class="text-body-secondary small mb-0">
+      Podés tener más de un bloque horario por día.
+    </p>
+
+  </div>
+
+
+  <div class="card-body">
+
+    <div
+      id="estado-disponibilidad"
+      class="text-center py-4"
+    >
+
+      <div
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+      ></div>
+
+      <span class="text-body-secondary">
+        Cargando horarios...
+      </span>
+
+    </div>
+
+
+    <div
+      class="row g-3 d-none"
+      id="grilla-disponibilidad"
+    >
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- MODAL CREAR / EDITAR HORARIO -->
+
+<div
+  class="modal fade"
+  id="modal-bloque"
+  tabindex="-1"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal-dialog modal-dialog-centered"
+  >
+
+    <div class="modal-content">
+
+      <form id="form-bloque">
+
+        <div class="modal-header">
+
+          <h2
+            class="modal-title fs-5"
+            id="titulo-modal-bloque"
+          >
+            Agregar horario
+          </h2>
+
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Cerrar"
+          ></button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+          <input
+            type="hidden"
+            id="bloque-id"
+          >
+
+
+          <div class="mb-3">
+
+            <label
+              for="bloque-dia"
+              class="form-label fw-semibold"
+            >
+              Día
+            </label>
+
+            <select
+              class="form-select"
+              id="bloque-dia"
+              required
+            >
+
+              <option value="">
+                Seleccionar
+              </option>
+
+              <option value="LUN">
+                Lunes
+              </option>
+
+              <option value="MAR">
+                Martes
+              </option>
+
+              <option value="MIE">
+                Miércoles
+              </option>
+
+              <option value="JUE">
+                Jueves
+              </option>
+
+              <option value="VIE">
+                Viernes
+              </option>
+
+              <option value="SAB">
+                Sábado
+              </option>
+
+              <option value="DOM">
+                Domingo
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="row">
+
+            <div class="col-6">
+
+              <label
+                for="bloque-inicio"
+                class="form-label fw-semibold"
+              >
+                Desde
+              </label>
+
+              <input
+                type="time"
+                class="form-control"
+                id="bloque-inicio"
+                required
+              >
+
+            </div>
+
+
+            <div class="col-6">
+
+              <label
+                for="bloque-fin"
+                class="form-label fw-semibold"
+              >
+                Hasta
+              </label>
+
+              <input
+                type="time"
+                class="form-control"
+                id="bloque-fin"
+                required
+              >
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="alert alert-danger d-none mt-3 mb-0"
+            id="error-bloque"
+          >
+          </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="btn-guardar-bloque"
+          >
+            Guardar
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- MODAL TURNOS AFECTADOS -->
+
+<div
+  class="modal fade"
+  id="modal-turnos-afectados"
+  tabindex="-1"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal-dialog modal-dialog-centered modal-lg"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2 class="modal-title fs-5">
+            <i
+              class="bi bi-exclamation-triangle-fill text-warning me-2"
+            ></i>
+            Turnos afectados
+          </h2>
+
+          <div class="text-body-secondary small mt-1">
+            Algunos turnos quedaron fuera de tu nueva disponibilidad.
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <div class="alert alert-warning">
+
+          <strong>Atención:</strong>
+
+          ya tenés turnos confirmados en horarios que dejaste de tener disponibles.
+
+          Te recomendamos cancelar esos turnos o coordinar con los clientes para atenderlos igualmente.
+
+        </div>
+
+
+        <div
+          class="vstack gap-3"
+          id="lista-turnos-afectados"
+        >
+        </div>
+
+      </div>
+
+
+      <div class="modal-footer">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cerrar
+        </button>
+
+
+        <a
+          href="/paginas/mi-agenda.html"
+          class="btn btn-primary"
+        >
+          <i class="bi bi-calendar-check me-1"></i>
+          Ir a Mi agenda
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script
+  src="{% static 'js/mi-disponibilidad.js' %}"
+></script>
+
+{% endblock %}
