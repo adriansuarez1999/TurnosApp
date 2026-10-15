@@ -9,9 +9,8 @@ from apps.barberias.views import (
     _guardar_archivo,
 )
 from .views_barbero import _requerir_barbero
+from apps.usuarios.constants import PASSWORD_MIN_LARGO
 
-
-# ══════════════════════════════════════════
 # Sprint 6 - Módulo C (Gonzalo): disponibilidad y perfil propios
 # El barbero sale siempre de la sesión (_requerir_barbero); ningún
 # endpoint recibe un id de barbero.

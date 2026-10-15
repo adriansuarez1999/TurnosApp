@@ -6,7 +6,11 @@ from apps.usuarios.models import Usuario
 from apps.usuarios.views import _barbero_logueado
 from .models import Turno
 from .views import _turno_calendario_a_dict
-
+from .views_notificaciones import (
+    crear_notificacion,
+    TIPO_TURNO_CANCELADO_BARBERO,
+    TIPO_TURNO_FINALIZADO,
+)
 
 # ══════════════════════════════════════════
 # Sprint 6 - Módulo B: Agenda y gestión de turnos del barbero
@@ -127,9 +131,15 @@ def finalizar_turno(request, id):
     resultado = _cambiar_estado_turno(request, id, 'FINALIZADO', True)
     if isinstance(resultado, JsonResponse):
         return resultado
+
+    # Notificación al cliente para que califique
+    crear_notificacion(
+        resultado.id_cliente_id,
+        TIPO_TURNO_FINALIZADO,
+        'Tu turno fue finalizado. Ya podés calificar la atención recibida.'
+    )
+
     return JsonResponse({'ok': True, 'turno': _turno_agenda_a_dict(resultado)})
-
-
 # PATCH /api/mi-agenda/turnos/<id>/ausente/
 # Tarea 2: mismas reglas que finalizar.
 def ausente_turno(request, id):
@@ -166,8 +176,17 @@ def cancelar_turno_barbero(request, id):
     if isinstance(resultado, JsonResponse):
         return resultado
 
-    # Módulo E (Gonzalo): acá se llama a crear_notificacion(...) para avisarle
-    # al cliente, usando 'motivo' si vino.
+    # Notificación al cliente
+    mensaje = f'Tu turno del {resultado.fecha} a las {resultado.hora_inicio.strftime("%H:%M")} fue cancelado por el barbero.'
+    if motivo:
+        mensaje += f' Motivo: {motivo}'
+
+    crear_notificacion(
+        resultado.id_cliente_id,
+        TIPO_TURNO_CANCELADO_BARBERO,
+        mensaje
+    )
+
     return JsonResponse({
         'ok': True,
         'turno': _turno_agenda_a_dict(resultado),

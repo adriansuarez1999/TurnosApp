@@ -7,7 +7,11 @@ from decimal import Decimal
 from apps.barberias.models import Barberia
 from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad , Promocion, Calificacion
 from .models import Turno
-
+from .views_notificaciones import (
+    crear_notificacion,
+    TIPO_TURNO_NUEVO,
+    TIPO_TURNO_CANCELADO_CLIENTE,
+)
 
 def _usuario_logueado(request):
     return request.session.get('id_usuario')
@@ -25,7 +29,6 @@ DIAS_SEMANA = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM']
 
 def _dia_semana_de(fecha):
     return DIAS_SEMANA[fecha.weekday()]
-
 def crear_turno(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
@@ -141,6 +144,15 @@ def crear_turno(request):
                 created_by_id=id_cliente
             )
 
+            # ════════════════════════════════════════════════════════════════
+            # Sprint 6 - Faltante 1: Notificación automática al barbero asignado
+            # ════════════════════════════════════════════════════════════════
+            crear_notificacion(
+                barbero.id_usuario_id,
+                TIPO_TURNO_NUEVO,
+                f'Nuevo turno: {servicio.nombre} {fecha_dt} {hora_inicio.strftime("%H:%M")}.'
+            )
+
         return JsonResponse({
             'ok': True,
             'id_turno': turno.id_turno,
@@ -155,7 +167,6 @@ def crear_turno(request):
         return JsonResponse({'ok': False, 'error': f'Falta el campo {e}'}, status=400)
     except Exception as e:
         return JsonResponse({'ok': False, 'error': str(e)}, status=400)
-    
     
 def _parsear_hora(valor):
     # Acepta 'HH:MM' o 'HH:MM:SS'
@@ -249,7 +260,6 @@ def turnos_disponibles(request):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
 def cancelar_turno(request, id):
     if request.method == 'PATCH':
         id_cliente = request.session.get('id_usuario')
@@ -272,6 +282,15 @@ def cancelar_turno(request, id):
             turno.updated_at = datetime.now()
             turno.save()
 
+            # ════════════════════════════════════════════════════════════════
+            # Sprint 6 - Faltante 1: Notificar al barbero cuando el cliente cancela
+            # ════════════════════════════════════════════════════════════════
+            crear_notificacion(
+                turno.id_barbero.id_usuario_id,
+                TIPO_TURNO_CANCELADO_CLIENTE,
+                f'El cliente canceló el turno del {turno.fecha} a las {turno.hora_inicio.strftime("%H:%M")}.'
+            )
+
             return JsonResponse({
                 'ok': True,
                 'id_turno': turno.id_turno,
@@ -282,7 +301,6 @@ def cancelar_turno(request, id):
             return JsonResponse({'ok': False, 'error': str(e)})
 
     return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
-
 
 def mis_turnos(request):
     if request.method == 'GET':
@@ -488,4 +506,4 @@ def turnos_por_barbero(request, id):
         'ok': True,
         'barbero': f'{barbero.id_usuario.nombre} {barbero.id_usuario.apellido}',
         'turnos': [_turno_calendario_a_dict(t) for t in turnos]
-    })
+    })
