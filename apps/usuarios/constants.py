@@ -1,0 +1,3 @@
+
+
+PASSWORD_MIN_LARGO = 6

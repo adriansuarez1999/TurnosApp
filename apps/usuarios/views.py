@@ -7,7 +7,7 @@ from apps.barberias.models import Barberia
 from django.shortcuts import render
 import json
 from decimal import Decimal
-
+from .constants import PASSWORD_MIN_LARGO
 
 def home(request):
     return render(request, "index.html")
@@ -96,10 +96,21 @@ def logout(request):
 
 
 # REGISTRO
+# REGISTRO
 def registro(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
+
+            password = data.get("password")
+            if not isinstance(password, str) or len(password) < PASSWORD_MIN_LARGO:
+                return JsonResponse(
+                    {
+                        "ok": False,
+                        "error": f"La contraseña tiene que tener al menos {PASSWORD_MIN_LARGO} caracteres.",
+                    },
+                    status=400,
+                )
 
             if Usuario.objects.filter(email=data["email"]).exists():
                 return JsonResponse(
@@ -111,7 +122,7 @@ def registro(request):
                 apellido=data["apellido"],
                 email=data["email"],
                 telefono=data.get("telefono", ""),
-                password=make_password(data["password"]),
+                password=make_password(password),
                 rol="cliente",
                 estado="activo",
                 fecha_registro=datetime.now(),
