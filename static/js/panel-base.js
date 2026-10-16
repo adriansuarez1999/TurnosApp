@@ -1,6 +1,5 @@
 (() => {
   const MODO_ADMIN = "admin";
-
   const MODO_AGENDA = "agenda";
 
   const CLAVE_MODO = "barberapp_panel_modo";
@@ -24,6 +23,59 @@
   const sidebarLabel = document.getElementById("panel-sidebar-label");
 
   const sidebarBarberia = document.getElementById("panel-sidebar-barberia");
+
+  /*
+   * -------------------------------------------------------
+   * RESTAURAR ÚLTIMA PESTAÑA
+   * -------------------------------------------------------
+   */
+
+  function restaurarUltimoModo() {
+    /*
+     * Solo tiene sentido restaurar la última pestaña
+     * cuando el usuario tiene ambos roles.
+     */
+    if (!esDueno || !esBarbero) {
+      return false;
+    }
+
+    const modoGuardado = sessionStorage.getItem(CLAVE_MODO);
+
+    /*
+     * Si todavía no hay nada guardado,
+     * dejamos que abra normalmente.
+     */
+    if (modoGuardado !== MODO_ADMIN && modoGuardado !== MODO_AGENDA) {
+      return false;
+    }
+
+    /*
+     * Ya estamos en la pestaña guardada.
+     * No hace falta redirigir.
+     */
+    if (modoGuardado === modoActual) {
+      return false;
+    }
+
+    /*
+     * Estamos entrando al panel desde otra pestaña,
+     * por ejemplo "Mi panel", pero la última usada
+     * fue "Mi agenda".
+     */
+    if (modoGuardado === MODO_AGENDA) {
+      window.location.replace("/paginas/mi-agenda.html");
+
+      return true;
+    }
+
+    if (modoGuardado === MODO_ADMIN) {
+      window.location.replace("/paginas/mi-barberia.html");
+
+      return true;
+    }
+
+    return false;
+  }
 
   /*
    * -------------------------------------------------------
@@ -232,6 +284,15 @@
    */
 
   if (!validarAcceso()) {
+    return;
+  }
+
+  /*
+   * Si tiene ambos roles y la última pestaña
+   * usada es distinta de la actual,
+   * restauramos esa pestaña.
+   */
+  if (restaurarUltimoModo()) {
     return;
   }
 

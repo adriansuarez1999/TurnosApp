@@ -7,13 +7,77 @@
 
   const navPanelLink = document.getElementById("nav-panel-link");
 
-  const navAgendaLink = document.getElementById("nav-agenda-link");
-
   const btnSalir = document.getElementById("btn-salir");
 
   const btnAccederNav = document.getElementById("btn-acceder");
 
   const btnCrearCuentaNav = document.getElementById("btn-crear-cuenta");
+
+  const MODO_ADMIN = "admin";
+
+  const MODO_AGENDA = "agenda";
+
+  const CLAVE_MODO = "barberapp_panel_modo";
+
+  function obtenerDestinoPanel(esDueno, esBarbero) {
+    const modoGuardado = sessionStorage.getItem(CLAVE_MODO);
+
+    /*
+     * Si tiene ambos roles,
+     * respetamos la última pestaña utilizada.
+     */
+    if (esDueno && esBarbero) {
+      if (modoGuardado === MODO_AGENDA) {
+        return "/paginas/mi-agenda.html";
+      }
+
+      if (modoGuardado === MODO_ADMIN) {
+        return "/paginas/mi-barberia.html";
+      }
+
+      /*
+       * Primera vez:
+       * por defecto abre Administración.
+       */
+      return "/paginas/mi-barberia.html";
+    }
+
+    /*
+     * Solo dueño.
+     */
+    if (esDueno) {
+      return "/paginas/mi-barberia.html";
+    }
+
+    /*
+     * Solo barbero.
+     */
+    if (esBarbero) {
+      return "/paginas/mi-agenda.html";
+    }
+
+    return "/";
+  }
+
+  function configurarBotonPanel(esDueno, esBarbero) {
+    if (!navPanelLink) {
+      return;
+    }
+
+    const tienePanel = esDueno || esBarbero;
+
+    if (!tienePanel) {
+      navPanelLink.style.display = "none";
+
+      navPanelLink.href = "/";
+
+      return;
+    }
+
+    navPanelLink.style.display = "inline-flex";
+
+    navPanelLink.href = obtenerDestinoPanel(esDueno, esBarbero);
+  }
 
   function mostrarUsuarioLogueado(nombre, esDueno, esBarbero) {
     if (!navAuth || !navLogueado || !navNombre) {
@@ -26,13 +90,7 @@
 
     navLogueado.style.display = "flex";
 
-    if (navPanelLink) {
-      navPanelLink.style.display = esDueno ? "inline-flex" : "none";
-    }
-
-    if (navAgendaLink) {
-      navAgendaLink.style.display = esBarbero ? "inline-flex" : "none";
-    }
+    configurarBotonPanel(esDueno, esBarbero);
   }
 
   function mostrarNavSinSesion() {
@@ -46,10 +104,8 @@
 
     if (navPanelLink) {
       navPanelLink.style.display = "none";
-    }
 
-    if (navAgendaLink) {
-      navAgendaLink.style.display = "none";
+      navPanelLink.href = "/";
     }
 
     if (navNombre) {
@@ -75,6 +131,29 @@
     } else {
       mostrarNavSinSesion();
     }
+  }
+
+  /*
+   * Antes de entrar al panel,
+   * recalculamos el destino por si
+   * cambió la última pestaña usada.
+   */
+
+  if (navPanelLink) {
+    navPanelLink.addEventListener("click", (event) => {
+      const esDueno = sessionStorage.getItem("barberapp_es_dueno") === "true";
+
+      const esBarbero =
+        sessionStorage.getItem("barberapp_es_barbero") === "true";
+
+      if (!esDueno && !esBarbero) {
+        return;
+      }
+
+      event.preventDefault();
+
+      window.location.href = obtenerDestinoPanel(esDueno, esBarbero);
+    });
   }
 
   restaurarNavbar();

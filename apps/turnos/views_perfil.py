@@ -16,10 +16,6 @@ from apps.usuarios.constants import PASSWORD_MIN_LARGO
 # endpoint recibe un id de barbero.
 # ══════════════════════════════════════════
 
-# ⚠ Tiene que ser el mismo mínimo que usa el registro. Confirmar contra
-# apps/usuarios/views.py (registro) antes de entregar.
-PASSWORD_MIN_LARGO = 6
-
 TAMANO_MAX_FOTO = 5 * 1024 * 1024  # 5 MB
 
 
