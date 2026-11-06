@@ -8,6 +8,7 @@ from . import (
     views_perfil,
     views_estadisticas,
     views_notificaciones,
+    views_reprogramacion,
 )
 
 
@@ -17,6 +18,7 @@ urlpatterns = [
     path('turnos/', views.crear_turno),
     path('turnos/disponibles/', views.turnos_disponibles),
     path('turnos/<int:id>/cancelar/', views.cancelar_turno),
+    path('turnos/<int:id>/reprogramar/', views_reprogramacion.reprogramar_turno),
     path('mis-turnos/', views.mis_turnos),
 
     path('mi-barberia/clientes/', views.clientes_barberia),
@@ -54,4 +56,4 @@ urlpatterns = [
     path('notificaciones/', views_notificaciones.mis_notificaciones),
     path('notificaciones/leidas/', views_notificaciones.marcar_todas_leidas),
     path('notificaciones/<int:id>/leida/', views_notificaciones.marcar_leida),
-]
+]

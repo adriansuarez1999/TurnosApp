@@ -26,4 +26,4 @@ class Turno(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'turno'
+        db_table = 'turno'

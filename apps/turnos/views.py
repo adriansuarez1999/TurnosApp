@@ -1,17 +1,21 @@
 from datetime import datetime, timedelta
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db import transaction
+from django.db import transaction, DatabaseError
 import json
+import logging
 from decimal import Decimal
 from apps.barberias.models import Barberia
 from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad , Promocion, Calificacion
 from .models import Turno
+from . import reglas
 from .views_notificaciones import (
     crear_notificacion,
     TIPO_TURNO_NUEVO,
     TIPO_TURNO_CANCELADO_CLIENTE,
 )
+logger = logging.getLogger(__name__)
+
 
 def _usuario_logueado(request):
     return request.session.get('id_usuario')
@@ -29,6 +33,14 @@ DIAS_SEMANA = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM']
 
 def _dia_semana_de(fecha):
     return DIAS_SEMANA[fecha.weekday()]
+# ════════════════════════════════════════════════════════════════
+# Sprint 7 - Módulo A (Facundo): el backend es la autoridad sobre cada reserva.
+# Reglas compartidas con cancelar/reprogramar en apps/turnos/reglas.py
+# ════════════════════════════════════════════════════════════════
+def _error(mensaje, status):
+    return JsonResponse({'ok': False, 'error': mensaje}, status=status)
+
+
 def crear_turno(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
@@ -49,70 +61,87 @@ def crear_turno(request):
             'error': 'Tu cuenta está bloqueada por inasistencias a turnos anteriores. Contactá a la barbería para más información.'
         }, status=403)
 
+    if cliente.estado != 'ACTIVO':
+        return _error('Tu cuenta no está activa. Contactá a la barbería para más información.', 403)
+
     try:
         data = json.loads(request.body)
+    except ValueError:
+        return _error('El cuerpo tiene que ser un JSON válido.', 400)
 
+    if not isinstance(data, dict):
+        return _error('El cuerpo tiene que ser un objeto JSON.', 400)
+
+    try:
         id_barbero = data.get('id_barbero')   # puede venir None → asignación automática
         id_servicio = data['id_servicio']
         fecha = data['fecha']
         hora_inicio_str = data['hora_inicio']
 
         try:
-            servicio = Servicio.objects.get(id_servicio=id_servicio)
+            id_servicio = int(id_servicio)
+            id_barbero = int(id_barbero) if id_barbero not in (None, '') else None
+            hora_inicio = _parsear_hora(hora_inicio_str)
+            fecha_dt = datetime.strptime(fecha, '%Y-%m-%d').date()
+        except (ValueError, TypeError, AttributeError):
+            return _error('Servicio, barbero, fecha (YYYY-MM-DD) u hora (HH:MM) con formato inválido.', 400)
+
+        try:
+            servicio = Servicio.objects.select_related('id_barberia').get(id_servicio=id_servicio)
         except Servicio.DoesNotExist:
             return JsonResponse({'ok': False, 'error': 'Servicio no encontrado'}, status=404)
 
-        hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
-        fecha_dt = datetime.strptime(fecha, '%Y-%m-%d').date()
+        hora_fin, rechazo = reglas.validar_reglas_generales(servicio, fecha_dt, hora_inicio)
+        if rechazo:
+            return _error(*rechazo)
 
-        inicio_dt = datetime.combine(fecha_dt, hora_inicio)
-        fin_dt = inicio_dt + timedelta(minutes=servicio.duracion_minutos)
-        hora_fin = fin_dt.time()
+        if id_barbero:
+            try:
+                barbero = Barbero.objects.select_related('id_usuario').get(id_barbero=id_barbero)
+            except Barbero.DoesNotExist:
+                return JsonResponse({'ok': False, 'error': 'Barbero no encontrado'}, status=404)
+
+            rechazo = reglas.validar_barbero_para_servicio(barbero, servicio, fecha_dt, hora_inicio, hora_fin)
+            if rechazo:
+                return _error(*rechazo)
+
+            candidatos = [barbero]
+        else:
+            # Asignación automática: solo barberos de la barbería del servicio
+            # que estén activos y atiendan en ese horario.
+            candidatos = [
+                c for c in Barbero.objects.select_related('id_usuario').filter(
+                    id_barberia=servicio.id_barberia_id
+                ).order_by('id_barbero')
+                if reglas.validar_barbero_para_servicio(c, servicio, fecha_dt, hora_inicio, hora_fin) is None
+            ]
+            if not candidatos:
+                return _error('No hay barberos disponibles en ese horario', 409)
 
         with transaction.atomic():
 
-            if id_barbero:
-                try:
-                    barbero = Barbero.objects.get(id_barbero=id_barbero)
-                except Barbero.DoesNotExist:
-                    return JsonResponse({'ok': False, 'error': 'Barbero no encontrado'}, status=404)
+            # Bloqueo por barbero ANTES de comprobar solapamientos: sin esto,
+            # dos pedidos simultáneos para la misma franja pasan los dos.
+            reglas.bloquear_barberos([c.id_barbero for c in candidatos])
 
-                superpuesto = Turno.objects.select_for_update().filter(
-                    id_barbero=id_barbero,
-                    fecha=fecha_dt,
-                    hora_inicio__lt=hora_fin,
-                    hora_fin__gt=hora_inicio
-                ).exclude(estado='CANCELADO').exists()
+            barbero = None
+            for candidato in candidatos:
+                if not reglas.hay_solapamiento(candidato.id_barbero, fecha_dt, hora_inicio, hora_fin):
+                    barbero = candidato
+                    break
 
-                if superpuesto:
+            if barbero is None:
+                if id_barbero:
                     return JsonResponse({
                         'ok': False,
                         'error': 'El horario ya está ocupado para ese barbero'
                     }, status=409)
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'No hay barberos disponibles en ese horario'
+                }, status=409)
 
-            else:
-                candidatos = Barbero.objects.filter(id_barberia=servicio.id_barberia_id)
-
-                barbero = None
-                for candidato in candidatos:
-                    ocupado = Turno.objects.select_for_update().filter(
-                        id_barbero=candidato.id_barbero,
-                        fecha=fecha_dt,
-                        hora_inicio__lt=hora_fin,
-                        hora_fin__gt=hora_inicio
-                    ).exclude(estado='CANCELADO').exists()
-
-                    if not ocupado:
-                        barbero = candidato
-                        break
-
-                if barbero is None:
-                    return JsonResponse({
-                        'ok': False,
-                        'error': 'No hay barberos disponibles en ese horario'
-                    }, status=409)
-
-                id_barbero = barbero.id_barbero
+            id_barbero = barbero.id_barbero
 
             # ════════════════════════════════════════════════════════════════
             # Sprint 5 - Módulo D (Tarea 5): Aplicar descuento de promoción
@@ -165,9 +194,18 @@ def crear_turno(request):
 
     except KeyError as e:
         return JsonResponse({'ok': False, 'error': f'Falta el campo {e}'}, status=400)
-    except Exception as e:
-        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
-    
+    except DatabaseError as e:
+        # Última barrera: el trigger de la base rechazó un solapamiento.
+        if reglas.es_error_de_solapamiento(e):
+            return _error('El horario ya está ocupado para ese barbero', 409)
+        if reglas.es_error_de_concurrencia(e):
+            return _error('Hubo muchas reservas a la vez; intentá de nuevo.', 409)
+        logger.exception('Error de base al crear un turno')
+        return _error('No se pudo crear el turno.', 400)
+    except Exception:
+        logger.exception('Error inesperado al crear un turno')
+        return _error('No se pudo crear el turno.', 400)
+
 def _parsear_hora(valor):
     # Acepta 'HH:MM' o 'HH:MM:SS'
     formato = '%H:%M:%S' if valor.count(':') == 2 else '%H:%M'
@@ -178,12 +216,19 @@ def _parsear_hora(valor):
 def turnos_disponibles(request):
     # GET /turnos/disponibles/?fecha=<yyyy-mm-dd>&barbero=<id>
     # o  GET /turnos/disponibles/?fecha=<yyyy-mm-dd>&barberia=<id>  (sin barbero puntual)
+    # Sprint 7: parámetros opcionales
+    #   &servicio=<id>        el horario solo es válido si el servicio ENTERO entra
+    #   &excluir_turno=<id>   ignora ese turno (para reprogramar sin chocar con el propio)
+    # Cada horario trae 'estado': DISPONIBLE, OCUPADO o NO_PERMITIDO (pasado,
+    # fuera de rango o el servicio no entra en la disponibilidad del barbero).
     if request.method != 'GET':
         return JsonResponse({'error': 'Metodo no permitido'}, status=405)
 
     try:
         id_barbero = request.GET.get('barbero')
         id_barberia = request.GET.get('barberia')
+        id_servicio = request.GET.get('servicio')
+        excluir_turno = request.GET.get('excluir_turno')
         fecha = request.GET.get('fecha')
 
         if not fecha or (not id_barbero and not id_barberia):
@@ -194,6 +239,15 @@ def turnos_disponibles(request):
         fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
         dia_semana = _dia_semana_de(fecha_obj)
 
+        duracion_bloque = reglas.DURACION_BLOQUE_MINUTOS
+        duracion_servicio = duracion_bloque
+        if id_servicio:
+            try:
+                servicio = Servicio.objects.get(id_servicio=int(id_servicio))
+            except Servicio.DoesNotExist:
+                return JsonResponse({'error': 'Servicio no encontrado'}, status=404)
+            duracion_servicio = servicio.duracion_minutos
+
         if id_barbero:
             ids_barberos = [int(id_barbero)]
         else:
@@ -201,7 +255,13 @@ def turnos_disponibles(request):
                 Barbero.objects.filter(id_barberia=id_barberia).values_list('id_barbero', flat=True)
             )
 
-        duracion_bloque = 30
+        # Solo barberos activos, y (si se pidió un servicio) de su misma barbería.
+        barberos_validos = Barbero.objects.filter(
+            id_barbero__in=ids_barberos
+        ).exclude(id_usuario__estado='INACTIVO')
+        if id_servicio:
+            barberos_validos = barberos_validos.filter(id_barberia=servicio.id_barberia_id)
+        ids_barberos = list(barberos_validos.values_list('id_barbero', flat=True))
 
         # Bloques de disponibilidad configurados por el dueño para ESOS
         # barberos, en ESE día de la semana (ya no hay franja fija 14-21
@@ -212,10 +272,13 @@ def turnos_disponibles(request):
                 (bloque.hora_inicio, bloque.hora_fin)
             )
 
-        turnos_ocupados = list(Turno.objects.filter(
+        turnos_ocupados = Turno.objects.filter(
             id_barbero__in=ids_barberos,
             fecha=fecha_obj
-        ).exclude(estado='CANCELADO'))
+        ).exclude(estado__in=reglas.ESTADOS_QUE_LIBERAN_HORARIO)
+        if excluir_turno:
+            turnos_ocupados = turnos_ocupados.exclude(id_turno=int(excluir_turno))
+        turnos_ocupados = list(turnos_ocupados)
 
         # Juntamos todos los horarios de 30 min que caen DENTRO de algún
         # bloque de disponibilidad de alguno de los barberos candidatos.
@@ -228,20 +291,32 @@ def turnos_disponibles(request):
                     horarios_posibles.add(actual.time())
                     actual += timedelta(minutes=duracion_bloque)
 
+        ahora = datetime.now()
+        fuera_de_rango = fecha_obj > ahora.date() + timedelta(days=reglas.MAX_DIAS_ANTICIPACION_RESERVA)
+
         horarios = []
         for bloque_inicio in sorted(horarios_posibles):
-            bloque_fin = (datetime.combine(fecha_obj, bloque_inicio) + timedelta(minutes=duracion_bloque)).time()
+            inicio_dt = datetime.combine(fecha_obj, bloque_inicio)
+            bloque_fin_dt = inicio_dt + timedelta(minutes=duracion_servicio)
+            # Si el servicio cruza la medianoche, bloque_fin queda en otro día
+            # y ningún bloque lo contiene.
+            bloque_fin = bloque_fin_dt.time() if bloque_fin_dt.date() == fecha_obj else None
+
+            # NO_PERMITIDO: ya pasó o está fuera del máximo de anticipación.
+            permitido = inicio_dt > ahora and not fuera_de_rango
 
             # libre si ALGÚN barbero de la lista atiende en ese horario
             # (según su disponibilidad cargada) Y no tiene un turno ahí.
             libre_en_alguno = False
+            atiende_alguno = False
             for bid in ids_barberos:
-                atiende_en_este_horario = any(
+                atiende_en_este_horario = bloque_fin is not None and any(
                     ini <= bloque_inicio and bloque_fin <= fin
                     for ini, fin in bloques_por_barbero.get(bid, [])
                 )
                 if not atiende_en_este_horario:
                     continue
+                atiende_alguno = True
 
                 ocupado = any(
                     bloque_inicio < t.hora_fin and bloque_fin > t.hora_inicio
@@ -251,9 +326,17 @@ def turnos_disponibles(request):
                     libre_en_alguno = True
                     break
 
+            if not permitido or not atiende_alguno:
+                estado = 'NO_PERMITIDO'
+            elif libre_en_alguno:
+                estado = 'DISPONIBLE'
+            else:
+                estado = 'OCUPADO'
+
             horarios.append({
                 'hora': bloque_inicio.strftime('%H:%M'),
-                'disponible': libre_en_alguno,
+                'disponible': estado == 'DISPONIBLE',
+                'estado': estado,
             })
 
         return JsonResponse(horarios, safe=False)
@@ -267,20 +350,41 @@ def cancelar_turno(request, id):
             return JsonResponse({'ok': False, 'error': 'Tenés que iniciar sesión.'}, status=401)
 
         try:
-            turno = Turno.objects.get(id_turno=id)
-        except Turno.DoesNotExist:
-            return JsonResponse({'ok': False, 'error': 'Turno no encontrado.'}, status=404)
+            # Sprint 7 - Módulo B: con el turno bloqueado, dos pedidos
+            # simultáneos no lo cancelan dos veces ni se pisan con una reprogramación.
+            with transaction.atomic():
+                try:
+                    turno = Turno.objects.select_for_update().select_related(
+                        'id_barbero__id_barberia', 'id_barbero__id_usuario'
+                    ).get(id_turno=id)
+                except Turno.DoesNotExist:
+                    return JsonResponse({'ok': False, 'error': 'Turno no encontrado.'}, status=404)
 
-        if turno.id_cliente_id != id_cliente:
-            return JsonResponse({
-                'ok': False,
-                'error': 'No tenes permiso para cancelar este turno.'
-            }, status=403)
+                if turno.id_cliente_id != id_cliente:
+                    return JsonResponse({
+                        'ok': False,
+                        'error': 'No tenes permiso para cancelar este turno.'
+                    }, status=403)
 
-        try:
-            turno.estado = 'CANCELADO'
-            turno.updated_at = datetime.now()
-            turno.save()
+                if turno.estado not in reglas.ESTADOS_MODIFICABLES_POR_CLIENTE:
+                    return JsonResponse({
+                        'ok': False,
+                        'error': f'No se puede cancelar un turno {turno.estado}.'
+                    }, status=400)
+
+                # Sprint 7 - Módulo B: ventana de cancelación configurada por el
+                # dueño. Solo aplica al cliente; el barbero cancela por otra ruta
+                # (views_barbero.cancelar_turno_barbero) y no pasa por acá.
+                if not reglas.puede_cancelar(turno):
+                    return JsonResponse({
+                        'ok': False,
+                        'error': reglas.mensaje_fuera_de_plazo(turno),
+                        'fecha_limite_cancelacion': reglas.fecha_limite_cancelacion(turno).strftime('%Y-%m-%d %H:%M'),
+                    }, status=400)
+
+                turno.estado = 'CANCELADO'
+                turno.updated_at = datetime.now()
+                turno.save()
 
             # ════════════════════════════════════════════════════════════════
             # Sprint 6 - Faltante 1: Notificar al barbero cuando el cliente cancela
@@ -298,9 +402,10 @@ def cancelar_turno(request, id):
             }, status=200)
 
         except Exception as e:
-            return JsonResponse({'ok': False, 'error': str(e)})
+            logger.exception('Error al cancelar el turno %s', id)
+            return JsonResponse({'ok': False, 'error': 'No se pudo cancelar el turno.'}, status=400)
 
-    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'})
+    return JsonResponse({'ok': False, 'error': 'Metodo no permitido'}, status=405)
 
 def mis_turnos(request):
     if request.method == 'GET':
