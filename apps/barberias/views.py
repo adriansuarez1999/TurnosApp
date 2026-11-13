@@ -9,7 +9,9 @@ from django.core.files.storage import default_storage
 from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad, Promocion
 from decimal import Decimal
 from apps.turnos.models import Turno
+from apps.turnos import reglas, cobros
 import json
+import re
 
 
 def _servicio_a_dict(servicio):
@@ -92,6 +94,7 @@ def _barberia_a_dict(barberia, detalle=False):
         data.update(
             {
                 "descripcion": barberia.descripcion,
+                "orden_llegada_habilitado": bool(barberia.orden_llegada_habilitado),
                 "servicios": [_servicio_a_dict(s) for s in servicios],
                 "barberos": [_barbero_a_dict(b) for b in barberos],
                 "fotos": [f.url for f in fotos],
@@ -308,8 +311,59 @@ def crear_barberia(request):
 # ══════════════════════════════════════════
 
 
+# Sprint 7 - Módulo B: anticipación mínima (en HORAS enteras antes del inicio del
+# turno) con la que el cliente puede cancelar. 0 = puede cancelar hasta el momento
+# en que empieza. El tope es un valor razonable y se puede
+# cambiar acá sin tocar nada más. 168 h (una semana) es el mismo tope que el CHECK
+# chk_barberia_horas_cancelacion de la base (Sprint7_migracion.sql).
+MIN_HORAS_CANCELACION = 0
+MAX_HORAS_CANCELACION = 168
+
+# Sprint 7 - Módulo C: alias de transferencia (CBU/CVU). Formato bancario argentino:
+# 6 a 20 caracteres entre letras, números, punto y guion. Se rechaza un valor
+# solo numérico para no guardar por error un número de tarjeta o de CBU.
+REGEX_ALIAS_COBRO = re.compile(r"^[A-Za-z0-9.\-]{6,20}$")
+
+
+# Devuelve (valor, None) o (None, mensaje_de_error).
+def _validar_horas_cancelacion(valor):
+    if isinstance(valor, bool):
+        return None, "Las horas de anticipación tienen que ser un número entero."
+    if isinstance(valor, str) and valor.strip().isdigit():
+        valor = int(valor.strip())
+    if not isinstance(valor, int):
+        return None, "Las horas de anticipación tienen que ser un número entero."
+    if valor < MIN_HORAS_CANCELACION or valor > MAX_HORAS_CANCELACION:
+        return None, (
+            f"Las horas de anticipación tienen que estar entre "
+            f"{MIN_HORAS_CANCELACION} y {MAX_HORAS_CANCELACION}."
+        )
+    return valor, None
+
+
+# Devuelve (valor, None) o (None, mensaje_de_error). Un texto vacío borra el alias.
+def _validar_alias_cobro(valor):
+    if valor is None:
+        return None, None
+    if not isinstance(valor, str):
+        return None, "El alias tiene que ser texto."
+    valor = valor.strip()
+    if not valor:
+        return None, None
+    if valor.isdigit() or not REGEX_ALIAS_COBRO.match(valor):
+        return None, (
+            "El alias tiene que tener entre 6 y 20 caracteres (letras, números, "
+            "punto o guion) y no puede ser solo numérico."
+        )
+    return valor, None
+
+
 # GET /api/mi-barberia/  -> datos de la barbería del dueño logueado
-# PUT /api/mi-barberia/  -> actualiza nombre, direccion, zona, descripcion, logo y estado
+# PUT /api/mi-barberia/  -> actualiza nombre, direccion, zona, descripcion, logo,
+#                           horas_anticipacion_cancelacion, alias_cobro y orden_llegada_habilitado
+# Sprint 7: horas_anticipacion_cancelacion se devuelve SIEMPRE como el valor efectivo
+# (si el dueño no configuró nada, el por defecto de reglas.py) para que el formulario
+# muestre lo que de verdad se aplica.
 def mi_barberia(request):
     id_usuario = _usuario_logueado(request)
     if not id_usuario:
@@ -337,12 +391,39 @@ def mi_barberia(request):
                 "logo": barberia.logo,
                 "telefono": barberia.telefono,
                 "estado": barberia.estado,
+                "horas_anticipacion_cancelacion": reglas.horas_cancelacion(barberia),
+                "alias_cobro": barberia.alias_cobro,
+                "orden_llegada_habilitado": bool(barberia.orden_llegada_habilitado),
             }
         )
 
     if request.method == "PUT":
         try:
             data = json.loads(request.body)
+
+            # Sprint 7: se valida TODO antes de guardar nada, así un valor inválido
+            # no deja la barbería a medio actualizar.
+            if "horas_anticipacion_cancelacion" in data:
+                horas, error = _validar_horas_cancelacion(
+                    data["horas_anticipacion_cancelacion"]
+                )
+                if error:
+                    return JsonResponse({"ok": False, "error": error}, status=400)
+                barberia.horas_anticipacion_cancelacion = horas
+
+            if "alias_cobro" in data:
+                alias, error = _validar_alias_cobro(data["alias_cobro"])
+                if error:
+                    return JsonResponse({"ok": False, "error": error}, status=400)
+                barberia.alias_cobro = alias
+
+            if "orden_llegada_habilitado" in data:
+                if not isinstance(data["orden_llegada_habilitado"], bool):
+                    return JsonResponse(
+                        {"ok": False, "error": "orden_llegada_habilitado tiene que ser true o false."},
+                        status=400,
+                    )
+                barberia.orden_llegada_habilitado = 1 if data["orden_llegada_habilitado"] else 0
 
             barberia.nombre = data.get("nombre", barberia.nombre)
             barberia.direccion = data.get("direccion", barberia.direccion)
@@ -351,7 +432,15 @@ def mi_barberia(request):
             barberia.logo = data.get("logo", barberia.logo)
             barberia.save()
 
-            return JsonResponse({"ok": True, "nombre": barberia.nombre})
+            return JsonResponse(
+                {
+                    "ok": True,
+                    "nombre": barberia.nombre,
+                    "horas_anticipacion_cancelacion": reglas.horas_cancelacion(barberia),
+                    "alias_cobro": barberia.alias_cobro,
+                    "orden_llegada_habilitado": bool(barberia.orden_llegada_habilitado),
+                }
+            )
 
         except Exception as e:
             return JsonResponse({"ok": False, "error": str(e)}, status=400)
@@ -821,7 +910,15 @@ def informes(request):
         turnos.values("fecha").annotate(cantidad=Count("id_turno")).order_by("fecha")
     )
 
-    ingresos_totales = turnos.aggregate(total=Sum("monto_total"))["total"] or 0
+    # Sprint 7 - Módulo E: los ingresos salen de los cobros que el barbero registró
+    # (Pago TOTAL APROBADO de turnos FINALIZADOS), no de monto_total de todos los
+    # turnos. El mismo rango de fechas (por fecha del turno) filtra los pagos.
+    pagos = cobros.pagos_confirmados().filter(id_turno__id_barbero__id_barberia=barberia)
+    if desde:
+        pagos = pagos.filter(id_turno__fecha__gte=desde)
+    if hasta:
+        pagos = pagos.filter(id_turno__fecha__lte=hasta)
+    ingresos_totales, cobros_registrados = cobros.resumen_cobros(pagos)
 
     turnos_por_estado = list(
         turnos.values("estado").annotate(cantidad=Count("id_turno")).order_by("estado")
@@ -833,6 +930,9 @@ def informes(request):
             "barberia": barberia.nombre,
             "turnos_por_dia": turnos_por_dia,
             "ingresos_totales": float(ingresos_totales),
+            # Se separan para que no se confundan: finalizados != cobrados.
+            "turnos_finalizados": turnos.filter(estado="FINALIZADO").count(),
+            "cobros_registrados": cobros_registrados,
             "turnos_por_estado": turnos_por_estado,
         }
     )

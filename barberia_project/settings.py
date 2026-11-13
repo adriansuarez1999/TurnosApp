@@ -104,3 +104,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # DEFAULT PK
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+TEST_RUNNER = 'barberia_project.test_runner.RunnerConEsquemaSQL'

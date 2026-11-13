@@ -11,6 +11,11 @@ class Barberia(models.Model):
     logo = models.CharField(max_length=255, blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     estado = models.CharField(max_length=8)
+    
+    # Sprint 7 - Campos actualizados según el script SQL
+    horas_anticipacion_cancelacion = models.IntegerField(default=2)
+    alias_cobro = models.CharField(max_length=60, blank=True, null=True)
+    orden_llegada_habilitado = models.IntegerField(default=0)
 
     class Meta:
         managed = False

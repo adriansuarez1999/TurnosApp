@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from apps.usuarios.models import Pago
 from .models import Turno
 from .views_barbero import _requerir_barbero
+from django.db.models import Count, Sum
+
 
 
 # ══════════════════════════════════════════
@@ -91,3 +93,5 @@ def registrar_cobro(request, id):
         )
 
     return JsonResponse({'ok': True, 'pago': _pago_a_dict(pago)}, status=201)
+
+

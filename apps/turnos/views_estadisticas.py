@@ -1,9 +1,10 @@
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count
 from django.http import JsonResponse
 from apps.usuarios.models import Calificacion
 from .models import Turno
+from . import cobros
 from .views_barbero import _requerir_barbero
 
 
@@ -32,8 +33,10 @@ def _leer_rango_opcional(request):
 
 # GET /api/mi-agenda/estadisticas/?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
 # Tarea 1: turnos atendidos (FINALIZADO), ausencias, cancelados, ingresos
-# generados (suma de monto_total de los finalizados) y servicios más pedidos
-# (los 5 con más turnos finalizados).
+# generados y servicios más pedidos (los 5 con más turnos finalizados).
+# Sprint 7 - Módulo E: ingresos_generados = cobros que el barbero registró
+# (Pago TOTAL APROBADO de turnos FINALIZADOS), no la suma de turnos finalizados.
+# Es el mismo criterio que el informe del dueño (apps/turnos/cobros.py).
 def mis_estadisticas(request):
     if request.method != 'GET':
         return JsonResponse({'ok': False, 'error': 'Método no permitido'}, status=405)
@@ -55,7 +58,12 @@ def mis_estadisticas(request):
 
     finalizados = turnos.filter(estado='FINALIZADO')
 
-    ingresos = finalizados.aggregate(total=Sum('monto_total'))['total'] or 0
+    pagos = cobros.pagos_confirmados().filter(id_turno__id_barbero=barbero.id_barbero)
+    if desde:
+        pagos = pagos.filter(id_turno__fecha__gte=desde)
+    if hasta:
+        pagos = pagos.filter(id_turno__fecha__lte=hasta)
+    ingresos, cobros_registrados = cobros.resumen_cobros(pagos)
 
     servicios = finalizados.values('id_servicio__nombre').annotate(
         cantidad=Count('id_turno')
@@ -69,6 +77,8 @@ def mis_estadisticas(request):
         'ausencias': turnos.filter(estado='AUSENTE').count(),
         'cancelados': turnos.filter(estado='CANCELADO').count(),
         'ingresos_generados': float(ingresos),
+        # turnos_atendidos = finalizados; cobros_registrados = finalizados con cobro confirmado.
+        'cobros_registrados': cobros_registrados,
         'servicios_mas_pedidos': [
             {'servicio': s['id_servicio__nombre'], 'cantidad': s['cantidad']}
             for s in servicios

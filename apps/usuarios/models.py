@@ -140,3 +140,26 @@ class Usuario(models.Model):
     class Meta:
         managed = False
         db_table = 'usuario'
+
+
+# Sprint 7 - Módulo D: cola de atención por orden de llegada (tabla creada por
+# database/Sprint7_migracion.sql). No se mezcla con Turno: no ocupa franjas reservadas.
+class ColaAtencion(models.Model):
+    id_cola = models.AutoField(primary_key=True)
+    id_barberia = models.ForeignKey('barberias.Barberia', models.DO_NOTHING, db_column='id_barberia')
+    id_barbero = models.ForeignKey(Barbero, models.DO_NOTHING, db_column='id_barbero', blank=True, null=True)
+    id_cliente = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='id_cliente', blank=True, null=True, related_name='cola_cliente_set')
+    nombre_cliente = models.CharField(max_length=100, blank=True, null=True)
+    telefono_cliente = models.CharField(max_length=20, blank=True, null=True)
+    id_servicio = models.ForeignKey('Servicio', models.DO_NOTHING, db_column='id_servicio')
+    fecha = models.DateField()
+    numero_orden = models.IntegerField()
+    hora_llegada = models.DateTimeField()
+    estado = models.CharField(max_length=9)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+    created_by = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='created_by', blank=True, null=True, related_name='cola_created_by_set')
+
+    class Meta:
+        managed = False
+        db_table = 'cola_atencion'

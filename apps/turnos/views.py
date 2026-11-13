@@ -6,7 +6,7 @@ import json
 import logging
 from decimal import Decimal
 from apps.barberias.models import Barberia
-from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad , Promocion, Calificacion
+from apps.usuarios.models import Barbero, Servicio, Usuario, Disponibilidad , Promocion, Calificacion, Pago
 from .models import Turno
 from . import reglas
 from .views_notificaciones import (
@@ -416,14 +416,19 @@ def mis_turnos(request):
         try:
             hoy = datetime.now().date()
 
+            # select_related: el serializador lee barbería, barbero y servicio de cada turno.
             proximos = Turno.objects.filter(
                 id_cliente=id_cliente,
                 fecha__gte=hoy
+            ).select_related(
+                'id_barbero__id_barberia', 'id_barbero__id_usuario', 'id_servicio'
             ).order_by('fecha', 'hora_inicio')
 
             pasados = Turno.objects.filter(
                 id_cliente=id_cliente,
                 fecha__lt=hoy
+            ).select_related(
+                'id_barbero__id_barberia', 'id_barbero__id_usuario', 'id_servicio'
             ).order_by('-fecha', '-hora_inicio')
 
             # Sprint 6 - Módulo D: para mostrar "Calificar" solo en los turnos sin calificar.
@@ -431,16 +436,40 @@ def mis_turnos(request):
                 id_cliente=id_cliente
             ).values_list('id_turno', flat=True))
 
+            # Sprint 7 - Módulo C: turnos de este cliente con el cobro ya confirmado por el barbero.
+            cobrados = set(Pago.objects.filter(
+                id_turno__id_cliente=id_cliente,
+                tipo_pago='TOTAL',
+                estado='APROBADO',
+            ).values_list('id_turno', flat=True))
+
+            ahora = datetime.now()
+
             def serializar(turno):
+                barberia = turno.id_barbero.id_barberia
+                modificable = turno.estado in reglas.ESTADOS_MODIFICABLES_POR_CLIENTE
+                finalizado = turno.estado == 'FINALIZADO'
                 return {
                     'id': turno.id_turno,
-                    'barberia': turno.id_barbero.id_barberia.nombre,
+                    'barberia': barberia.nombre,
                     'barbero': f'{turno.id_barbero.id_usuario.nombre} {turno.id_barbero.id_usuario.apellido}',
                     'servicio': turno.id_servicio.nombre,
                     'fecha': str(turno.fecha),
                     'hora': turno.hora_inicio.strftime('%H:%M'),
                     'estado': turno.estado,
                     'calificado': turno.id_turno in calificados,
+                    # Sprint 7 - Módulo B: el backend decide; el front solo muestra.
+                    # Es la misma regla que aplica cancelar_turno, así que nunca se contradicen.
+                    'puede_cancelar': reglas.puede_cancelar(turno, ahora),
+                    'fecha_limite_cancelacion': (
+                        reglas.fecha_limite_cancelacion(turno).strftime('%Y-%m-%d %H:%M')
+                        if modificable else None
+                    ),
+                    # Sprint 7 - Módulo C: el alias es informativo (BarberApp no verifica la
+                    # transferencia) y solo se expone en turnos FINALIZADOS. None = la barbería
+                    # no cargó alias: el front debe decir que consulte con la barbería.
+                    'alias_cobro': barberia.alias_cobro if finalizado else None,
+                    'cobro_registrado': turno.id_turno in cobrados,
                 }
 
             lista = [serializar(t) for t in proximos] + [serializar(t) for t in pasados]

@@ -5,6 +5,7 @@ from . import (
     views_barbero,
     views_calificacion,
     views_cobro,
+    views_cola,
     views_perfil,
     views_estadisticas,
     views_notificaciones,
@@ -56,4 +57,11 @@ urlpatterns = [
     path('notificaciones/', views_notificaciones.mis_notificaciones),
     path('notificaciones/leidas/', views_notificaciones.marcar_todas_leidas),
     path('notificaciones/<int:id>/leida/', views_notificaciones.marcar_leida),
-]
+
+    # Sprint 7 - Módulo D (Gonzalo): atención por orden de llegada
+    path('cola/', views_cola.cola),
+    path('cola/siguiente/', views_cola.siguiente),
+    path('cola/<int:id>/cerrar/', views_cola.cerrar),
+    path('cola/<int:id>/cancelar/', views_cola.cancelar),
+    path('mi-cola/', views_cola.mi_cola),
+]

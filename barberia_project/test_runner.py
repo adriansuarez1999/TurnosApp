@@ -11,6 +11,7 @@ from django.test.runner import DiscoverRunner
 # ══════════════════════════════════════════
 
 RUTA_SQL = 'database/TurnosAppDB.sql'
+RUTA_MIGRACION_SPRINT7 = 'database/Sprint7_migracion.sql'
 
 
 def _sentencias_del_dump(ruta):
@@ -65,6 +66,20 @@ def _aplicar_parches_de_esquema(cursor):
     )
 
 
+# Sprint 7 (Gonzalo): el dump todavía no trae las columnas ni la tabla de la cola.
+# Se aplica la migración solo si falta, así los tests también corren cuando
+# TurnosAppDB.sql ya se re-exportó con los cambios incluidos.
+def _aplicar_migracion_sprint7(cursor):
+    cursor.execute(
+        "SELECT COUNT(*) FROM information_schema.columns "
+        "WHERE table_schema = DATABASE() AND table_name = 'barberia' "
+        "AND column_name = 'orden_llegada_habilitado'"
+    )
+    if cursor.fetchone()[0] == 0:
+        for sentencia in _sentencias_del_dump(RUTA_MIGRACION_SPRINT7):
+            cursor.execute(sentencia)
+
+
 class RunnerConEsquemaSQL(DiscoverRunner):
     def setup_databases(self, **kwargs):
         configuracion = super().setup_databases(**kwargs)
@@ -73,4 +88,5 @@ class RunnerConEsquemaSQL(DiscoverRunner):
             for sentencia in _sentencias_del_dump(RUTA_SQL):
                 cursor.execute(sentencia)
             _aplicar_parches_de_esquema(cursor)
+            _aplicar_migracion_sprint7(cursor)
         return configuracion
