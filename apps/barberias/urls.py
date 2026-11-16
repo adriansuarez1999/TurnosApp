@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_dueno_barbero
+from . import views, views_dueno_barbero, views_superadmin
 
 urlpatterns = [
     path("barberias/", views.listar_barberias),
@@ -23,4 +23,14 @@ urlpatterns = [
     path("mi-barberia/logo/", views.subir_logo_barberia),
     path("mi-barberia/portada/", views.subir_foto_portada),
     path("mi-barberia/barberos/<int:id>/foto/", views.subir_foto_barbero),
+    # Panel del superadministrador (rol ADMIN)
+    path("superadmin/panel/", views_superadmin.panel),
+    path("superadmin/login/", views_superadmin.login_admin),
+    path("superadmin/logout/", views_superadmin.logout_admin),
+    path("superadmin/resumen/", views_superadmin.resumen),
+    path("superadmin/ingresos/", views_superadmin.ingresos),
+    path("superadmin/barberias/", views_superadmin.barberias),
+    path("superadmin/barberias/<int:id>/bloquear/", views_superadmin.bloquear_barberia),
+    path("superadmin/barberias/<int:id>/desbloquear/", views_superadmin.desbloquear_barberia),
+    path("superadmin/suscripciones/", views_superadmin.suscripciones),
 ]

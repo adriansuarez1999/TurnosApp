@@ -77,6 +77,9 @@ def login(request):
                     "id_barbero": (
                         barbero_propio.id_barbero if barbero_propio else None
                     ),
+                    # Solo informativo para el front: cada endpoint del superadmin
+                    # vuelve a verificar el rol en la base.
+                    "es_admin": user.rol == "ADMIN",
                 }
             )
 

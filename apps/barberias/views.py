@@ -109,7 +109,8 @@ def _barberia_a_dict(barberia, detalle=False):
 def listar_barberias(request):
     texto = request.GET.get("search", "").strip()
 
-    barberias = Barberia.objects.all()
+    # Una barbería bloqueada por el superadmin (INACTIVA) no se ofrece al público.
+    barberias = Barberia.objects.filter(estado="ACTIVA")
     if texto:
         ids_por_servicio = Servicio.objects.filter(nombre__icontains=texto).values_list(
             "id_barberia", flat=True
@@ -127,7 +128,7 @@ def listar_barberias(request):
 @require_GET
 def detalle_barberia(request, id):
     try:
-        barberia = Barberia.objects.get(id_barberia=id)
+        barberia = Barberia.objects.get(id_barberia=id, estado="ACTIVA")
     except Barberia.DoesNotExist:
         return JsonResponse({"error": "Barbería no encontrada."}, status=404)
 
@@ -430,7 +431,14 @@ def mi_barberia(request):
             barberia.zona = data.get("zona", barberia.zona)
             barberia.descripcion = data.get("descripcion", barberia.descripcion)
             barberia.logo = data.get("logo", barberia.logo)
-            barberia.save()
+            # Solo los campos que el dueño puede editar: un save() completo pisaría
+            # el estado si el superadmin bloqueó la barbería mientras tanto.
+            barberia.save(
+                update_fields=[
+                    "nombre", "direccion", "zona", "descripcion", "logo",
+                    "horas_anticipacion_cancelacion", "alias_cobro", "orden_llegada_habilitado",
+                ]
+            )
 
             return JsonResponse(
                 {

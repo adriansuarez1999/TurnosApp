@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BarberApp · Superadmin</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:#f4f5f7;color:#1c1e21}
+header{background:#1c1e21;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+main{max-width:1100px;margin:20px auto;padding:0 16px}h2{margin:28px 0 10px;font-size:17px}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 3px #0002}
+#login{max-width:340px;margin:12vh auto}#login input{width:100%;padding:9px;margin:6px 0 12px;border:1px solid #bbb;border-radius:6px}
+button{padding:7px 14px;border:0;border-radius:6px;background:#2d6cdf;color:#fff;cursor:pointer}button.rojo{background:#c93636}button.verde{background:#2a9d5c}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.n{font-size:24px;font-weight:700}.s{color:#666;font-size:13px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px #0002}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid #eee;font-size:14px}th{background:#fafafa}
+.tag{padding:2px 8px;border-radius:10px;font-size:12px;background:#d9f2e3}.tag.off{background:#f7d7d7}
+.err{color:#c93636;min-height:20px}.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+</style></head><body>
+<div id="login" class="card"><h2 style="margin-top:0">Superadministrador</h2>
+<input id="email" type="email" placeholder="Email"><input id="pass" type="password" placeholder="Contraseña">
+<div class="err" id="loginErr"></div><button id="entrar">Entrar</button></div>
+<div id="app" hidden>
+<header><b>BarberApp · Superadmin</b><span><span id="quien"></span> <button id="salir">Salir</button></span></header>
+<main>
+<div class="bar card">Desde <input type="date" id="desde"> Hasta <input type="date" id="hasta"> <button id="act">Actualizar</button></div>
+<h2>Resumen</h2><div class="grid" id="resumen"></div>
+<h2>Ingresos confirmados por barbería</h2><div id="ingresos"></div>
+<h2>Barberías</h2><div id="barberias"></div>
+<h2>Suscripciones</h2><div id="subs"></div>
+</main></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$ '+Number(n).toLocaleString('es-AR');
+const csrf=()=>(document.cookie.match(/csrftoken=([^;]+)/)||[])[1]||'';
+async function api(url,method='GET',body){
+  const r=await fetch(url,{method,credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},body:body?JSON.stringify(body):undefined});
+  let d={};try{d=await r.json()}catch(e){}return {...d,http:r.status};
+}
+const tabla=(cols,filas)=>'<table><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr>'+(filas.join('')||'<tr><td colspan="'+cols.length+'">Sin datos</td></tr>')+'</table>';
+const card=(n,t)=>'<div class="card"><div class="n">'+esc(n)+'</div><div class="s">'+esc(t)+'</div></div>';
+function mostrarLogin(){$('#app').hidden=true;$('#login').hidden=false}
+async function cargar(){
+  const q=['desde','hasta'].map(k=>$('#'+k).value?k+'='+$('#'+k).value:'').filter(Boolean).join('&');
+  const [r,i,b,s]=await Promise.all([api('/api/superadmin/resumen/?'+q),api('/api/superadmin/ingresos/?'+q),api('/api/superadmin/barberias/'),api('/api/superadmin/suscripciones/')]);
+  if(r.http==401||r.http==403){mostrarLogin();return}
+  $('#login').hidden=true;$('#app').hidden=false;
+  $('#resumen').innerHTML=card(r.barberias.por_estado.ACTIVA,'Barberías activas')+card(r.barberias.por_estado.INACTIVA,'Barberías bloqueadas')
+   +card(Object.values(r.usuarios.por_rol).reduce((a,x)=>a+x,0),'Usuarios')+card(r.turnos.total,'Turnos')
+   +card(money(r.ingresos.total),'Ingresos ('+r.ingresos.cobros_registrados+' cobros)')
+   +card(r.suscripciones.vencidas+' / '+r.suscripciones.por_vencer,'Suscripciones vencidas / por vencer');
+  $('#ingresos').innerHTML=tabla(['Barbería','Cobros','Total'],i.por_barberia.map(f=>'<tr><td>'+esc(f.barberia)+'</td><td>'+f.cobros+'</td><td>'+money(f.total)+'</td></tr>'));
+  $('#barberias').innerHTML=tabla(['Barbería','Dueño','Estado','Barberos','Turnos','Ingresos',''],b.barberias.map(x=>
+   '<tr><td>'+esc(x.nombre)+'<div class="s">'+esc(x.zona)+'</div></td><td>'+esc(x.dueno.nombre)+'<div class="s">'+esc(x.dueno.email)+'</div></td>'
+   +'<td><span class="tag '+(x.bloqueada?'off':'')+'">'+(x.bloqueada?'Bloqueada':'Activa')+'</span></td><td>'+x.barberos+'</td><td>'+x.turnos_totales+'</td><td>'+money(x.ingresos_confirmados)+'</td>'
+   +'<td><button class="'+(x.bloqueada?'verde':'rojo')+'" data-id="'+x.id+'" data-accion="'+(x.bloqueada?'desbloquear':'bloquear')+'">'+(x.bloqueada?'Desbloquear':'Bloquear')+'</button></td></tr>'));
+  $('#subs').innerHTML=tabla(['Barbería','Plan','Vence','Estado'],s.suscripciones.map(x=>'<tr><td>'+esc(x.barberia)+'</td><td>'+esc(x.plan)+'</td><td>'+esc(x.fecha_fin)+'</td><td><span class="tag '+(x.vencida?'off':'')+'">'+(x.vencida?'Vencida':esc(x.dias_restantes)+' días')+'</span></td></tr>'));
+}
+$('#entrar').onclick=async()=>{
+  const d=await api('/api/superadmin/login/','POST',{email:$('#email').value.trim(),password:$('#pass').value});
+  if(!d.ok){$('#loginErr').textContent=d.error||'No se pudo iniciar sesión.';return}
+  $('#pass').value='';$('#loginErr').textContent='';$('#quien').textContent=d.nombre;cargar();
+};
+$('#pass').onkeydown=e=>{if(e.key==='Enter')$('#entrar').click()};
+$('#salir').onclick=async()=>{await api('/api/superadmin/logout/','POST');mostrarLogin()};
+$('#act').onclick=cargar;
+$('#barberias').onclick=async e=>{
+  const b=e.target.closest('button[data-id]');if(!b)return;
+  let cuerpo={};
+  if(b.dataset.accion==='bloquear'){const m=prompt('Motivo del bloqueo (se le avisa al dueño):');if(!m||!m.trim())return;cuerpo={motivo:m.trim()}}
+  else if(!confirm('¿Habilitar nuevamente esta barbería?'))return;
+  const d=await api('/api/superadmin/barberias/'+b.dataset.id+'/'+b.dataset.accion+'/','PATCH',cuerpo);
+  if(!d.ok)alert(d.error||'No se pudo completar.');cargar();
+};
+cargar();
+</script></body></html>
